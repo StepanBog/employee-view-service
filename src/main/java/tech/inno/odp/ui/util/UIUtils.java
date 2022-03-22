@@ -10,8 +10,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
-import tech.inno.odp.backend.Address;
-import tech.inno.odp.backend.DummyData;
 import tech.inno.odp.ui.components.FlexBoxLayout;
 import tech.inno.odp.ui.layout.size.Right;
 import tech.inno.odp.ui.util.css.*;
@@ -279,10 +277,10 @@ public class UIUtils {
 
     /* === MISC === */
 
-    public static String formatAddress(Address address) {
-        return address.getStreet() + "\n" + address.getCity() + ", "
-                + address.getCity() + " " + address.getZip();
-    }
+//    public static String formatAddress(Address address) {
+//        return address.getStreet() + "\n" + address.getCity() + ", "
+//                + address.getCity() + " " + address.getZip();
+//    }
 
     public static Button createFloatingActionButton(VaadinIcon icon) {
         Button button = createPrimaryButton(icon);
@@ -290,19 +288,19 @@ public class UIUtils {
         return button;
     }
 
-    public static FlexLayout createPhoneLayout() {
-        TextField prefix = new TextField();
-        prefix.setValue("+358");
-        prefix.setWidth("80px");
-
-        TextField number = new TextField();
-        number.setValue(DummyData.getPhoneNumber());
-
-        FlexBoxLayout layout = new FlexBoxLayout(prefix, number);
-        layout.setFlexGrow(1, number);
-        layout.setSpacing(Right.S);
-        return layout;
-    }
+//    public static FlexLayout createPhoneLayout() {
+//        TextField prefix = new TextField();
+//        prefix.setValue("+358");
+//        prefix.setWidth("80px");
+//
+//        TextField number = new TextField();
+//        number.setValue(DummyData.getPhoneNumber());
+//
+//        FlexBoxLayout layout = new FlexBoxLayout(prefix, number);
+//        layout.setFlexGrow(1, number);
+//        layout.setSpacing(Right.S);
+//        return layout;
+//    }
 
     /* === NUMBERS === */
 

@@ -215,6 +215,12 @@ public class AppBar extends FlexBoxLayout {
         return tab;
     }
 
+    public Tab addTab(Tab tab) {
+        tabs.add(tab);
+        configureTab(tab);
+        return tab;
+    }
+
     public Tab addTab(String text,
                       Class<? extends Component> navigationTarget) {
         Tab tab = tabs.addTab(text, navigationTarget);

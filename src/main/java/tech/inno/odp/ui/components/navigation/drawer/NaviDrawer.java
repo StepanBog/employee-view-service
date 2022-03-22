@@ -52,7 +52,6 @@ public class NaviDrawer extends Div implements AfterNavigationObserver {
         initScrim();
         initMainContent();
 
-        initHeader();
 
         initScrollableArea();
         initMenu();
@@ -72,10 +71,6 @@ public class NaviDrawer extends Div implements AfterNavigationObserver {
         mainContent = new Div();
         mainContent.addClassName(CLASS_NAME + "__content");
         add(mainContent);
-    }
-
-    private void initHeader() {
-        mainContent.add(new BrandExpression("Admin panel"));
     }
 
     private void initScrollableArea() {

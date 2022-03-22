@@ -14,6 +14,8 @@
     "@polymer/iron-overlay-behavior": "3.0.3",
     "@polymer/iron-resizable-behavior": "3.0.1",
     "@polymer/iron-scroll-target-behavior": "3.0.1",
+    "@polymer/paper-button": "3.0.1",
+    "@polymer/paper-icon-button": "3.0.2",
     "@polymer/polymer": "3.2.0",
     "@vaadin/vaadin-accordion": "1.2.0",
     "@vaadin/vaadin-app-layout": "2.2.0",
@@ -63,14 +65,14 @@
     "@vaadin/vaadin-upload": "4.4.3",
     "@vaadin/vaadin-usage-statistics": "2.1.2",
     "@webcomponents/shadycss": "1.8.0",
-    "@webcomponents/webcomponentsjs": "^2.2.10",
+    "@webcomponents/webcomponentsjs": "2.2.10",
     "construct-style-sheets-polyfill": "3.0.4",
-    "lit-element": "2.5.1",
-    "lit-html": "1.4.1"
+    "lit-element": "^2.2.1",
+    "lit-html": "^1.1.2"
   },
   "devDependencies": {
     "babel-loader": "8.2.2",
-    "chokidar": "^3.5.0",
+    "chokidar": "3.5.0",
     "compression-webpack-plugin": "4.0.1",
     "copy-webpack-plugin": "5.1.2",
     "css-loader": "4.2.1",
@@ -95,13 +97,15 @@
       "@polymer/iron-fit-behavior": "3.0.2",
       "@polymer/iron-flex-layout": "3.0.1",
       "@polymer/iron-icon": "3.0.1",
-      "@polymer/iron-iconset-svg": "3.0.1",
+      "@polymer/iron-iconset-svg": "^3.0.1",
       "@polymer/iron-list": "3.1.0",
       "@polymer/iron-media-query": "3.0.1",
       "@polymer/iron-meta": "3.0.1",
       "@polymer/iron-overlay-behavior": "3.0.3",
       "@polymer/iron-resizable-behavior": "3.0.1",
       "@polymer/iron-scroll-target-behavior": "3.0.1",
+      "@polymer/paper-button": "^3.0.1",
+      "@polymer/paper-icon-button": "^3.0.2",
       "@polymer/polymer": "3.2.0",
       "@vaadin/vaadin-accordion": "1.2.0",
       "@vaadin/vaadin-app-layout": "2.2.0",
@@ -153,8 +157,8 @@
       "@webcomponents/shadycss": "1.8.0",
       "@webcomponents/webcomponentsjs": "^2.2.10",
       "construct-style-sheets-polyfill": "3.0.4",
-      "lit-element": "2.5.1",
-      "lit-html": "1.4.1"
+      "lit-element": "^2.2.1",
+      "lit-html": "^1.1.2"
     },
     "devDependencies": {
       "babel-loader": "8.2.2",
@@ -176,6 +180,6 @@
       "webpack-dev-server": "3.11.0",
       "webpack-merge": "4.2.2"
     },
-    "hash": "bae026311ffe3cf888dab55bab202f502caaeb85fddd06310faf13cc9db02b72"
+    "hash": "3b21619950d0c436b04fad3057547d96ba3d6a8f471bbc8c8eb454c579b7da38"
   }
 }

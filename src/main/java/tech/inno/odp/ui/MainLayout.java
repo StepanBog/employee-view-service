@@ -12,7 +12,10 @@ import com.vaadin.flow.component.page.Viewport;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.RouterLayout;
-import com.vaadin.flow.server.*;
+import com.vaadin.flow.server.ErrorHandler;
+import com.vaadin.flow.server.InitialPageSettings;
+import com.vaadin.flow.server.PageConfigurator;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.Lumo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +27,9 @@ import tech.inno.odp.ui.components.navigation.drawer.NaviItem;
 import tech.inno.odp.ui.components.navigation.drawer.NaviMenu;
 import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.util.css.Overflow;
-import tech.inno.odp.ui.views.Accounts;
+import tech.inno.odp.ui.views.employer.EmployerList;
 import tech.inno.odp.ui.views.Home;
-import tech.inno.odp.ui.views.TransactionView;
-import tech.inno.odp.ui.views.personnel.Accountants;
-import tech.inno.odp.ui.views.personnel.Managers;
+import tech.inno.odp.ui.views.transaction.TransactionList;
 
 @CssImport(value = "./styles/components/charts.css", themeFor = "vaadin-chart", include = "vaadin-chart-default-theme")
 @CssImport(value = "./styles/components/floating-action-button.css", themeFor = "vaadin-button")
@@ -122,26 +123,14 @@ public class MainLayout extends FlexBoxLayout
     private void initNaviItems() {
         NaviMenu menu = naviDrawer.getMenu();
         menu.addNaviItem(VaadinIcon.HOME, "Home", Home.class);
-        menu.addNaviItem(VaadinIcon.INSTITUTION, "Accounts", Accounts.class);
-        menu.addNaviItem(VaadinIcon.CREDIT_CARD, "Платежи", TransactionView.class);
-
-        NaviItem personnel = menu.addNaviItem(VaadinIcon.USERS, "Personnel",
-                null);
-        menu.addNaviItem(personnel, "Accountants", Accountants.class);
-        menu.addNaviItem(personnel, "Managers", Managers.class);
+        menu.addNaviItem(VaadinIcon.CREDIT_CARD, "Платежи", TransactionList.class);
+        menu.addNaviItem(VaadinIcon.USERS, "Работодатели", EmployerList.class);
     }
 
     /**
      * Configure the app's inner and outer headers and footers.
      */
     private void initHeadersAndFooters() {
-        // setAppHeaderOuter();
-        // setAppFooterInner();
-        // setAppFooterOuter();
-
-        // Default inner header setup:
-        // - When using tabbed navigation the view title, user avatar and main menu button will appear in the TabBar.
-        // - When tabbed navigation is turned off they appear in the AppBar.
 
         appBar = new AppBar("");
 
