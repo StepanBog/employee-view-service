@@ -19,6 +19,7 @@
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <grpc.version>1.42.2</grpc.version>
+        <logback.gelf.version>3.0.0</logback.gelf.version>
         <starter-grpc.version>2.13.1.RELEASE</starter-grpc.version>
         <odp-document-service-proto.version>2.0.0-SNAPSHOT</odp-document-service-proto.version>
         <service-proto.version>2.0.0-SNAPSHOT</service-proto.version>
@@ -80,6 +81,12 @@
             <groupId>tech.inno.grpc-proto</groupId>
             <artifactId>odp-auth-proto</artifactId>
             <version>${auth-proto.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.siegmar</groupId>
+            <artifactId>logback-gelf</artifactId>
+            <version>${logback.gelf.version}</version>
         </dependency>
 
         <dependency>
