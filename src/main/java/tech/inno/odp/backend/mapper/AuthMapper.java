@@ -4,7 +4,6 @@ import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import tech.inno.odp.backend.data.containers.Auth;
 import tech.inno.odp.backend.mapper.common.BoolValueMapper;
 import tech.inno.odp.backend.mapper.common.StringValueMapper;
@@ -31,8 +30,9 @@ public interface AuthMapper {
 
     Auth transform(TokenResponse response);
 
-    default SimpleGrantedAuthority map(String role) {
-        return new SimpleGrantedAuthority(role);
-    }
+    //TODO вернуть
+//    default SimpleGrantedAuthority map(String role) {
+//        return new SimpleGrantedAuthority(role);
+//    }
 
 }

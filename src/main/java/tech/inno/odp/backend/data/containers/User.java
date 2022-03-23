@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+//import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,7 +16,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class User implements UserDetails {
+public class User
+//        implements UserDetails TODO вернуть 
+{
 
     private String id;
 
@@ -36,10 +37,10 @@ public class User implements UserDetails {
      */
     private boolean enabled;
 
-    /**
-     * Права пользователя
-     */
-    private List<SimpleGrantedAuthority> authorities;
+//    /**
+//     * Права пользователя
+//     */
+//    private List<SimpleGrantedAuthority> authorities;
 
     /**
      * id работодателя
