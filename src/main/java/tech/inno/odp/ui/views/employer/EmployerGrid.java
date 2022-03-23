@@ -23,7 +23,6 @@ import tech.inno.odp.backend.data.enums.EmployerStatus;
 import tech.inno.odp.backend.data.enums.WithDescription;
 import tech.inno.odp.backend.service.IEmployerService;
 import tech.inno.odp.ui.components.Badge;
-import tech.inno.odp.ui.components.grid.PaginatedGrid;
 import tech.inno.odp.ui.util.UIUtils;
 
 import java.time.LocalDate;
@@ -40,7 +39,7 @@ public class EmployerGrid extends VerticalLayout {
     @Setter
     private IEmployerService employerService;
 
-    private PaginatedGrid<Employer> grid;
+    private Grid<Employer> grid;
     private ConfigurableFilterDataProvider<Employer, Void, Employer> dataProvider;
     private Employer employerFilter;
 
@@ -86,10 +85,10 @@ public class EmployerGrid extends VerticalLayout {
 
 
     private Grid<Employer> createGrid() {
-        grid = new PaginatedGrid<>();
+        grid = new Grid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem().ifPresent(this::toViewPage));
         grid.setPageSize(PAGE_SIZE);
-        grid.setPaginatorSize(2);
+//        grid.setPaginatorSize(2);
 
         grid.setHeightFull();
         grid.setDataProvider(dataProvider);
@@ -135,14 +134,14 @@ public class EmployerGrid extends VerticalLayout {
                 createTextFieldFilterHeader("ID", name -> {
                     employerFilter.setId(StringUtils.isEmpty(name) ? null : name);
                     grid.getDataProvider().refreshAll();
-                    grid.refreshPaginator();
+//                    grid.refreshPaginator();
                 }));
 
         headerRow.getCell(nameColumn).setComponent(
                 createTextFieldFilterHeader("Название", name -> {
                     employerFilter.setName(StringUtils.isEmpty(name) ? null : name);
                     grid.getDataProvider().refreshAll();
-                    grid.refreshPaginator();
+//                    grid.refreshPaginator();
                 }));
 
         headerRow.getCell(statusColumn).setComponent(
@@ -152,21 +151,21 @@ public class EmployerGrid extends VerticalLayout {
                         s -> {
                             employerFilter.setStatus(s);
                             grid.getDataProvider().refreshAll();
-                            grid.refreshPaginator();
+//                            grid.refreshPaginator();
                         }));
 
         headerRow.getCell(updatedAtColumn).setComponent(
                 createCDataPickerFilterHeader("Дата обновления", name -> {
                     employerFilter.setUpdatedAt(name.atStartOfDay());
                     grid.getDataProvider().refreshAll();
-                    grid.refreshPaginator();
+//                    grid.refreshPaginator();
                 }));
 
         headerRow.getCell(createdAtColumn).setComponent(
                 createCDataPickerFilterHeader("Дата создания", name -> {
                     employerFilter.setCreatedAt(name.atStartOfDay());
                     grid.getDataProvider().refreshAll();
-                    grid.refreshPaginator();
+//                    grid.refreshPaginator();
                 }));
 
         return grid;

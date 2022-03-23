@@ -2,6 +2,7 @@ package tech.inno.odp.backend.service.impl;
 
 import com.vaadin.flow.data.provider.Query;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 import tech.inno.odp.backend.data.containers.Employer;
@@ -19,6 +20,7 @@ import java.util.UUID;
 /**
  * @author VKozlov
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmployerService implements IEmployerService {
@@ -44,7 +46,10 @@ public class EmployerService implements IEmployerService {
                 query.getOffset() == 0 ? 0 : query.getOffset() / pageSize,
                 pageSize
         );
+        log.info("Find employers request - {}", request);
         EmployersResponse response = find(request);
+
+        log.info("Find employers result - {}", response.getEmployersCount());
         return employerMapper.transform(response.getEmployersList());
     }
 
@@ -75,6 +80,9 @@ public class EmployerService implements IEmployerService {
                 0,
                 5
         );
-        return (int) find(request).getTotalSize();
+        log.info("Get total employers by request - {}", request);
+        int result = (int) find(request).getTotalSize();
+        log.info("Total employers by request - {}; result - {}", request, result);
+        return result;
     }
 }
