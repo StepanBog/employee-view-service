@@ -4,7 +4,6 @@ import com.vaadin.flow.data.provider.Query;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import tech.inno.odp.backend.data.containers.Employee;
 import tech.inno.odp.backend.mapper.EmployeeMapper;
 import tech.inno.odp.backend.service.IEmployeeService;
@@ -56,7 +55,6 @@ public class EmployeeService implements IEmployeeService {
     }
 
     @Override
-    @Transactional
     public Employee save(@NotNull Employee employer) {
         return employeeMapper.transform(
                 employeeClient.update(

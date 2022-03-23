@@ -1,22 +1,5 @@
-spring:
-  datasource:
-    hikari:
-      minimum-idle: 4
-      maximum-pool-size: 10
-      idleTimeout: 20000
-      connection-timeout: 30000
-      poolName: odpServiceJPAHikariCP
-      keepaliveTime: 60000
-      maxLifetime: 180000
-      connection-test-query: SELECT 1
-    driverClassName: org.postgresql.Driver
-    name: postgres-datasource
-    url: jdbc:postgresql://localhost:5432/odp-service
-    username: postgres
-    password: root
-
 server:
   port: 8083
 
-vaadin:
-  launch-browser: true
+#vaadin:
+#  launch-browser: true
