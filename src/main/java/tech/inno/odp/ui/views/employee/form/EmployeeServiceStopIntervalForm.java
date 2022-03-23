@@ -2,24 +2,23 @@ package tech.inno.odp.ui.views.employee.form;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import lombok.Setter;
 import org.springframework.util.CollectionUtils;
 import tech.inno.odp.backend.data.containers.Employee;
 import tech.inno.odp.backend.data.containers.ServiceStopInterval;
+import tech.inno.odp.ui.components.grid.PaginatedGrid;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 
 public class EmployeeServiceStopIntervalForm extends VerticalLayout {
 
-    private Grid<ServiceStopInterval> grid;
+    private final int PAGE_SIZE = 20;
+
+    private PaginatedGrid<ServiceStopInterval> grid;
 
     @Setter
     private Employee employee;
@@ -30,9 +29,13 @@ public class EmployeeServiceStopIntervalForm extends VerticalLayout {
     }
 
     private Grid<ServiceStopInterval> createGrid() {
-        grid = new Grid<>();
+        grid = new PaginatedGrid<>();
+        grid.setPageSize(PAGE_SIZE);
+        grid.setPaginatorSize(2);
+        grid.setHeightFull();
+
         grid.setDataProvider(DataProvider.ofCollection(
-                CollectionUtils.isEmpty(employee.getServiceStopIntervals()) 
+                CollectionUtils.isEmpty(employee.getServiceStopIntervals())
                         ? new ArrayList<>()
                         : employee.getServiceStopIntervals()
         ));

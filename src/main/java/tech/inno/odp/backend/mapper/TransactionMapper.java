@@ -1,15 +1,13 @@
 package tech.inno.odp.backend.mapper;
 
-import org.mapstruct.CollectionMappingStrategy;
-import org.mapstruct.Mapper;
-import org.mapstruct.NullValueCheckStrategy;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 import tech.inno.odp.backend.data.containers.Transaction;
 import tech.inno.odp.backend.mapper.common.BoolValueMapper;
 import tech.inno.odp.backend.mapper.common.StringValueMapper;
 import tech.inno.odp.backend.mapper.common.TimestampMapper;
 import tech.inno.odp.backend.mapper.common.UUIDValueMapper;
 import tech.inno.odp.backend.mapper.status.StatusMapper;
+import tech.inno.odp.grpc.generated.service.transaction.SearchTransactionRequest;
 
 import java.util.List;
 
@@ -30,5 +28,11 @@ public interface TransactionMapper {
     Transaction transform(tech.inno.odp.grpc.generated.service.Transaction transaction);
 
     List<Transaction> transform(List<tech.inno.odp.grpc.generated.service.Transaction> transactions);
+
+    @Mapping(target = "pageNumber", source = "pageNumber")
+    @Mapping(target = "pageSize", source = "pageSize")
+    SearchTransactionRequest transformToSearch(Transaction transaction,
+                                               int pageNumber,
+                                               int pageSize);
 
 }

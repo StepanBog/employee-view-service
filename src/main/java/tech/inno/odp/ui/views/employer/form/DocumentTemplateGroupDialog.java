@@ -28,6 +28,7 @@ import tech.inno.odp.backend.data.containers.document.DocumentTemplate;
 import tech.inno.odp.backend.data.containers.document.DocumentTemplateGroup;
 import tech.inno.odp.backend.data.enums.DocumentTemplateGroupType;
 import tech.inno.odp.ui.components.file.FileDownloadWrapper;
+import tech.inno.odp.ui.components.grid.PaginatedGrid;
 import tech.inno.odp.ui.util.LumoStyles;
 import tech.inno.odp.ui.util.UIUtils;
 
@@ -40,6 +41,8 @@ import java.util.function.Consumer;
 
 @Slf4j
 public class DocumentTemplateGroupDialog extends Dialog {
+
+    private final int PAGE_SIZE = 20;
 
     @Getter
     private BeanValidationBinder<DocumentTemplateGroup> binder;
@@ -54,7 +57,7 @@ public class DocumentTemplateGroupDialog extends Dialog {
     private DocumentTemplateGroup templateGroup;
 
     private List<DocumentTemplate> documentTemplateList = new ArrayList<>();
-    private Grid<DocumentTemplate> grid;
+    private PaginatedGrid<DocumentTemplate> grid;
 
     private ListDataProvider<DocumentTemplate> dataProvider;
 
@@ -140,9 +143,12 @@ public class DocumentTemplateGroupDialog extends Dialog {
     }
 
     private Grid<DocumentTemplate> createGrid() {
-        grid = new Grid<>();
+        grid = new PaginatedGrid<>();
         grid.setMaxHeight("300px");
-        grid.setPageSize(50);
+        grid.setPageSize(PAGE_SIZE);
+        grid.setPaginatorSize(2);
+        grid.setHeightFull();
+        
         dataProvider = DataProvider.ofCollection(documentTemplateList);
         grid.setDataProvider(dataProvider);
 

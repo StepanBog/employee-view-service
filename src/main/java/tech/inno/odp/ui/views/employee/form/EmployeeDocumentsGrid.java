@@ -27,6 +27,7 @@ import tech.inno.odp.backend.data.enums.WithDescription;
 import tech.inno.odp.backend.service.IDocumentService;
 import tech.inno.odp.ui.components.Badge;
 import tech.inno.odp.ui.components.file.FileDownloadWrapper;
+import tech.inno.odp.ui.components.grid.PaginatedGrid;
 import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.util.css.lumo.BadgeColor;
 
@@ -40,9 +41,9 @@ import java.util.stream.Stream;
 
 public class EmployeeDocumentsGrid extends VerticalLayout {
 
-    private final int PAGE_SIZE = 50;
+    private final int PAGE_SIZE = 20;
 
-    private Grid<Document> grid;
+    private PaginatedGrid<Document> grid;
     private ConfigurableFilterDataProvider<Document, Void, Document> dataProvider;
     private Document documentFilter;
 
@@ -72,9 +73,10 @@ public class EmployeeDocumentsGrid extends VerticalLayout {
     }
 
     private Grid<Document> createGrid() {
-        grid = new Grid<>();
+        grid = new PaginatedGrid<>();
         grid.setPageSize(PAGE_SIZE);
-//        grid.setPaginatorSize(2);
+        grid.setPaginatorSize(2);
+        grid.setHeightFull();
 
         grid.setDataProvider(dataProvider);
 
@@ -142,6 +144,7 @@ public class EmployeeDocumentsGrid extends VerticalLayout {
                 createTextFieldFilterHeader("ID", name -> {
                     documentFilter.setId(StringUtils.isEmpty(name) ? null : name);
                     grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
                 }));
 
         headerRow.getCell(typeColumn).setComponent(
@@ -151,6 +154,7 @@ public class EmployeeDocumentsGrid extends VerticalLayout {
                         s -> {
                             documentFilter.setType(s);
                             grid.getDataProvider().refreshAll();
+                            grid.refreshPaginator();
                         }));
 
         return grid;

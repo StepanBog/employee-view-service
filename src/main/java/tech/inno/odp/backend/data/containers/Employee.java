@@ -41,6 +41,11 @@ public class Employee {
     private String employerId;
 
     /**
+     * Имя работодателя
+     */
+    private String employerName;
+
+    /**
      * Статус работника
      */
     private EmployeeStatus status;

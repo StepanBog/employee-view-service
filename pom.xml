@@ -22,6 +22,7 @@
         <starter-grpc.version>2.13.1.RELEASE</starter-grpc.version>
         <odp-document-service-proto.version>2.0.0-SNAPSHOT</odp-document-service-proto.version>
         <service-proto.version>2.0.0-SNAPSHOT</service-proto.version>
+        <auth-proto.version>2.0.0-SNAPSHOT</auth-proto.version>
         <odp-common-proto.version>2.0.0-SNAPSHOT</odp-common-proto.version>
         <payment-integration-proto.version>2.0.0-SNAPSHOT</payment-integration-proto.version>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
@@ -44,7 +45,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
@@ -79,6 +79,11 @@
             <groupId>tech.inno.grpc-proto</groupId>
             <artifactId>odp-document-service-proto</artifactId>
             <version>${odp-document-service-proto.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>tech.inno.grpc-proto</groupId>
+            <artifactId>odp-auth-proto</artifactId>
+            <version>${auth-proto.version}</version>
         </dependency>
 
         <dependency>
@@ -132,7 +137,7 @@
                             <goal>build-frontend</goal>
                         </goals>
                         <configuration>
-                            <productionMode>false</productionMode>
+                            <productionMode>true</productionMode>
                         </configuration>
                     </execution>
                 </executions>

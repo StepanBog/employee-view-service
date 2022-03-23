@@ -30,16 +30,18 @@ public interface EmployeeMapper {
     tech.inno.odp.grpc.generated.service.Employee transform(Employee employee);
 
     @Mapping(target = "employerId", source = "employer.id")
+    @Mapping(target = "employerName", source = "employer.name")
     @Mapping(target = "firstName", source = "requisites.firstName")
     @Mapping(target = "lastName", source = "requisites.lastName")
     Employee transform(tech.inno.odp.grpc.generated.service.Employee employee);
 
     List<Employee> transform(List<tech.inno.odp.grpc.generated.service.Employee> employees);
 
-    @Mapping(target = "employerId", source = "employer.employerId")
+    @Mapping(target = "employerId", source = "employee.employerId")
+    @Mapping(target = "employeeId", source = "employee.id")
     @Mapping(target = "pageNumber", source = "pageNumber")
     @Mapping(target = "pageSize", source = "pageSize")
-    SearchEmployeeRequest transformToSearch(Employee employer,
+    SearchEmployeeRequest transformToSearch(Employee employee,
                                             int pageNumber,
                                             int pageSize);
 

@@ -26,6 +26,14 @@ public interface IEmployerService {
     /**
      * Найти работодателей
      *
+     * @param request - критерии поиска
+     * @return - список работодателей
+     */
+    List<Employer> findAll(final @NotNull SearchEmployerRequest request);
+
+    /**
+     * Найти работодателей
+     *
      * @param query    - критерии поиска
      * @param pageSize - количество элементов выводимых на 1й странице
      * @return - список работодателей

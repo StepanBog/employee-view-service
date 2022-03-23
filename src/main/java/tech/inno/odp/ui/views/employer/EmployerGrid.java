@@ -1,7 +1,8 @@
-package tech.inno.odp.ui.views.employee;
+package tech.inno.odp.ui.views.employer;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
@@ -12,46 +13,36 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
-import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
-import com.vaadin.flow.router.QueryParameters;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
-import tech.inno.odp.backend.data.containers.Employee;
 import tech.inno.odp.backend.data.containers.Employer;
-import tech.inno.odp.backend.data.enums.EmployeeStatus;
+import tech.inno.odp.backend.data.enums.EmployerStatus;
 import tech.inno.odp.backend.data.enums.WithDescription;
-import tech.inno.odp.backend.service.IEmployeeService;
 import tech.inno.odp.backend.service.IEmployerService;
-import tech.inno.odp.grpc.generated.service.employer.SearchEmployerRequest;
 import tech.inno.odp.ui.components.Badge;
 import tech.inno.odp.ui.components.grid.PaginatedGrid;
+import tech.inno.odp.ui.util.UIUtils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
-public class EmployeeGrid extends VerticalLayout {
+public class EmployerGrid extends VerticalLayout {
 
     private final int PAGE_SIZE = 20;
 
     @Setter
-    private IEmployeeService employeeService;
-    @Setter
     private IEmployerService employerService;
-    @Setter
-    private Employer fromEmployer;
 
-    private PaginatedGrid<Employee> grid;
-    private ConfigurableFilterDataProvider<Employee, Void, Employee> dataProvider;
-    private Employee employeeFilter;
+    private PaginatedGrid<Employer> grid;
+    private ConfigurableFilterDataProvider<Employer, Void, Employer> dataProvider;
+    private Employer employerFilter;
 
     public void init() {
         setSizeFull();
@@ -62,6 +53,7 @@ public class EmployeeGrid extends VerticalLayout {
         initDataProvider();
 
         VerticalLayout content = new VerticalLayout(
+                createAddButton(),
                 createGrid()
         );
 
@@ -72,75 +64,67 @@ public class EmployeeGrid extends VerticalLayout {
     }
 
     private void initDataProvider() {
-        this.dataProvider = new CallbackDataProvider<Employee, Employee>(
-                query -> employeeService.find(query, PAGE_SIZE).stream(),
-                query -> employeeService.getTotalCount(query))
+        this.dataProvider = new CallbackDataProvider<Employer, Employer>(
+                query -> employerService.find(query, PAGE_SIZE).stream(),
+                query -> employerService.getTotalCount(query))
                 .withConfigurableFilter();
 
-        this.employeeFilter = Employee.builder()
+        this.employerFilter = Employer.builder()
                 .status(null)
+                .name(null)
                 .build();
-
-        if (this.fromEmployer != null) {
-            this.employeeFilter.setEmployerId(fromEmployer.getId());
-        }
-
-        this.dataProvider.setFilter(this.employeeFilter);
+        this.dataProvider.setFilter(this.employerFilter);
     }
 
-    private Grid<Employee> createGrid() {
+    private Button createAddButton() {
+        final Button save = UIUtils.createPrimaryButton("Добавить");
+        save.addClickListener(event -> toViewPage(
+                new Employer()
+        ));
+        return save;
+    }
+
+
+    private Grid<Employer> createGrid() {
         grid = new PaginatedGrid<>();
         grid.addSelectionListener(event -> event.getFirstSelectedItem().ifPresent(this::toViewPage));
         grid.setPageSize(PAGE_SIZE);
         grid.setPaginatorSize(2);
-        grid.setDataProvider(dataProvider);
-        grid.setHeightFull();
 
-        ComponentRenderer<Badge, Employee> badgeRenderer = new ComponentRenderer<>(
-                employee -> {
-                    EmployeeStatus status = employee.getStatus();
-                    Badge badge = new Badge(status.getDescription(), employee.getStatusTheme());
+        grid.setHeightFull();
+        grid.setDataProvider(dataProvider);
+
+        ComponentRenderer<Badge, Employer> badgeRenderer = new ComponentRenderer<>(
+                employer -> {
+                    EmployerStatus status = employer.getStatus();
+                    Badge badge = new Badge(status.getDescription(), employer.getStatusTheme());
                     return badge;
                 }
         );
-        Grid.Column<Employee> idColumn = grid.addColumn(Employee::getId)
+        Grid.Column<Employer> idColumn = grid.addColumn(Employer::getId)
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setHeader("ID");
 
-        Grid.Column<Employee> firstNameColumn = grid.addColumn(Employee::getFirstName)
-                .setAutoWidth(true)
-                .setFlexGrow(0)
-                .setHeader("Имя");
+        Grid.Column<Employer> nameColumn = grid.addColumn(Employer::getName)
+                .setWidth("200px")
+                .setHeader("Работодатель")
+                .setSortable(true);
 
-        Grid.Column<Employee> lastNameColumn = grid.addColumn(Employee::getLastName)
-                .setAutoWidth(true)
-                .setFlexGrow(0)
-                .setHeader("Фамилия");
-
-        Grid.Column<Employee> employerNameColumn = null;
-        if (this.fromEmployer == null) {
-            employerNameColumn = grid.addColumn(Employee::getEmployerName)
-                    .setAutoWidth(true)
-                    .setFlexGrow(0)
-                    .setHeader("Работодатель");
-        }
-
-        Grid.Column<Employee> statusColumn = grid.addColumn(badgeRenderer)
-                .setAutoWidth(true)
-                .setFlexGrow(0)
+        Grid.Column<Employer> statusColumn = grid.addColumn(badgeRenderer)
+                .setWidth("200px")
                 .setHeader("Статус");
 
-        Grid.Column<Employee> updatedAtColumn = grid.addColumn(new LocalDateTimeRenderer<>(Employee::getUpdatedAt, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
+        Grid.Column<Employer> updatedAtColumn = grid.addColumn(new LocalDateTimeRenderer<>(Employer::getUpdatedAt, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
                 .setAutoWidth(true)
                 .setFlexGrow(0)
-                .setComparator(Employee::getUpdatedAt)
+                .setComparator(Employer::getUpdatedAt)
                 .setHeader("Дата обновления");
 
-        Grid.Column<Employee> createdAtColumn = grid.addColumn(new LocalDateTimeRenderer<>(Employee::getCreatedAt, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
+        Grid.Column<Employer> createdAtColumn = grid.addColumn(new LocalDateTimeRenderer<>(Employer::getCreatedAt, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
                 .setAutoWidth(true)
                 .setFlexGrow(0)
-                .setComparator(Employee::getCreatedAt)
+                .setComparator(Employer::getCreatedAt)
                 .setHeader("Дата создания");
 
 
@@ -149,63 +133,43 @@ public class EmployeeGrid extends VerticalLayout {
 
         headerRow.getCell(idColumn).setComponent(
                 createTextFieldFilterHeader("ID", name -> {
-                    employeeFilter.setId(StringUtils.isEmpty(name) ? null : name);
+                    employerFilter.setId(StringUtils.isEmpty(name) ? null : name);
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }));
+
+        headerRow.getCell(nameColumn).setComponent(
+                createTextFieldFilterHeader("Название", name -> {
+                    employerFilter.setName(StringUtils.isEmpty(name) ? null : name);
                     grid.getDataProvider().refreshAll();
                     grid.refreshPaginator();
                 }));
 
         headerRow.getCell(statusColumn).setComponent(
                 createComboBoxFilterHeader("Статус",
-                        Stream.of(EmployeeStatus.values())
+                        Stream.of(EmployerStatus.values())
                                 .collect(Collectors.toList()),
                         s -> {
-                            employeeFilter.setStatus(s);
+                            employerFilter.setStatus(s);
                             grid.getDataProvider().refreshAll();
                             grid.refreshPaginator();
                         }));
 
         headerRow.getCell(updatedAtColumn).setComponent(
                 createCDataPickerFilterHeader("Дата обновления", name -> {
-                    employeeFilter.setUpdatedAt(name.atStartOfDay());
+                    employerFilter.setUpdatedAt(name.atStartOfDay());
                     grid.getDataProvider().refreshAll();
                     grid.refreshPaginator();
                 }));
 
         headerRow.getCell(createdAtColumn).setComponent(
                 createCDataPickerFilterHeader("Дата создания", name -> {
-                    employeeFilter.setCreatedAt(name.atStartOfDay());
+                    employerFilter.setCreatedAt(name.atStartOfDay());
                     grid.getDataProvider().refreshAll();
                     grid.refreshPaginator();
                 }));
 
-        if (employerNameColumn != null) {
-            headerRow.getCell(employerNameColumn).setComponent(
-                    createEmployerComboBox(employer -> {
-                        employeeFilter.setEmployerId(employer != null ? employer.getId() : null);
-                        grid.getDataProvider().refreshAll();
-                        grid.refreshPaginator();
-                    }));
-        }
-
         return grid;
-    }
-
-    private ComboBox<Employer> createEmployerComboBox(Consumer<Employer> filterChangeConsumer) {
-        ComboBox<Employer> comboBox = new ComboBox<>();
-        comboBox.setItemLabelGenerator(Employer::getName);
-        ComboBox.ItemFilter<Employer> filter = (employer, filterString) ->
-                employer.getName().toLowerCase().startsWith(filterString.toLowerCase());
-
-        comboBox.setDataProvider(filter, DataProvider.fromStream(
-                employerService.findAll(
-                        SearchEmployerRequest.newBuilder()
-                                .build()
-                ).stream()
-        ));
-        comboBox.addValueChangeListener(
-                e -> filterChangeConsumer.accept(e.getValue()));
-
-        return comboBox;
     }
 
     private static TextField createTextFieldFilterHeader(String placeHolder,
@@ -251,15 +215,8 @@ public class EmployeeGrid extends VerticalLayout {
         return datePicker;
     }
 
-    private void toViewPage(Employee employee) {
-        Map<String, String> params = Map.of(
-                "employeeId", employee.getId(),
-                "backToEmployerForm", String.valueOf(this.fromEmployer != null)
-        );
-        UI.getCurrent().navigate(EmployeeView.ROUTE,
-                QueryParameters.simple(
-                        params
-                )
-        );
+    private void toViewPage(Employer employer) {
+        String param = employer.getId() != null ? employer.getId() : "new";
+        UI.getCurrent().navigate(EmployerView.class, param);
     }
 }

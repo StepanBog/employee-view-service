@@ -17,7 +17,6 @@ import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
 @Tag("file-download-wrapper")
-
 @JsModule("./file-download-wrapper.js")
 public class FileDownloadWrapper extends PolymerTemplate<FileDownloadWrapper.FileDownloadWrapperModel> implements HasSize {
 

@@ -27,8 +27,9 @@ import tech.inno.odp.ui.components.navigation.drawer.NaviItem;
 import tech.inno.odp.ui.components.navigation.drawer.NaviMenu;
 import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.util.css.Overflow;
-import tech.inno.odp.ui.views.employer.EmployerList;
 import tech.inno.odp.ui.views.Home;
+import tech.inno.odp.ui.views.employee.EmployeeList;
+import tech.inno.odp.ui.views.employer.EmployerList;
 import tech.inno.odp.ui.views.transaction.TransactionList;
 
 @CssImport(value = "./styles/components/charts.css", themeFor = "vaadin-chart", include = "vaadin-chart-default-theme")
@@ -124,7 +125,8 @@ public class MainLayout extends FlexBoxLayout
         NaviMenu menu = naviDrawer.getMenu();
         menu.addNaviItem(VaadinIcon.HOME, "Home", Home.class);
         menu.addNaviItem(VaadinIcon.CREDIT_CARD, "Платежи", TransactionList.class);
-        menu.addNaviItem(VaadinIcon.USERS, "Работодатели", EmployerList.class);
+        menu.addNaviItem(VaadinIcon.USER_STAR, "Работодатели", EmployerList.class);
+        menu.addNaviItem(VaadinIcon.USER, "Работники", EmployeeList.class);
     }
 
     /**

@@ -1,4 +1,4 @@
-package tech.inno.odp.ui.views.employer;
+package tech.inno.odp.ui.views.employee;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
@@ -6,6 +6,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.RequiredArgsConstructor;
+import tech.inno.odp.backend.service.IEmployeeService;
 import tech.inno.odp.backend.service.IEmployerService;
 import tech.inno.odp.ui.MainLayout;
 import tech.inno.odp.ui.components.FlexBoxLayout;
@@ -14,13 +15,14 @@ import tech.inno.odp.ui.layout.size.Top;
 import tech.inno.odp.ui.util.css.BoxSizing;
 import tech.inno.odp.ui.views.ViewFrame;
 
-@PageTitle("Работодатель")
-@Route(value = EmployerList.ROUTE, layout = MainLayout.class)
+@PageTitle("Работники")
+@Route(value = EmployeeList.ROUTE, layout = MainLayout.class)
 @RequiredArgsConstructor
-public class EmployerList extends ViewFrame {
+public class EmployeeList extends ViewFrame {
 
-    public static final String ROUTE = "employers";
+    public static final String ROUTE = "employees";
 
+    private final IEmployeeService employeeService;
     private final IEmployerService employerService;
 
     @Override
@@ -40,9 +42,11 @@ public class EmployerList extends ViewFrame {
     }
 
     private VerticalLayout createGrid() {
-        EmployerGrid employerGrid = new EmployerGrid();
-        employerGrid.setEmployerService(employerService);
-        employerGrid.init();
-        return employerGrid;
+        EmployeeGrid employeeGrid = new EmployeeGrid();
+        employeeGrid.setEmployeeService(employeeService);
+        employeeGrid.setEmployerService(employerService);
+        employeeGrid.init();
+
+        return employeeGrid;
     }
 }

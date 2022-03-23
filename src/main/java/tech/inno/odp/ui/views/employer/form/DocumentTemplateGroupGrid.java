@@ -22,6 +22,7 @@ import tech.inno.odp.backend.data.enums.DocumentTemplateGroupType;
 import tech.inno.odp.backend.data.enums.WithDescription;
 import tech.inno.odp.backend.service.IDocumentTemplateService;
 import tech.inno.odp.ui.components.Badge;
+import tech.inno.odp.ui.components.grid.PaginatedGrid;
 import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.util.css.lumo.BadgeColor;
 
@@ -36,9 +37,9 @@ import java.util.stream.Stream;
 
 public class DocumentTemplateGroupGrid extends VerticalLayout {
 
-    private final int PAGE_SIZE = 50;
+    private final int PAGE_SIZE = 20;
 
-    private Grid<DocumentTemplateGroup> grid;
+    private PaginatedGrid<DocumentTemplateGroup> grid;
     private ConfigurableFilterDataProvider<DocumentTemplateGroup, Void, DocumentTemplateGroup> dataProvider;
     private DocumentTemplateGroup documentTemplateGroupFilter;
 
@@ -73,7 +74,7 @@ public class DocumentTemplateGroupGrid extends VerticalLayout {
     }
 
     private Grid<DocumentTemplateGroup> createGrid() {
-        grid = new Grid<>();
+        grid = new PaginatedGrid<>();
         grid.addSelectionListener(event ->
                 createDialog(
                         event.getFirstSelectedItem()
@@ -83,7 +84,8 @@ public class DocumentTemplateGroupGrid extends VerticalLayout {
                 ).open()
         );
         grid.setPageSize(PAGE_SIZE);
-//        grid.setPaginatorSize(2);
+        grid.setPaginatorSize(2);
+        grid.setHeightFull();
 
         grid.setDataProvider(dataProvider);
 
@@ -125,6 +127,7 @@ public class DocumentTemplateGroupGrid extends VerticalLayout {
                 createTextFieldFilterHeader("Название", name -> {
                     documentTemplateGroupFilter.setName(StringUtils.isEmpty(name) ? null : name);
                     grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
                 }));
 
         headerRow.getCell(typeColumn).setComponent(
@@ -134,6 +137,7 @@ public class DocumentTemplateGroupGrid extends VerticalLayout {
                         s -> {
                             documentTemplateGroupFilter.setType(s);
                             grid.getDataProvider().refreshAll();
+                            grid.refreshPaginator();
                         }));
 
         return grid;

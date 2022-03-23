@@ -34,6 +34,11 @@ public class EmployerService implements IEmployerService {
     }
 
     @Override
+    public List<Employer> findAll(@NotNull SearchEmployerRequest request) {
+        return employerMapper.transform(find(request).getEmployersList());
+    }
+
+    @Override
     public List<Employer> find(Query<Employer, Employer> query, int pageSize) {
         SearchEmployerRequest request = employerMapper.transformToSearch(
                 query.getFilter().orElse(null),

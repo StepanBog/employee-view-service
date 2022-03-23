@@ -17,7 +17,7 @@ public enum EmployeeStatus implements WithDescription {
     ARCHIVED("Работник в архиве"),
     APPROVED("Работник подтвержден"),
     ERROR("Ошибка"),
-    OFFER_SIGNED("Подписанн"),
+    OFFER_SIGNED("Подписан"),
     ACT_AVAILABLE_CASH("ACT_AVAILABLE_CASH");
 
     @Getter

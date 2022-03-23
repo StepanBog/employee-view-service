@@ -7,11 +7,15 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import tech.inno.odp.backend.data.containers.Employer;
@@ -38,10 +42,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@PageTitle("Account Details")
-@Route(value = "employer-details", layout = MainLayout.class)
+@PageTitle("Работодатель")
+@Route(value = EmployerView.ROUTE, layout = MainLayout.class)
 @RequiredArgsConstructor
 public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
+
+    public static final String ROUTE = "employer-details";
 
     private final IEmployerService employerService;
     private final IDocumentTemplateService documentTemplateService;
@@ -71,22 +77,24 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
         commonSettingsForm.init();
         commonSettingsForm.setVisible(true);
         commonSettingsForm.setId("commonSettingsForm");
+        commonSettingsForm.setMaxWidth("800px");
 
         tariffSettingsForm.init();
         tariffSettingsForm.setVisible(false);
         tariffSettingsForm.setId("tariffSettingsForm");
+        tariffSettingsForm.setMaxWidth("800px");
 
         requisitesForm.init();
         requisitesForm.setVisible(false);
         requisitesForm.setId("requisitesForm");
+        requisitesForm.setMaxWidth("800px");
 
         documentTemplateSettingsForm.setDocumentTemplateService(documentTemplateService);
         documentTemplateSettingsForm.init();
         documentTemplateSettingsForm.setVisible(false);
         documentTemplateSettingsForm.setId("documentTemplateSettingsForm");
 
-        employeeGrid.setEmployer(employer);
-        employeeGrid.setFromEmployerForm(true);
+        employeeGrid.setFromEmployer(employer);
         employeeGrid.setEmployeeService(employeeService);
         employeeGrid.init();
         employeeGrid.setVisible(false);
@@ -106,7 +114,9 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
                 requisitesForm,
                 tariffSettingsForm,
                 employeeGrid,
-                documentTemplateSettingsForm);
+                documentTemplateSettingsForm
+        );
+        verticalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
         return verticalLayout;
     }

@@ -7,16 +7,16 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.client.utils.URLEncodedUtils;
 import tech.inno.odp.backend.data.containers.Employee;
 import tech.inno.odp.backend.service.IDocumentService;
 import tech.inno.odp.backend.service.IEmployeeService;
@@ -31,18 +31,19 @@ import tech.inno.odp.ui.views.ViewFrame;
 import tech.inno.odp.ui.views.employee.form.EmployeeDocumentsGrid;
 import tech.inno.odp.ui.views.employee.form.EmployeeServiceStopIntervalForm;
 import tech.inno.odp.ui.views.employee.form.EmployeeSettingsForm;
-import tech.inno.odp.ui.views.employer.EmployerList;
 import tech.inno.odp.ui.views.employer.EmployerView;
 import tech.inno.odp.ui.views.requisites.RequisitesForm;
 
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 @PageTitle("Работник")
-@Route(value = "employee-details", layout = MainLayout.class)
+@Route(value = EmployeeView.ROUTE, layout = MainLayout.class)
 @RequiredArgsConstructor
-public class EmployeeView extends ViewFrame implements HasUrlParameter<String> {
+public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
+
+    public static final String ROUTE = "employee-details";
 
     private final IDocumentService documentService;
     private final IEmployeeService employeeService;
@@ -50,6 +51,7 @@ public class EmployeeView extends ViewFrame implements HasUrlParameter<String> {
 
     private Map<String, VerticalLayout> tabLayoutMap;
     private Employee employee;
+    private boolean backToEmployerForm = false;
 
     private final EmployeeSettingsForm commonSettingsForm = new EmployeeSettingsForm();
     private final RequisitesForm requisitesForm = new RequisitesForm();
@@ -72,11 +74,13 @@ public class EmployeeView extends ViewFrame implements HasUrlParameter<String> {
         commonSettingsForm.init();
         commonSettingsForm.setVisible(true);
         commonSettingsForm.setId("commonSettingsForm");
+        commonSettingsForm.setMaxWidth("800px");
 
         requisitesForm.setRequisites(employee.getRequisites());
         requisitesForm.init();
         requisitesForm.setVisible(false);
         requisitesForm.setId("requisitesForm");
+        requisitesForm.setMaxWidth("800px");
 
         employeeDocumentsGrid.setEmployee(employee);
         employeeDocumentsGrid.setDocumentService(documentService);
@@ -103,6 +107,7 @@ public class EmployeeView extends ViewFrame implements HasUrlParameter<String> {
                 requisitesForm,
                 employeeServiceStopIntervalForm,
                 employeeDocumentsGrid);
+        verticalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
         return verticalLayout;
     }
@@ -135,16 +140,31 @@ public class EmployeeView extends ViewFrame implements HasUrlParameter<String> {
         });
 
         appBar.setNaviMode(AppBar.NaviMode.CONTEXTUAL);
-        appBar.getContextIcon().addClickListener(e -> UI.getCurrent().navigate(EmployerList.class));
+        appBar.getContextIcon().addClickListener(e -> navigateToBack());
         appBar.setTitle(getTitle());
         return appBar;
     }
 
-    @Override
-    public void setParameter(BeforeEvent paramEvent, String param) {
-        URLEncodedUtils.parse(param, StandardCharsets.UTF_8);
+    private String getTitle() {
+        String title = "";
+        if (employee.getRequisites() != null) {
+            title = employee.getRequisites().getLastName() + " "
+                    + employee.getRequisites().getFirstName() + " "
+                    + employee.getRequisites().getPatronymicName();
+        }
+        return title;
+    }
 
-        employee = employeeService.findById(UUID.fromString(param));
+    @Override
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        Map<String, List<String>> params = beforeEnterEvent.getLocation().getQueryParameters().getParameters();
+
+        UUID employerId = UUID.fromString(params.get("employeeId").get(0));
+        backToEmployerForm = Boolean.parseBoolean(
+                params.getOrDefault("backToEmployerForm", List.of(Boolean.FALSE.toString())).get(0)
+        );
+
+        employee = employeeService.findById(employerId);
         employee.setServiceStopIntervals(
                 serviceStopIntervalService.findByEmployeeId(
                         UUID.fromString(employee.getId())
@@ -162,14 +182,10 @@ public class EmployeeView extends ViewFrame implements HasUrlParameter<String> {
             Employee employee = commonSettingsForm.getBinder().getBean();
             employee.setRequisites(requisitesForm.getBinder().getBean());
             employee = employeeService.save(employee);
-
-            UI.getCurrent().navigate(EmployerList.class);
+            navigateToBack();
         });
         final Button cancel = UIUtils.createTertiaryButton("Отменить");
-        cancel.addClickListener(event -> {
-            UI.getCurrent().navigate(EmployerList.class);
-        });
-
+        cancel.addClickListener(event -> navigateToBack());
 
         HorizontalLayout buttonFooterLayout = new HorizontalLayout(save, toEmployer, cancel);
         buttonFooterLayout.setSpacing(true);
@@ -179,13 +195,11 @@ public class EmployeeView extends ViewFrame implements HasUrlParameter<String> {
         setViewFooter(buttonFooterLayout);
     }
 
-    private String getTitle() {
-        String title = "";
-        if (employee.getRequisites() != null) {
-            title = employee.getRequisites().getLastName() + " "
-                    + employee.getRequisites().getFirstName() + " "
-                    + employee.getRequisites().getPatronymicName();
+    private void navigateToBack() {
+        if (backToEmployerForm) {
+            UI.getCurrent().navigate(EmployerView.class, employee.getEmployerId());
+        } else {
+            UI.getCurrent().navigate(EmployeeList.class);
         }
-        return title;
     }
 }
