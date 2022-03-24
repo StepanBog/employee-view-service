@@ -4,5 +4,5 @@ import javax.annotation.Nonnull;
 
 public interface IAuthorizationComponent {
 
-    public boolean EmployeePathIdEqualsTokenCheck(@Nonnull String id);
+    boolean EmployeePathIdEqualsTokenCheck(@Nonnull String id);
 }

@@ -1,5 +1,5 @@
 server:
   port: 8083
 
-#vaadin:
-#  launch-browser: true
+vaadin:
+  launch-browser: true

@@ -10,8 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.http.HttpHeaders;
 //import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 //import tech.inno.odp.backend.config.WebSecurityConfig;
+import tech.inno.odp.backend.config.WebSecurityConfig;
 import tech.inno.odp.backend.data.containers.Auth;
 import tech.inno.odp.backend.mapper.AuthMapper;
 import tech.inno.odp.backend.service.IAuthService;
@@ -66,12 +68,11 @@ public class AuthService implements IAuthService {
 
     @Override
     public void logout() {
-        //TODO вернуть
-//        UI.getCurrent().getPage().setLocation(WebSecurityConfig.LOGOUT_SUCCESS_URL);
-//        SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
-//        logoutHandler.logout(
-//                VaadinServletRequest.getCurrent().getHttpServletRequest(),
-//                null,
-//                null);
+        UI.getCurrent().getPage().setLocation(WebSecurityConfig.LOGOUT_SUCCESS_URL);
+        SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+        logoutHandler.logout(
+                VaadinServletRequest.getCurrent().getHttpServletRequest(),
+                null,
+                null);
     }
 }
