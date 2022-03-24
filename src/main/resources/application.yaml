@@ -1,6 +1,9 @@
 spring:
   application:
     name: odp-admin
+    
+vaadin:
+  launch-browser: true
 
 management:
   endpoints:
