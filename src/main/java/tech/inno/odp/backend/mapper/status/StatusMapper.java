@@ -27,12 +27,12 @@ public interface StatusMapper {
         return CommissionPayer.valueOf(status.name());
     }
 
-    default tech.inno.odp.grpc.generated.integration.PaymentGatewayProvider mapToProto(
+    default tech.inno.odp.grpc.generated.common.PaymentGatewayProvider mapToProto(
             PaymentGatewayProvider status) {
-        return tech.inno.odp.grpc.generated.integration.PaymentGatewayProvider.valueOf(status.name());
+        return tech.inno.odp.grpc.generated.common.PaymentGatewayProvider.valueOf(status.name());
     }
 
-    default PaymentGatewayProvider mapTo(tech.inno.odp.grpc.generated.integration.PaymentGatewayProvider status) {
+    default PaymentGatewayProvider mapTo(tech.inno.odp.grpc.generated.common.PaymentGatewayProvider status) {
         return PaymentGatewayProvider.valueOf(status.name());
     }
 
@@ -45,12 +45,20 @@ public interface StatusMapper {
         return TransactionStatus.valueOf(status.name());
     }
 
-    default tech.inno.odp.grpc.generated.documents.DocumentTemplateGroupType mapToProto(DocumentTemplateGroupType type) {
-        return tech.inno.odp.grpc.generated.documents.DocumentTemplateGroupType.valueOf(type.name());
+    default tech.inno.odp.grpc.generated.documents.DocumentGroupType mapToProto(DocumentGroupType type) {
+        return tech.inno.odp.grpc.generated.documents.DocumentGroupType.valueOf(type.name());
     }
 
-    default DocumentTemplateGroupType mapTo(tech.inno.odp.grpc.generated.documents.DocumentTemplateGroupType type) {
-        return DocumentTemplateGroupType.valueOf(type.name());
+    default DocumentGroupType mapTo(tech.inno.odp.grpc.generated.documents.DocumentGroupType type) {
+        return DocumentGroupType.valueOf(type.name());
+    }
+
+    default tech.inno.odp.grpc.generated.documents.DocumentType mapToProto(DocumentType type) {
+        return tech.inno.odp.grpc.generated.documents.DocumentType.valueOf(type.name());
+    }
+
+    default DocumentType mapTo(tech.inno.odp.grpc.generated.documents.DocumentType type) {
+        return DocumentType.valueOf(type.name());
     }
 
     default tech.inno.odp.grpc.generated.common.employee.EmployeeStatus mapToProto(EmployeeStatus status) {

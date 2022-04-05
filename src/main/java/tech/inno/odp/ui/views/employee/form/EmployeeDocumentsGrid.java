@@ -22,7 +22,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import tech.inno.odp.backend.data.containers.Employee;
 import tech.inno.odp.backend.data.containers.document.Document;
-import tech.inno.odp.backend.data.enums.DocumentTemplateGroupType;
+import tech.inno.odp.backend.data.enums.DocumentGroupType;
 import tech.inno.odp.backend.data.enums.WithDescription;
 import tech.inno.odp.backend.service.IDocumentService;
 import tech.inno.odp.ui.components.Badge;
@@ -82,8 +82,8 @@ public class EmployeeDocumentsGrid extends VerticalLayout {
 
         ComponentRenderer<Badge, Document> badgeRenderer = new ComponentRenderer<>(
                 group -> {
-                    DocumentTemplateGroupType type = group.getType();
-                    Badge badge = new Badge(type.getDescription(), BadgeColor.NORMAL);
+                    DocumentGroupType groupType = group.getGroupType();
+                    Badge badge = new Badge(groupType.getDescription(), BadgeColor.NORMAL);
                     return badge;
                 }
         );
@@ -149,10 +149,10 @@ public class EmployeeDocumentsGrid extends VerticalLayout {
 
         headerRow.getCell(typeColumn).setComponent(
                 createComboBoxFilterHeader("Тип",
-                        Stream.of(DocumentTemplateGroupType.values())
+                        Stream.of(DocumentGroupType.values())
                                 .collect(Collectors.toList()),
                         s -> {
-                            documentFilter.setType(s);
+                            documentFilter.setGroupType(s);
                             grid.getDataProvider().refreshAll();
                             grid.refreshPaginator();
                         }));

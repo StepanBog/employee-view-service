@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import tech.inno.odp.backend.data.enums.DocumentTemplateGroupType;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -40,12 +39,6 @@ public class DocumentTemplateGroup {
      * Версия набора документов
      */
     private Integer version;
-
-    /**
-     * Тип набора документов
-     */
-    @NotNull(message = "Набор шаблонов должен иметь тип")
-    private DocumentTemplateGroupType type;
 
     /**
      * Шаблоны документов в наборе

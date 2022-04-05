@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import tech.inno.odp.backend.data.containers.document.DocumentBody;
 import tech.inno.odp.backend.data.containers.document.DocumentTemplateGroup;
 import tech.inno.odp.backend.mapper.DocumentBodyMapper;
-import tech.inno.odp.backend.mapper.DocumentTemplateGroupMapper;
+import tech.inno.odp.backend.mapper.DocumentGroupMapper;
 import tech.inno.odp.backend.service.IDocumentTemplateService;
 import tech.inno.odp.grpc.generated.documentsTemplate.DocumentTemplateGroupSearchRequest;
 import tech.inno.odp.grpc.generated.documentsTemplate.DocumentTemplateGroupServiceGrpc;
@@ -28,7 +28,7 @@ public class DocumentTemplateService implements IDocumentTemplateService {
     @GrpcClient("odp-document-service")
     private DocumentTemplateGroupServiceGrpc.DocumentTemplateGroupServiceBlockingStub client;
 
-    private final DocumentTemplateGroupMapper mapper;
+    private final DocumentGroupMapper mapper;
     private final DocumentBodyMapper documentBodyMapper;
 
     @Override

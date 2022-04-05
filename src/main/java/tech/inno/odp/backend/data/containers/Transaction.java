@@ -28,6 +28,11 @@ public class Transaction {
     private BigDecimal totalSum;
 
     /**
+     * Идентификатор работника
+     */
+    private String employeeId;
+
+    /**
      * Дата выполнения транзакции
      */
     private LocalDateTime date;

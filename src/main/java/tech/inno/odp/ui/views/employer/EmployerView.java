@@ -33,7 +33,7 @@ import tech.inno.odp.ui.layout.size.Vertical;
 import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.views.ViewFrame;
 import tech.inno.odp.ui.views.employee.EmployeeGrid;
-import tech.inno.odp.ui.views.employer.form.DocumentTemplateGroupGrid;
+import tech.inno.odp.ui.views.employer.form.DocumentGroupGrid;
 import tech.inno.odp.ui.views.employer.form.EmployerSettingsForm;
 import tech.inno.odp.ui.views.employer.form.EmployerTariffSettingsForm;
 import tech.inno.odp.ui.views.requisites.RequisitesForm;
@@ -59,7 +59,7 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
     private final EmployerSettingsForm commonSettingsForm = new EmployerSettingsForm();
     private final EmployerTariffSettingsForm tariffSettingsForm = new EmployerTariffSettingsForm();
     private final RequisitesForm requisitesForm = new RequisitesForm();
-    private final DocumentTemplateGroupGrid documentTemplateSettingsForm = new DocumentTemplateGroupGrid();
+    private final DocumentGroupGrid documentTemplateSettingsForm = new DocumentGroupGrid();
     private final EmployeeGrid employeeGrid = new EmployeeGrid();
 
     private Component createContent() {

@@ -10,7 +10,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import lombok.Getter;
@@ -18,24 +17,19 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import tech.inno.odp.backend.data.containers.Employer;
 import tech.inno.odp.backend.data.containers.document.DocumentTemplateGroup;
-import tech.inno.odp.backend.data.enums.DocumentTemplateGroupType;
 import tech.inno.odp.backend.data.enums.WithDescription;
 import tech.inno.odp.backend.service.IDocumentTemplateService;
-import tech.inno.odp.ui.components.Badge;
 import tech.inno.odp.ui.components.grid.PaginatedGrid;
 import tech.inno.odp.ui.util.UIUtils;
-import tech.inno.odp.ui.util.css.lumo.BadgeColor;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
-public class DocumentTemplateGroupGrid extends VerticalLayout {
+public class DocumentGroupGrid extends VerticalLayout {
 
     private final int PAGE_SIZE = 20;
 
@@ -89,23 +83,11 @@ public class DocumentTemplateGroupGrid extends VerticalLayout {
 
         grid.setDataProvider(dataProvider);
 
-        ComponentRenderer<Badge, DocumentTemplateGroup> badgeRenderer = new ComponentRenderer<>(
-                group -> {
-                    DocumentTemplateGroupType type = group.getType();
-                    Badge badge = new Badge(type.getDescription(), BadgeColor.NORMAL);
-                    return badge;
-                }
-        );
-
         Grid.Column<DocumentTemplateGroup> nameColumn = grid.addColumn(DocumentTemplateGroup::getName)
                 .setFrozen(false)
                 .setWidth("300px")
                 .setHeader("Название набора документов")
                 .setSortable(true);
-
-        Grid.Column<DocumentTemplateGroup> typeColumn = grid.addColumn(badgeRenderer)
-                .setAutoWidth(true)
-                .setHeader("Тип набора");
 
         grid.addColumn(new LocalDateTimeRenderer<>(DocumentTemplateGroup::getUpdatedAt, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
                 .setAutoWidth(true)
@@ -129,16 +111,6 @@ public class DocumentTemplateGroupGrid extends VerticalLayout {
                     grid.getDataProvider().refreshAll();
                     grid.refreshPaginator();
                 }));
-
-        headerRow.getCell(typeColumn).setComponent(
-                createComboBoxFilterHeader("Тип",
-                        Stream.of(DocumentTemplateGroupType.values())
-                                .collect(Collectors.toList()),
-                        s -> {
-                            documentTemplateGroupFilter.setType(s);
-                            grid.getDataProvider().refreshAll();
-                            grid.refreshPaginator();
-                        }));
 
         return grid;
     }
@@ -174,7 +146,7 @@ public class DocumentTemplateGroupGrid extends VerticalLayout {
     }
 
     private Dialog createDialog(DocumentTemplateGroup templateGroup) {
-        DocumentTemplateGroupDialog templateForm = new DocumentTemplateGroupDialog();
+        DocumentGroupDialog templateForm = new DocumentGroupDialog();
         templateForm.setTemplateGroup(templateGroup);
         templateForm.setSaveAction(group -> {
             if (!StringUtils.isEmpty(employer.getId())) {

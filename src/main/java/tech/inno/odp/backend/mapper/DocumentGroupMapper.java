@@ -22,7 +22,7 @@ import java.util.List;
         collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
-public interface DocumentTemplateGroupMapper {
+public interface DocumentGroupMapper {
 
     @Mapping(target = "templatesList", source = "templates")
     tech.inno.odp.grpc.generated.documents.DocumentTemplateGroup transform(DocumentTemplateGroup group);
@@ -33,7 +33,6 @@ public interface DocumentTemplateGroupMapper {
     List<DocumentTemplateGroup> transform(List<tech.inno.odp.grpc.generated.documents.DocumentTemplateGroup> groups);
 
     @Mapping(target = "employerId", source = "group.employerId")
-    @Mapping(target = "type", source = "group.type")
     @Mapping(target = "name", source = "group.name")
     @Mapping(target = "pageNumber", source = "pageNumber")
     @Mapping(target = "pageSize", source = "pageSize")

@@ -26,7 +26,7 @@ import org.springframework.util.StringUtils;
 import tech.inno.odp.backend.data.containers.document.DocumentBody;
 import tech.inno.odp.backend.data.containers.document.DocumentTemplate;
 import tech.inno.odp.backend.data.containers.document.DocumentTemplateGroup;
-import tech.inno.odp.backend.data.enums.DocumentTemplateGroupType;
+import tech.inno.odp.backend.data.enums.DocumentGroupType;
 import tech.inno.odp.ui.components.file.FileDownloadWrapper;
 import tech.inno.odp.ui.components.grid.PaginatedGrid;
 import tech.inno.odp.ui.util.LumoStyles;
@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @Slf4j
-public class DocumentTemplateGroupDialog extends Dialog {
+public class DocumentGroupDialog extends Dialog {
 
     private final int PAGE_SIZE = 20;
 
@@ -64,7 +64,7 @@ public class DocumentTemplateGroupDialog extends Dialog {
     @PropertyId("name")
     private TextField nameField = new TextField("Имя");
     @PropertyId("type")
-    private ComboBox<DocumentTemplateGroupType> typeField = new ComboBox("Тип");
+    private ComboBox<DocumentGroupType> typeField = new ComboBox("Тип");
 
     public void init() {
         initFields();
@@ -95,8 +95,8 @@ public class DocumentTemplateGroupDialog extends Dialog {
     }
 
     private void initFields() {
-        typeField.setItems(DocumentTemplateGroupType.values());
-        typeField.setItemLabelGenerator(DocumentTemplateGroupType::getDescription);
+        typeField.setItems(DocumentGroupType.values());
+        typeField.setItemLabelGenerator(DocumentGroupType::getDescription);
     }
 
     public FormLayout createForm() {

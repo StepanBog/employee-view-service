@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import tech.inno.odp.backend.data.enums.DocumentTemplateGroupType;
+import tech.inno.odp.backend.data.enums.DocumentGroupType;
+import tech.inno.odp.grpc.generated.documents.DocumentType;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -46,8 +47,14 @@ public class Document {
     /**
      * Тип набора документов
      */
+    @NotNull(message = "Документ должен иметь тип")
+    private DocumentType type;
+
+    /**
+     * Тип набора документов
+     */
     @NotNull(message = "Набор шаблонов должен иметь тип")
-    private DocumentTemplateGroupType type;
+    private DocumentGroupType groupType;
 
     private LocalDateTime createdAt;
 

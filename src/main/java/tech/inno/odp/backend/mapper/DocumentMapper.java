@@ -31,7 +31,7 @@ public interface DocumentMapper {
     List<Document> transform(List<tech.inno.odp.grpc.generated.documents.Document> documents);
 
     @Mapping(target = "employeeId", source = "document.employeeId")
-    @Mapping(target = "groupType", source = "document.type")
+    @Mapping(target = "groupType", source = "document.groupType")
     @Mapping(target = "pageNumber", source = "pageNumber")
     @Mapping(target = "pageSize", source = "pageSize")
     DocumentSearchRequest transformToSearch(Document document,

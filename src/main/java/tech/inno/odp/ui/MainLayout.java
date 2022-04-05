@@ -13,8 +13,7 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.server.ErrorHandler;
-import com.vaadin.flow.server.InitialPageSettings;
-import com.vaadin.flow.server.PageConfigurator;
+import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.Lumo;
 import org.slf4j.Logger;
@@ -45,12 +44,10 @@ import tech.inno.odp.ui.views.transaction.TransactionList;
 @CssImport("./styles/misc/box-shadow-borders.css")
 @CssImport(value = "./styles/styles.css", include = "lumo-badge")
 @JsModule("@vaadin/vaadin-lumo-styles/badge")
-//@PWA(name = "My Starter Project", shortName = "My Starter Project",
-//        iconPath = UIUtils.IMG_PATH + "logos/18.png",
-//        backgroundColor = "#233348", themeColor = "#233348")
+@PWA(name = "ODP admin panel", shortName = "ODP admin",
+        backgroundColor = "#233348", themeColor = "#233348")
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
-public class MainLayout extends FlexBoxLayout
-        implements RouterLayout, PageConfigurator, AfterNavigationObserver {
+public class MainLayout extends FlexBoxLayout implements RouterLayout, AfterNavigationObserver {
 
     private static final Logger log = LoggerFactory.getLogger(MainLayout.class);
     private static final String CLASS_NAME = "root";
@@ -199,12 +196,6 @@ public class MainLayout extends FlexBoxLayout
         }
         appFooterOuter.removeAll();
         appFooterOuter.add(components);
-    }
-
-    @Override
-    public void configurePage(InitialPageSettings settings) {
-        settings.addMetaTag("apple-mobile-web-app-capable", "yes");
-        settings.addMetaTag("apple-mobile-web-app-status-bar-style", "black");
     }
 
     @Override
