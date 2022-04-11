@@ -33,6 +33,11 @@ public class Salary {
      */
     private Long rate;
 
+    /**
+     * Позиция
+     */
+    private Position position;
+
     private LocalDateTime period;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

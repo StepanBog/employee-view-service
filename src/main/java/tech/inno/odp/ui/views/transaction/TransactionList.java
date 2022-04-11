@@ -50,7 +50,8 @@ public class TransactionList extends ViewFrame {
     }
 
     private TransactionGrid createGrid() {
-        TransactionGrid transactionGrid = new TransactionGrid(transactionService);
+        TransactionGrid transactionGrid = new TransactionGrid();
+        transactionGrid.setTransactionService(transactionService);
         transactionGrid.init();
         return transactionGrid;
     }

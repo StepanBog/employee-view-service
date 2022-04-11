@@ -18,9 +18,8 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.RequiredArgsConstructor;
 import tech.inno.odp.backend.data.containers.Employee;
-import tech.inno.odp.backend.service.IDocumentService;
-import tech.inno.odp.backend.service.IEmployeeService;
-import tech.inno.odp.backend.service.IServiceStopIntervalService;
+import tech.inno.odp.backend.data.containers.Transaction;
+import tech.inno.odp.backend.service.*;
 import tech.inno.odp.ui.MainLayout;
 import tech.inno.odp.ui.components.FlexBoxLayout;
 import tech.inno.odp.ui.components.navigation.bar.AppBar;
@@ -29,10 +28,12 @@ import tech.inno.odp.ui.layout.size.Vertical;
 import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.views.ViewFrame;
 import tech.inno.odp.ui.views.employee.form.EmployeeDocumentsGrid;
+import tech.inno.odp.ui.views.employee.form.EmployeeSalaryForm;
 import tech.inno.odp.ui.views.employee.form.EmployeeServiceStopIntervalForm;
 import tech.inno.odp.ui.views.employee.form.EmployeeSettingsForm;
 import tech.inno.odp.ui.views.employer.EmployerView;
 import tech.inno.odp.ui.views.requisites.RequisitesForm;
+import tech.inno.odp.ui.views.transaction.TransactionGrid;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -48,6 +49,8 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
 
     private final IEmployeeService employeeService;
     private final IDocumentService documentService;
+    private final ISalaryService salaryService;
+    private final ITransactionService transactionService;
     private final IServiceStopIntervalService serviceStopIntervalService;
 
     private Map<String, VerticalLayout> tabLayoutMap;
@@ -57,6 +60,8 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
     private final EmployeeSettingsForm employeeSettingsForm = new EmployeeSettingsForm();
     private final RequisitesForm requisitesForm = new RequisitesForm();
     private final EmployeeDocumentsGrid employeeDocumentsGrid = new EmployeeDocumentsGrid();
+    private final TransactionGrid transactionGrid = new TransactionGrid();
+    private final EmployeeSalaryForm employeeSalaryForm = new EmployeeSalaryForm();
     private final EmployeeServiceStopIntervalForm employeeServiceStopIntervalForm = new EmployeeServiceStopIntervalForm();
 
     @PostConstruct
@@ -109,6 +114,14 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
         employeeDocumentsGrid.init();
         employeeDocumentsGrid.setVisible(false);
 
+        transactionGrid.setTransactionService(transactionService);
+        transactionGrid.init();
+        transactionGrid.setVisible(false);
+
+        employeeSalaryForm.setSalaryService(salaryService);
+        employeeSalaryForm.init();
+        employeeSalaryForm.setVisible(false);
+
         employeeServiceStopIntervalForm.setServiceStopIntervalService(serviceStopIntervalService);
         employeeServiceStopIntervalForm.init();
         employeeServiceStopIntervalForm.setVisible(false);
@@ -117,7 +130,9 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
                 Map.of(EmployeeSettingsForm.ID, employeeSettingsForm,
                         RequisitesForm.ID, requisitesForm,
                         EmployeeDocumentsGrid.ID, employeeDocumentsGrid,
-                        EmployeeServiceStopIntervalForm.ID, employeeServiceStopIntervalForm
+                        EmployeeSalaryForm.ID, employeeSalaryForm,
+                        EmployeeServiceStopIntervalForm.ID, employeeServiceStopIntervalForm,
+                        TransactionGrid.ID, transactionGrid
                 );
 
         VerticalLayout verticalLayout = new VerticalLayout();
@@ -125,6 +140,8 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
         verticalLayout.add(
                 employeeSettingsForm,
                 requisitesForm,
+                employeeSalaryForm,
+                transactionGrid,
                 employeeServiceStopIntervalForm,
                 employeeDocumentsGrid);
         verticalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -150,6 +167,8 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
 
         appBar.addTab(createTab(EmployeeSettingsForm.ID, VaadinIcon.FORM.create(), "Настройки"));
         appBar.addTab(createTab(RequisitesForm.ID, VaadinIcon.MODAL_LIST.create(), "Реквизиты"));
+        appBar.addTab(createTab(TransactionGrid.ID, VaadinIcon.MONEY.create(), "Платежи"));
+        appBar.addTab(createTab(EmployeeSalaryForm.ID, VaadinIcon.BOOK.create(), "Зарплата"));
         appBar.addTab(createTab(EmployeeServiceStopIntervalForm.ID, VaadinIcon.MODAL_LIST.create(), "Стоп интервалы"));
         appBar.addTab(createTab(EmployeeDocumentsGrid.ID, VaadinIcon.MODAL_LIST.create(), "Документы"));
         appBar.centerTabs();
@@ -190,6 +209,14 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
         employeeSettingsForm.withBean(employee);
         employeeServiceStopIntervalForm.withBean(employee);
         employeeDocumentsGrid.withBean(employee);
+
+        employeeSalaryForm.withBean(employee);
+        transactionGrid.withFilter(
+                Transaction.builder()
+                        .employeeId(employee.getId())
+                        .employerId(employee.getEmployerId())
+                        .build()
+        );
     }
 
     private void navigateToBack() {

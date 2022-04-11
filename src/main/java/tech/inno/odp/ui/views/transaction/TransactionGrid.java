@@ -18,7 +18,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import tech.inno.odp.backend.data.containers.Transaction;
 import tech.inno.odp.backend.data.enums.TransactionStatus;
@@ -30,12 +30,13 @@ import tech.inno.odp.ui.util.converter.LocalDateToLocalDateTimeConverter;
 
 import java.time.format.DateTimeFormatter;
 
-@RequiredArgsConstructor
 public class TransactionGrid extends VerticalLayout {
 
+    public static final String ID = "transactionGrid";
     private final int PAGE_SIZE = 20;
 
-    private final ITransactionService transactionService;
+    @Setter
+    private ITransactionService transactionService;
 
     private PaginatedGrid<Transaction> grid;
     @Getter
@@ -58,6 +59,7 @@ public class TransactionGrid extends VerticalLayout {
     private BeanValidationBinder<Transaction> binder;
 
     public void init() {
+        setId(ID);
         setSizeFull();
         initFields();
 
@@ -172,7 +174,7 @@ public class TransactionGrid extends VerticalLayout {
 
     private Grid<Transaction> createGrid() {
         grid = new PaginatedGrid<>();
-        grid.setPageSize(50);
+        grid.setPageSize(PAGE_SIZE);
         grid.addSelectionListener(event -> event.getFirstSelectedItem().ifPresent(this::toViewPage));
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
