@@ -18,6 +18,9 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import tech.inno.odp.backend.data.containers.Employee;
@@ -31,6 +34,7 @@ import tech.inno.odp.ui.components.grid.PaginatedGrid;
 import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.util.css.lumo.BadgeColor;
 
+import javax.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -38,9 +42,10 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
+@RequiredArgsConstructor
 public class EmployeeDocumentsGrid extends VerticalLayout {
 
+    public static final String ID = "employeeDocumentsGrid";
     private final int PAGE_SIZE = 20;
 
     private PaginatedGrid<Document> grid;
@@ -49,27 +54,20 @@ public class EmployeeDocumentsGrid extends VerticalLayout {
 
     @Setter
     private IDocumentService documentService;
-    @Setter
-    private Employee employee;
 
+    @PostConstruct
     public void init() {
+        setId(ID);
         setSizeFull();
         initDataProvider();
         add(createGrid());
     }
 
     private void initDataProvider() {
-        ConfigurableFilterDataProvider<Document, Void, Document> dataProvider = new CallbackDataProvider<Document, Document>(
+        this.dataProvider = new CallbackDataProvider<Document, Document>(
                 query -> documentService.find(query, PAGE_SIZE).stream(),
                 query -> documentService.getTotalCount(query))
                 .withConfigurableFilter();
-
-        this.documentFilter = Document.builder()
-                .employerId(employee.getEmployerId())
-                .employeeId(employee.getId())
-                .build();
-        dataProvider.setFilter(this.documentFilter);
-        this.dataProvider = dataProvider;
     }
 
     private Grid<Document> createGrid() {
@@ -77,7 +75,6 @@ public class EmployeeDocumentsGrid extends VerticalLayout {
         grid.setPageSize(PAGE_SIZE);
         grid.setPaginatorSize(2);
         grid.setHeightFull();
-
         grid.setDataProvider(dataProvider);
 
         ComponentRenderer<Badge, Document> badgeRenderer = new ComponentRenderer<>(
@@ -198,5 +195,13 @@ public class EmployeeDocumentsGrid extends VerticalLayout {
             icon = UIUtils.createDisabledIcon(VaadinIcon.CLOSE);
         }
         return icon;
+    }
+
+    public void withBean(Employee employee) {
+        this.documentFilter = Document.builder()
+                .employerId(employee.getEmployerId())
+                .employeeId(employee.getId())
+                .build();
+        this.dataProvider.setFilter(this.documentFilter);
     }
 }

@@ -5,25 +5,26 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import lombok.Setter;
-import org.springframework.util.CollectionUtils;
 import tech.inno.odp.backend.data.containers.Employee;
 import tech.inno.odp.backend.data.containers.ServiceStopInterval;
+import tech.inno.odp.backend.service.IServiceStopIntervalService;
 import tech.inno.odp.ui.components.grid.PaginatedGrid;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-
+import java.util.UUID;
 
 public class EmployeeServiceStopIntervalForm extends VerticalLayout {
 
+    public static final String ID = "employeeServiceStopIntervalForm";
     private final int PAGE_SIZE = 20;
 
     private PaginatedGrid<ServiceStopInterval> grid;
 
     @Setter
-    private Employee employee;
+    private IServiceStopIntervalService serviceStopIntervalService;
 
     public void init() {
+        setId(ID);
         setSizeFull();
         add(createGrid());
     }
@@ -33,12 +34,6 @@ public class EmployeeServiceStopIntervalForm extends VerticalLayout {
         grid.setPageSize(PAGE_SIZE);
         grid.setPaginatorSize(2);
         grid.setHeightFull();
-
-        grid.setDataProvider(DataProvider.ofCollection(
-                CollectionUtils.isEmpty(employee.getServiceStopIntervals())
-                        ? new ArrayList<>()
-                        : employee.getServiceStopIntervals()
-        ));
 
         grid.addColumn(ServiceStopInterval::getId)
                 .setAutoWidth(true)
@@ -68,5 +63,15 @@ public class EmployeeServiceStopIntervalForm extends VerticalLayout {
                 .setHeader("Дата создания");
 
         return grid;
+    }
+
+    public void withBean(Employee employee) {
+        grid.setDataProvider(DataProvider.ofCollection(
+                serviceStopIntervalService.findByEmployeeId(
+                        UUID.fromString(employee.getId())
+                )
+        ));
+        grid.getDataProvider().refreshAll();
+        grid.refreshPaginator();
     }
 }

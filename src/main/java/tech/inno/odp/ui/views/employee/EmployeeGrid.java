@@ -8,8 +8,9 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.PropertyId;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -17,29 +18,27 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.QueryParameters;
+import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import tech.inno.odp.backend.data.containers.Employee;
 import tech.inno.odp.backend.data.containers.Employer;
 import tech.inno.odp.backend.data.enums.EmployeeStatus;
-import tech.inno.odp.backend.data.enums.WithDescription;
 import tech.inno.odp.backend.service.IEmployeeService;
 import tech.inno.odp.backend.service.IEmployerService;
 import tech.inno.odp.grpc.generated.service.employer.SearchEmployerRequest;
 import tech.inno.odp.ui.components.Badge;
+import tech.inno.odp.ui.components.field.CustomTextField;
 import tech.inno.odp.ui.components.grid.PaginatedGrid;
+import tech.inno.odp.ui.util.converter.LocalDateToLocalDateTimeConverter;
+import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 
 public class EmployeeGrid extends VerticalLayout {
 
+    public static final String ID = "employeeGrid";
     private final int PAGE_SIZE = 20;
 
     @Setter
@@ -47,28 +46,184 @@ public class EmployeeGrid extends VerticalLayout {
     @Setter
     private IEmployerService employerService;
     @Setter
-    private Employer fromEmployer;
+    private boolean fromEmployer = false;
+
+    @PropertyId("id")
+    private CustomTextField idField = new CustomTextField();
+    @PropertyId("status")
+    private ComboBox<EmployeeStatus> statusField = new ComboBox();
+    @PropertyId("lastName")
+    private CustomTextField lastNameNameField = new CustomTextField();
+    @PropertyId("firstName")
+    private CustomTextField firstNameField = new CustomTextField();
+    @PropertyId("patronymicName")
+    private CustomTextField patronymicNameField = new CustomTextField();
+
+    private ComboBox<Employer> employerField = new ComboBox<>();
+
+    @PropertyId("updatedAt")
+    private DatePicker updatedAtField = new DatePicker();
+    @PropertyId("createdAt")
+    private DatePicker createdAtField = new DatePicker();
+
+    @Getter
+    private BeanValidationBinder<Employee> binder;
+
+    @Getter
+    private Employee employeeFilter;
 
     private PaginatedGrid<Employee> grid;
     private ConfigurableFilterDataProvider<Employee, Void, Employee> dataProvider;
-    private Employee employeeFilter;
 
     public void init() {
+        setId(ID);
         setSizeFull();
+        initFields();
+
+        initDataProvider();
+
+        this.binder = new BeanValidationBinder<>(Employee.class);
+        this.binder.setBean(this.employeeFilter);
+
+        LocalDateToLocalDateTimeConverter localDateTimeConverter = new LocalDateToLocalDateTimeConverter();
+        this.binder.forField(updatedAtField)
+                .withConverter(localDateTimeConverter)
+                .bind(Employee::getUpdatedAt, Employee::setUpdatedAt);
+        this.binder.forField(createdAtField)
+                .withConverter(localDateTimeConverter)
+                .bind(Employee::getCreatedAt, Employee::setCreatedAt);
+        this.binder.bindInstanceFields(this);
+
         add(createContent());
     }
 
     private Component createContent() {
-        initDataProvider();
-
         VerticalLayout content = new VerticalLayout(
                 createGrid()
         );
 
         content.setBoxSizing(BoxSizing.BORDER_BOX);
         content.setHeightFull();
-        content.setPadding(true);
+        content.setPadding(false);
+        content.setMargin(false);
+        content.setSpacing(false);
         return content;
+    }
+
+    private void initFields() {
+
+        StringToStringWithNullValueConverter stringToStringWithNullValueConverter = new StringToStringWithNullValueConverter();
+
+        idField.setConverters(stringToStringWithNullValueConverter);
+        idField.setPlaceholder("ID");
+        idField.setValueChangeMode(ValueChangeMode.EAGER);
+        idField.setClearButtonVisible(true);
+        idField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+        idField.setWidthFull();
+        idField.getStyle().set("max-width", "100%");
+        idField.addValueChangeListener(e -> {
+            employeeFilter.setId(StringUtils.isEmpty(e.getValue()) ? null : e.getValue());
+            grid.getDataProvider().refreshAll();
+            grid.refreshPaginator();
+        });
+
+        statusField.setPlaceholder("Статус");
+        statusField.setItems(EmployeeStatus.values());
+        statusField.setItemLabelGenerator(EmployeeStatus::getDescription);
+        statusField.setClearButtonVisible(true);
+        statusField.setWidthFull();
+        statusField.getStyle().set("max-width", "100%");
+        statusField.addValueChangeListener(
+                s -> {
+                    employeeFilter.setStatus(s.getValue());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }
+        );
+
+        lastNameNameField.setConverters(stringToStringWithNullValueConverter);
+        lastNameNameField.setPlaceholder("Фамилия");
+        lastNameNameField.setClearButtonVisible(true);
+        lastNameNameField.setWidthFull();
+        lastNameNameField.getStyle().set("max-width", "100%");
+        lastNameNameField.addValueChangeListener(
+                s -> {
+                    employeeFilter.setLastName(s.getValue());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }
+        );
+
+        firstNameField.setConverters(stringToStringWithNullValueConverter);
+        firstNameField.setPlaceholder("Имя");
+        firstNameField.setClearButtonVisible(true);
+        firstNameField.setWidthFull();
+        firstNameField.getStyle().set("max-width", "100%");
+        firstNameField.addValueChangeListener(
+                s -> {
+                    employeeFilter.setFirstName(s.getValue());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }
+        );
+
+        patronymicNameField.setConverters(stringToStringWithNullValueConverter);
+        patronymicNameField.setPlaceholder("Отчество");
+        patronymicNameField.setClearButtonVisible(true);
+        patronymicNameField.setWidthFull();
+        patronymicNameField.getStyle().set("max-width", "100%");
+        patronymicNameField.addValueChangeListener(
+                s -> {
+                    employeeFilter.setPatronymicName(s.getValue());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }
+        );
+
+        if (!fromEmployer) {
+            employerField.setPlaceholder("Работодатель");
+            employerField.setItemLabelGenerator(Employer::getName);
+            employerField.setDataProvider(
+                    (employer, filterString) ->
+                            employer.getName().toLowerCase().startsWith(filterString.toLowerCase()),
+                    DataProvider.fromStream(
+                            employerService.findAll(
+                                    SearchEmployerRequest.newBuilder()
+                                            .build()
+                            ).stream()
+                    ));
+
+            employerField.addValueChangeListener(e -> {
+                employeeFilter.setEmployerId(e.getValue() != null ? e.getValue().getId() : null);
+                grid.getDataProvider().refreshAll();
+                grid.refreshPaginator();
+            });
+        }
+
+
+        updatedAtField.setPlaceholder("Дата обновления");
+        updatedAtField.setClearButtonVisible(true);
+        updatedAtField.setWidthFull();
+        updatedAtField.getStyle().set("max-width", "100%");
+        updatedAtField.addValueChangeListener(
+                e -> {
+                    //TODO сделать фильтрацию
+//                    employeeFilter.setUpdatedAt(e.getValue().atStartOfDay());
+//                    grid.getDataProvider().refreshAll();
+//                    grid.refreshPaginator();
+                });
+
+        createdAtField.setPlaceholder("Дата создания");
+        createdAtField.setClearButtonVisible(true);
+        createdAtField.setWidthFull();
+        createdAtField.getStyle().set("max-width", "100%");
+        createdAtField.addValueChangeListener(
+                e -> {
+                    //TODO сделать фильтрацию
+//                    employeeFilter.setCreatedAt(e.getValue().atStartOfDay());
+//                    grid.getDataProvider().refreshAll();
+//                    grid.refreshPaginator();
+                });
     }
 
     private void initDataProvider() {
@@ -80,11 +235,6 @@ public class EmployeeGrid extends VerticalLayout {
         this.employeeFilter = Employee.builder()
                 .status(null)
                 .build();
-
-        if (this.fromEmployer != null) {
-            this.employeeFilter.setEmployerId(fromEmployer.getId());
-        }
-
         this.dataProvider.setFilter(this.employeeFilter);
     }
 
@@ -119,7 +269,7 @@ public class EmployeeGrid extends VerticalLayout {
                 .setHeader("Фамилия");
 
         Grid.Column<Employee> employerNameColumn = null;
-        if (this.fromEmployer == null) {
+        if (!fromEmployer) {
             employerNameColumn = grid.addColumn(Employee::getEmployerName)
                     .setAutoWidth(true)
                     .setFlexGrow(0)
@@ -147,114 +297,24 @@ public class EmployeeGrid extends VerticalLayout {
         grid.getHeaderRows().clear();
         HeaderRow headerRow = grid.appendHeaderRow();
 
-        headerRow.getCell(idColumn).setComponent(
-                createTextFieldFilterHeader("ID", name -> {
-                    employeeFilter.setId(StringUtils.isEmpty(name) ? null : name);
-                    grid.getDataProvider().refreshAll();
-                    grid.refreshPaginator();
-                }));
-
-        headerRow.getCell(statusColumn).setComponent(
-                createComboBoxFilterHeader("Статус",
-                        Stream.of(EmployeeStatus.values())
-                                .collect(Collectors.toList()),
-                        s -> {
-                            employeeFilter.setStatus(s);
-                            grid.getDataProvider().refreshAll();
-                            grid.refreshPaginator();
-                        }));
-
-        headerRow.getCell(updatedAtColumn).setComponent(
-                createCDataPickerFilterHeader("Дата обновления", name -> {
-                    employeeFilter.setUpdatedAt(name.atStartOfDay());
-                    grid.getDataProvider().refreshAll();
-                    grid.refreshPaginator();
-                }));
-
-        headerRow.getCell(createdAtColumn).setComponent(
-                createCDataPickerFilterHeader("Дата создания", name -> {
-                    employeeFilter.setCreatedAt(name.atStartOfDay());
-                    grid.getDataProvider().refreshAll();
-                    grid.refreshPaginator();
-                }));
+        headerRow.getCell(idColumn).setComponent(idField);
+        headerRow.getCell(statusColumn).setComponent(statusField);
+        headerRow.getCell(firstNameColumn).setComponent(firstNameField);
+        headerRow.getCell(lastNameColumn).setComponent(lastNameNameField);
+        headerRow.getCell(updatedAtColumn).setComponent(updatedAtField);
+        headerRow.getCell(createdAtColumn).setComponent(createdAtField);
 
         if (employerNameColumn != null) {
-            headerRow.getCell(employerNameColumn).setComponent(
-                    createEmployerComboBox(employer -> {
-                        employeeFilter.setEmployerId(employer != null ? employer.getId() : null);
-                        grid.getDataProvider().refreshAll();
-                        grid.refreshPaginator();
-                    }));
+            headerRow.getCell(employerNameColumn).setComponent(employerField);
         }
 
         return grid;
     }
 
-    private ComboBox<Employer> createEmployerComboBox(Consumer<Employer> filterChangeConsumer) {
-        ComboBox<Employer> comboBox = new ComboBox<>();
-        comboBox.setItemLabelGenerator(Employer::getName);
-        ComboBox.ItemFilter<Employer> filter = (employer, filterString) ->
-                employer.getName().toLowerCase().startsWith(filterString.toLowerCase());
-
-        comboBox.setDataProvider(filter, DataProvider.fromStream(
-                employerService.findAll(
-                        SearchEmployerRequest.newBuilder()
-                                .build()
-                ).stream()
-        ));
-        comboBox.addValueChangeListener(
-                e -> filterChangeConsumer.accept(e.getValue()));
-
-        return comboBox;
-    }
-
-    private static TextField createTextFieldFilterHeader(String placeHolder,
-                                                         Consumer<String> filterChangeConsumer) {
-        TextField textField = new TextField();
-        textField.setPlaceholder(placeHolder);
-        textField.setValueChangeMode(ValueChangeMode.EAGER);
-        textField.setClearButtonVisible(true);
-        textField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
-        textField.setWidthFull();
-        textField.getStyle().set("max-width", "100%");
-        textField.addValueChangeListener(
-                e -> filterChangeConsumer.accept(e.getValue()));
-        return textField;
-    }
-
-    private static <T extends WithDescription> ComboBox<T> createComboBoxFilterHeader(String placeHolder,
-                                                                                      List<T> items,
-                                                                                      Consumer<T> filterChangeConsumer) {
-        ComboBox<T> comboBox = new ComboBox<>();
-        comboBox.setItems(items);
-        comboBox.setItemLabelGenerator(T::getDescription);
-
-        comboBox.setPlaceholder(placeHolder);
-        comboBox.setClearButtonVisible(true);
-        comboBox.setWidthFull();
-        comboBox.getStyle().set("max-width", "100%");
-        comboBox.addValueChangeListener(
-                e -> filterChangeConsumer.accept(e.getValue()));
-        return comboBox;
-    }
-
-    private static DatePicker createCDataPickerFilterHeader(String placeHolder,
-                                                            Consumer<LocalDate> filterChangeConsumer) {
-        DatePicker datePicker = new DatePicker();
-
-        datePicker.setPlaceholder(placeHolder);
-        datePicker.setClearButtonVisible(true);
-        datePicker.setWidthFull();
-        datePicker.getStyle().set("max-width", "100%");
-        datePicker.addValueChangeListener(
-                e -> filterChangeConsumer.accept(e.getValue()));
-        return datePicker;
-    }
-
     private void toViewPage(Employee employee) {
         Map<String, String> params = Map.of(
                 "employeeId", employee.getId(),
-                "backToEmployerForm", String.valueOf(this.fromEmployer != null)
+                "backToEmployerForm", String.valueOf(fromEmployer)
         );
         UI.getCurrent().navigate(EmployeeView.ROUTE,
                 QueryParameters.simple(
@@ -262,4 +322,16 @@ public class EmployeeGrid extends VerticalLayout {
                 )
         );
     }
+
+    public void withFilter(Employee employeeFilter) {
+        this.employeeFilter = employeeFilter;
+
+        binder.removeBean();
+        binder.setBean(employeeFilter);
+        binder.bindInstanceFields(this);
+
+        dataProvider.setFilter(employeeFilter);
+        grid.getDataProvider().refreshAll();
+    }
+
 }

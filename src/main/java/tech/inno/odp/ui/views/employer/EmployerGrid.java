@@ -9,49 +9,164 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.PropertyId;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import tech.inno.odp.backend.data.containers.Employer;
 import tech.inno.odp.backend.data.enums.EmployerStatus;
-import tech.inno.odp.backend.data.enums.WithDescription;
 import tech.inno.odp.backend.service.IEmployerService;
 import tech.inno.odp.ui.components.Badge;
+import tech.inno.odp.ui.components.field.CustomTextField;
 import tech.inno.odp.ui.components.grid.PaginatedGrid;
 import tech.inno.odp.ui.util.UIUtils;
+import tech.inno.odp.ui.util.converter.LocalDateToLocalDateTimeConverter;
+import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class EmployerGrid extends VerticalLayout {
 
+    public static final String ID = "employerGrid";
     private final int PAGE_SIZE = 20;
 
     @Setter
     private IEmployerService employerService;
+
+    @PropertyId("id")
+    private CustomTextField idField = new CustomTextField();
+    @PropertyId("name")
+    private CustomTextField nameField = new CustomTextField();
+
+    @PropertyId("email")
+    private EmailField emailField = new EmailField();
+    @PropertyId("status")
+    private ComboBox<EmployerStatus> statusField = new ComboBox();
+    @PropertyId("updatedAt")
+    private DatePicker updatedAtField = new DatePicker();
+    @PropertyId("createdAt")
+    private DatePicker createdAtField = new DatePicker();
+
+    @Getter
+    private BeanValidationBinder<Employer> binder;
 
     private PaginatedGrid<Employer> grid;
     private ConfigurableFilterDataProvider<Employer, Void, Employer> dataProvider;
     private Employer employerFilter;
 
     public void init() {
+        setId(ID);
         setSizeFull();
+        initFields();
+
+        initDataProvider();
+
+        this.binder = new BeanValidationBinder<>(Employer.class);
+        this.binder.setBean(this.employerFilter);
+
+        LocalDateToLocalDateTimeConverter localDateTimeConverter = new LocalDateToLocalDateTimeConverter();
+        this.binder.forField(updatedAtField)
+                .withConverter(localDateTimeConverter)
+                .bind(Employer::getUpdatedAt, Employer::setUpdatedAt);
+        this.binder.forField(createdAtField)
+                .withConverter(localDateTimeConverter)
+                .bind(Employer::getCreatedAt, Employer::setCreatedAt);
+        this.binder.setValidatorsDisabled(true);
+        this.binder.bindInstanceFields(this);
+
         add(createContent());
     }
 
-    private Component createContent() {
-        initDataProvider();
+    private void initFields() {
 
+        StringToStringWithNullValueConverter stringToStringWithNullValueConverter = new StringToStringWithNullValueConverter();
+
+        idField.setConverters(stringToStringWithNullValueConverter);
+        idField.setPlaceholder("ID");
+        idField.setValueChangeMode(ValueChangeMode.EAGER);
+        idField.setClearButtonVisible(true);
+        idField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+        idField.setWidthFull();
+        idField.getStyle().set("max-width", "100%");
+        idField.addValueChangeListener(e -> {
+            employerFilter.setId(StringUtils.isEmpty(e.getValue()) ? null : e.getValue());
+            grid.getDataProvider().refreshAll();
+            grid.refreshPaginator();
+        });
+
+        nameField.setConverters(stringToStringWithNullValueConverter);
+        nameField.setPlaceholder("Работодатель");
+        nameField.setValueChangeMode(ValueChangeMode.EAGER);
+        nameField.setClearButtonVisible(true);
+        nameField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+        nameField.setWidthFull();
+        nameField.getStyle().set("max-width", "100%");
+        nameField.addValueChangeListener(e -> {
+            employerFilter.setName(StringUtils.isEmpty(e.getValue()) ? null : e.getValue());
+            grid.getDataProvider().refreshAll();
+            grid.refreshPaginator();
+        });
+
+        statusField.setPlaceholder("Статус");
+        statusField.setItems(EmployerStatus.values());
+        statusField.setItemLabelGenerator(EmployerStatus::getDescription);
+        statusField.setClearButtonVisible(true);
+        statusField.setWidthFull();
+        statusField.getStyle().set("max-width", "100%");
+        statusField.addValueChangeListener(
+                s -> {
+                    employerFilter.setStatus(s.getValue());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }
+        );
+
+        emailField.setPlaceholder("Email");
+        emailField.setClearButtonVisible(true);
+        emailField.setWidthFull();
+        emailField.getStyle().set("max-width", "100%");
+        emailField.addValueChangeListener(
+                s -> {
+                    employerFilter.setEmail(s.getValue());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }
+        );
+
+        updatedAtField.setPlaceholder("Дата обновления");
+        updatedAtField.setClearButtonVisible(true);
+        updatedAtField.setWidthFull();
+        updatedAtField.getStyle().set("max-width", "100%");
+        updatedAtField.addValueChangeListener(
+                e -> {
+                    //TODO сделать фильтрацию
+//                    employeeFilter.setUpdatedAt(e.getValue().atStartOfDay());
+//                    grid.getDataProvider().refreshAll();
+//                    grid.refreshPaginator();
+                });
+
+        createdAtField.setPlaceholder("Дата создания");
+        createdAtField.setClearButtonVisible(true);
+        createdAtField.setWidthFull();
+        createdAtField.getStyle().set("max-width", "100%");
+        createdAtField.addValueChangeListener(
+                e -> {
+                    //TODO сделать фильтрацию
+//                    employeeFilter.setCreatedAt(e.getValue().atStartOfDay());
+//                    grid.getDataProvider().refreshAll();
+//                    grid.refreshPaginator();
+                });
+    }
+
+    private Component createContent() {
         VerticalLayout content = new VerticalLayout(
                 createAddButton(),
                 createGrid()
@@ -59,7 +174,9 @@ public class EmployerGrid extends VerticalLayout {
 
         content.setBoxSizing(BoxSizing.BORDER_BOX);
         content.setHeightFull();
-        content.setPadding(true);
+        content.setPadding(false);
+        content.setMargin(false);
+        content.setSpacing(false);
         return content;
     }
 
@@ -131,92 +248,28 @@ public class EmployerGrid extends VerticalLayout {
         grid.getHeaderRows().clear();
         HeaderRow headerRow = grid.appendHeaderRow();
 
-        headerRow.getCell(idColumn).setComponent(
-                createTextFieldFilterHeader("ID", name -> {
-                    employerFilter.setId(StringUtils.isEmpty(name) ? null : name);
-                    grid.getDataProvider().refreshAll();
-                    grid.refreshPaginator();
-                }));
-
-        headerRow.getCell(nameColumn).setComponent(
-                createTextFieldFilterHeader("Название", name -> {
-                    employerFilter.setName(StringUtils.isEmpty(name) ? null : name);
-                    grid.getDataProvider().refreshAll();
-                    grid.refreshPaginator();
-                }));
-
-        headerRow.getCell(statusColumn).setComponent(
-                createComboBoxFilterHeader("Статус",
-                        Stream.of(EmployerStatus.values())
-                                .collect(Collectors.toList()),
-                        s -> {
-                            employerFilter.setStatus(s);
-                            grid.getDataProvider().refreshAll();
-                            grid.refreshPaginator();
-                        }));
-
-        headerRow.getCell(updatedAtColumn).setComponent(
-                createCDataPickerFilterHeader("Дата обновления", name -> {
-                    employerFilter.setUpdatedAt(name.atStartOfDay());
-                    grid.getDataProvider().refreshAll();
-                    grid.refreshPaginator();
-                }));
-
-        headerRow.getCell(createdAtColumn).setComponent(
-                createCDataPickerFilterHeader("Дата создания", name -> {
-                    employerFilter.setCreatedAt(name.atStartOfDay());
-                    grid.getDataProvider().refreshAll();
-                    grid.refreshPaginator();
-                }));
+        headerRow.getCell(idColumn).setComponent(idField);
+        headerRow.getCell(nameColumn).setComponent(nameField);
+        headerRow.getCell(statusColumn).setComponent(statusField);
+        headerRow.getCell(updatedAtColumn).setComponent(updatedAtField);
+        headerRow.getCell(createdAtColumn).setComponent(createdAtField);
 
         return grid;
-    }
-
-    private static TextField createTextFieldFilterHeader(String placeHolder,
-                                                         Consumer<String> filterChangeConsumer) {
-        TextField textField = new TextField();
-        textField.setPlaceholder(placeHolder);
-        textField.setValueChangeMode(ValueChangeMode.EAGER);
-        textField.setClearButtonVisible(true);
-        textField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
-        textField.setWidthFull();
-        textField.getStyle().set("max-width", "100%");
-        textField.addValueChangeListener(
-                e -> filterChangeConsumer.accept(e.getValue()));
-        return textField;
-    }
-
-    private static <T extends WithDescription> ComboBox<T> createComboBoxFilterHeader(String placeHolder,
-                                                                                      List<T> items,
-                                                                                      Consumer<T> filterChangeConsumer) {
-        ComboBox<T> comboBox = new ComboBox<>();
-        comboBox.setItems(items);
-        comboBox.setItemLabelGenerator(T::getDescription);
-
-        comboBox.setPlaceholder(placeHolder);
-        comboBox.setClearButtonVisible(true);
-        comboBox.setWidthFull();
-        comboBox.getStyle().set("max-width", "100%");
-        comboBox.addValueChangeListener(
-                e -> filterChangeConsumer.accept(e.getValue()));
-        return comboBox;
-    }
-
-    private static DatePicker createCDataPickerFilterHeader(String placeHolder,
-                                                            Consumer<LocalDate> filterChangeConsumer) {
-        DatePicker datePicker = new DatePicker();
-
-        datePicker.setPlaceholder(placeHolder);
-        datePicker.setClearButtonVisible(true);
-        datePicker.setWidthFull();
-        datePicker.getStyle().set("max-width", "100%");
-        datePicker.addValueChangeListener(
-                e -> filterChangeConsumer.accept(e.getValue()));
-        return datePicker;
     }
 
     private void toViewPage(Employer employer) {
         String param = employer.getId() != null ? employer.getId() : "new";
         UI.getCurrent().navigate(EmployerView.class, param);
+    }
+
+    public void withFilter(Employer employerFilter) {
+        this.employerFilter = employerFilter;
+
+        binder.removeBean();
+        binder.setBean(employerFilter);
+        binder.bindInstanceFields(this);
+
+        dataProvider.setFilter(employerFilter);
+        grid.getDataProvider().refreshAll();
     }
 }

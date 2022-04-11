@@ -10,7 +10,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.PropertyId;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import tech.inno.odp.backend.data.containers.Employer;
 import tech.inno.odp.backend.data.enums.CommissionPayer;
@@ -25,8 +24,7 @@ import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
 
 public class EmployerSettingsForm extends VerticalLayout {
 
-    @Setter
-    private Employer employer;
+    public static final String ID = "employerSettingsForm";
 
     @Getter
     private BeanValidationBinder<Employer> binder;
@@ -59,17 +57,14 @@ public class EmployerSettingsForm extends VerticalLayout {
     private TextField createdAtField = new TextField("Дата создания");
 
     public void init() {
+        setId(ID);
+
         initFields();
 
         BigDecimalToLongConverter bigDecimalToLongConverter = new BigDecimalToLongConverter();
         StringToLocalDateTimeConverter stringToLocalDateTimeConverter = new StringToLocalDateTimeConverter();
 
-        if (StringUtils.isEmpty(this.employer.getId())) {
-            this.employer.setStatus(EmployerStatus.CREATED);
-        }
-
         this.binder = new BeanValidationBinder<>(Employer.class);
-        this.binder.setBean(this.employer);
         this.binder.forField(commissionAmountField)
                 .withConverter(bigDecimalToLongConverter)
                 .bind("commissionAmount");
@@ -88,7 +83,6 @@ public class EmployerSettingsForm extends VerticalLayout {
         this.binder.forField(createdAtField)
                 .withConverter(stringToLocalDateTimeConverter)
                 .bind(Employer::getCreatedAt, Employer::setCreatedAt);
-        this.binder.bindInstanceFields(this);
 
         add(createForm());
     }
@@ -96,21 +90,29 @@ public class EmployerSettingsForm extends VerticalLayout {
     private void initFields() {
         idField.setReadOnly(true);
         idField.setConverters(new StringToStringWithNullValueConverter());
-        updatedAtField.setReadOnly(true);
-        createdAtField.setReadOnly(true);
+        
+        nameField.setRequired(true);
+        nameField.setRequiredIndicatorVisible(true);
 
         paymentMethodField.setItems(PaymentGatewayProvider.values());
         paymentMethodField.setItemLabelGenerator(PaymentGatewayProvider::getDescription);
+        paymentMethodField.setRequired(true);
 
         commissionPayerField.setItems(CommissionPayer.values());
         commissionPayerField.setItemLabelGenerator(CommissionPayer::getDescription);
+        commissionPayerField.setRequired(true);
 
         statusField.setItems(EmployerStatus.values());
         statusField.setItemLabelGenerator(EmployerStatus::getDescription);
+        statusField.setRequired(true);
 //        statusField.setReadOnly(true);
 
         withdrawalPercentageField.setMax(100.0);
         withdrawalPercentageField.setMin(0.0);
+        withdrawalPercentageField.setRequiredIndicatorVisible(true);
+
+        updatedAtField.setReadOnly(true);
+        createdAtField.setReadOnly(true);
     }
 
     public FormLayout createForm() {
@@ -144,5 +146,17 @@ public class EmployerSettingsForm extends VerticalLayout {
                 new FormLayout.ResponsiveStep("1024px", 2,
                         FormLayout.ResponsiveStep.LabelsPosition.TOP));
         return formLayout;
+    }
+
+
+    public void withBean(Employer employer) {
+
+        if (StringUtils.isEmpty(employer.getId())) {
+            employer.setStatus(EmployerStatus.CREATED);
+        }
+
+        this.binder.removeBean();
+        this.binder.setBean(employer);
+        this.binder.bindInstanceFields(this);
     }
 }

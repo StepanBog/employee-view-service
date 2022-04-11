@@ -7,15 +7,16 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.PropertyId;
 import lombok.Getter;
-import lombok.Setter;
 import tech.inno.odp.backend.data.containers.Requisites;
 import tech.inno.odp.ui.util.LumoStyles;
 import tech.inno.odp.ui.util.converter.StringToLocalDateTimeConverter;
 
+import javax.annotation.PostConstruct;
+
 public class RequisitesForm extends VerticalLayout {
 
-    @Setter
-    private Requisites requisites;
+    public static final String ID = "requisitesForm";
+
     @Getter
     private BeanValidationBinder<Requisites> binder;
 
@@ -54,21 +55,21 @@ public class RequisitesForm extends VerticalLayout {
     private FormLayout accountLayout = new FormLayout();
 
 
+    @PostConstruct
     public void init() {
+        setId(ID);
+
         initFields();
 
         StringToLocalDateTimeConverter stringToLocalDateTimeConverter = new StringToLocalDateTimeConverter();
 
         this.binder = new BeanValidationBinder<>(Requisites.class);
-        this.binder.setBean(requisites);
         this.binder.forField(updatedAtField)
                 .withConverter(stringToLocalDateTimeConverter)
                 .bind(Requisites::getUpdatedAt, Requisites::setUpdatedAt);
         this.binder.forField(createdAtField)
                 .withConverter(stringToLocalDateTimeConverter)
                 .bind(Requisites::getCreatedAt, Requisites::setCreatedAt);
-        this.binder.bindInstanceFields(this);
-
         createForm();
     }
 
@@ -82,8 +83,8 @@ public class RequisitesForm extends VerticalLayout {
         dataLayout.add(updatedAtField);
         dataLayout.add(createdAtField);
 
-        dataLayout.addClassNames(LumoStyles.Padding.Bottom.L,
-                LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.S);
+        dataLayout.addClassNames(LumoStyles.Padding.Bottom.XS,
+                LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.XS);
         dataLayout.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1,
                         FormLayout.ResponsiveStep.LabelsPosition.TOP),
@@ -105,8 +106,8 @@ public class RequisitesForm extends VerticalLayout {
         accountLayout.add(bikField);
         accountLayout.add(corrField);
 
-        accountLayout.addClassNames(LumoStyles.Padding.Bottom.L,
-                LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.S);
+        accountLayout.addClassNames(LumoStyles.Padding.Bottom.XS,
+                LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.XS);
         accountLayout.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1,
                         FormLayout.ResponsiveStep.LabelsPosition.TOP),
@@ -120,8 +121,8 @@ public class RequisitesForm extends VerticalLayout {
         fioLayout.add(lastNameField);
         fioLayout.add(patronymicNameField);
 
-        fioLayout.addClassNames(LumoStyles.Padding.Bottom.L,
-                LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.S);
+        fioLayout.addClassNames(LumoStyles.Padding.Bottom.XS,
+                LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.XS);
         fioLayout.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1,
                         FormLayout.ResponsiveStep.LabelsPosition.TOP),
@@ -133,8 +134,8 @@ public class RequisitesForm extends VerticalLayout {
 
         passportLayout.add(passportSeriesField);
         passportLayout.add(passportNumberField);
-        passportLayout.addClassNames(LumoStyles.Padding.Bottom.L,
-                LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.S);
+        passportLayout.addClassNames(LumoStyles.Padding.Bottom.XS,
+                LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.XS);
         passportLayout.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1,
                         FormLayout.ResponsiveStep.LabelsPosition.TOP),
@@ -152,5 +153,11 @@ public class RequisitesForm extends VerticalLayout {
         verticalLayout.add(accountLayout);
 
         add(verticalLayout);
+    }
+
+    public void withBean(Requisites requisites) {
+        this.binder.removeBean();
+        this.binder.setBean(requisites);
+        this.binder.bindInstanceFields(this);
     }
 }

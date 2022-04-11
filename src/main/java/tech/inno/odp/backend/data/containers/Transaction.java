@@ -33,6 +33,11 @@ public class Transaction {
     private String employeeId;
 
     /**
+     * Идентификатор работодателя
+     */
+    private String employerId;
+
+    /**
      * Дата выполнения транзакции
      */
     private LocalDateTime date;

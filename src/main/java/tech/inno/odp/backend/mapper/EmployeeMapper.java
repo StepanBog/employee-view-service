@@ -33,6 +33,7 @@ public interface EmployeeMapper {
     @Mapping(target = "employerName", source = "employer.name")
     @Mapping(target = "firstName", source = "requisites.firstName")
     @Mapping(target = "lastName", source = "requisites.lastName")
+    @Mapping(target = "patronymicName", source = "requisites.patronymicName")
     Employee transform(tech.inno.odp.grpc.generated.service.Employee employee);
 
     List<Employee> transform(List<tech.inno.odp.grpc.generated.service.Employee> employees);

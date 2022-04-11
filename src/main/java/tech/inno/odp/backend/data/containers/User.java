@@ -6,9 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import tech.inno.odp.backend.data.enums.UserRoleName;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author VKozlov
@@ -21,8 +22,14 @@ public class User implements UserDetails {
 
     private String id;
 
+    /**
+     * Логин пользователя
+     */
     private String username;
 
+    /**
+     * Пароль
+     */
     private String password;
 
     private boolean accountNonExpired;
@@ -42,12 +49,26 @@ public class User implements UserDetails {
     private List<SimpleGrantedAuthority> authorities;
 
     /**
+     * Имена ролей
+     */
+    private List<UserRoleName> roleNames;
+
+    /**
      * id работодателя
      */
-    private UUID employerId;
+    private String employerId;
 
     /**
      * id работника
      */
-    private UUID employeeId;
+    private String employeeId;
+
+    /**
+     * Настройки пользователей
+     */
+    private UserSettings settings;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 }

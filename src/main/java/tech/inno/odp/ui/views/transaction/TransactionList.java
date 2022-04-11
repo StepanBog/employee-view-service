@@ -1,46 +1,56 @@
 package tech.inno.odp.ui.views.transaction;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.vaadin.flow.spring.annotation.UIScope;
+import lombok.RequiredArgsConstructor;
+import tech.inno.odp.backend.service.IEmployerService;
 import tech.inno.odp.backend.service.ITransactionService;
 import tech.inno.odp.ui.MainLayout;
 import tech.inno.odp.ui.components.FlexBoxLayout;
-import tech.inno.odp.ui.layout.size.Horizontal;
-import tech.inno.odp.ui.layout.size.Top;
+import tech.inno.odp.ui.layout.SplitLayoutToggle;
 import tech.inno.odp.ui.util.css.BoxSizing;
 import tech.inno.odp.ui.views.ViewFrame;
+import tech.inno.odp.ui.views.transaction.form.TransactionSearchInGridForm;
+
+import javax.annotation.PostConstruct;
 
 @PageTitle("Платежи")
 @Route(value = TransactionList.ROUTE, layout = MainLayout.class)
+@UIScope
+@RequiredArgsConstructor
 public class TransactionList extends ViewFrame {
     public static final String ROUTE = "transactions";
 
-    @Autowired
-    private ITransactionService transactionService;
+    private final ITransactionService transactionService;
+    private final IEmployerService employerService;
 
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
+    @PostConstruct
+    public void init() {
         setViewContent(createContent());
     }
 
     private Component createContent() {
+        TransactionGrid grid = createGrid();
+        TransactionSearchInGridForm searchForm = new TransactionSearchInGridForm(employerService, grid);
+        searchForm.init();
+
+        SplitLayoutToggle splitLayoutToggle = new SplitLayoutToggle(
+                searchForm,
+                grid
+        );
+
         FlexBoxLayout content = new FlexBoxLayout(
-                createGrid()
+                splitLayoutToggle
         );
         content.setBoxSizing(BoxSizing.BORDER_BOX);
-        content.setHeightFull();
-        content.setPadding(Horizontal.RESPONSIVE_X, Top.RESPONSIVE_X);
+        content.setSizeFull();
         return content;
     }
 
-    private VerticalLayout createGrid() {
-        TransactionGrid transactionGrid = new TransactionGrid();
-        transactionGrid.setTransactionService(transactionService);
+    private TransactionGrid createGrid() {
+        TransactionGrid transactionGrid = new TransactionGrid(transactionService);
         transactionGrid.init();
         return transactionGrid;
     }

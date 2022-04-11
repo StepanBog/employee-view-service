@@ -6,18 +6,15 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.PropertyId;
 import lombok.Getter;
-import lombok.Setter;
 import tech.inno.odp.backend.data.containers.Tariff;
 import tech.inno.odp.ui.util.LumoStyles;
 
 
 public class EmployerTariffSettingsForm extends VerticalLayout {
 
-    @Setter
-    private Tariff tariff;
+    public static final String ID = "employerTariffSettingsForm";
 
     @Getter
     private BeanValidationBinder<Tariff> binder;
@@ -32,20 +29,14 @@ public class EmployerTariffSettingsForm extends VerticalLayout {
     private IntegerField preferentialPaymentCountField = new IntegerField("Количество льготных платежей");
 
     public void init() {
+        setId(ID);
+
         initFields();
-
         this.binder = new BeanValidationBinder<>(Tariff.class);
-        this.binder.setBean(this.tariff);
-        this.binder.bindInstanceFields(this);
-
         add(createForm());
     }
 
     private void initFields() {
-
-        zeroCommissionEnableField.setReadOnly(!this.tariff.isEnable());
-        preferentialPaymentDaysField.setReadOnly(!this.tariff.isEnable());
-        preferentialPaymentCountField.setReadOnly(!this.tariff.isEnable());
 
         enableField.addValueChangeListener(event -> {
             zeroCommissionEnableField.setReadOnly(!event.getValue());
@@ -80,5 +71,15 @@ public class EmployerTariffSettingsForm extends VerticalLayout {
                 new FormLayout.ResponsiveStep("1024px", 2,
                         FormLayout.ResponsiveStep.LabelsPosition.TOP));
         return formLayout;
+    }
+
+    public void withBean(Tariff tariff) {
+        zeroCommissionEnableField.setReadOnly(!tariff.isEnable());
+        preferentialPaymentDaysField.setReadOnly(!tariff.isEnable());
+        preferentialPaymentCountField.setReadOnly(!tariff.isEnable());
+
+        this.binder.removeBean();
+        this.binder.setBean(tariff);
+        this.binder.bindInstanceFields(this);
     }
 }

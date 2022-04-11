@@ -68,4 +68,12 @@ public interface StatusMapper {
     default EmployeeStatus mapTo(tech.inno.odp.grpc.generated.common.employee.EmployeeStatus status) {
         return EmployeeStatus.valueOf(status.name());
     }
+
+    default tech.inno.odp.grpc.generated.common.UserRole mapToProto(UserRoleName role) {
+        return tech.inno.odp.grpc.generated.common.UserRole.valueOf(role.name());
+    }
+
+    default UserRoleName mapTo(tech.inno.odp.grpc.generated.common.UserRole role) {
+        return UserRoleName.valueOf(role.name());
+    }
 }

@@ -2,22 +2,21 @@ package tech.inno.odp.ui.components.navigation.bar;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import tech.inno.odp.backend.service.impl.AuthService;
 import tech.inno.odp.ui.MainLayout;
 import tech.inno.odp.ui.components.FlexBoxLayout;
 import tech.inno.odp.ui.components.navigation.tab.NaviTabs;
 import tech.inno.odp.ui.util.LumoStyles;
 import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.views.Home;
-
-import static tech.inno.odp.ui.util.UIUtils.IMG_PATH;
 
 @CssImport("./styles/components/tab-bar.css")
 public class TabBar extends FlexBoxLayout {
@@ -27,7 +26,7 @@ public class TabBar extends FlexBoxLayout {
     private Button menuIcon;
     private NaviTabs tabs;
     private Button addTab;
-    private Image avatar;
+    private Avatar avatar;
 
     public TabBar() {
         setClassName(CLASS_NAME);
@@ -36,19 +35,17 @@ public class TabBar extends FlexBoxLayout {
         menuIcon.addClassName(CLASS_NAME + "__navi-icon");
         menuIcon.addClickListener(e -> MainLayout.get().getNaviDrawer().toggle());
 
-        avatar = new Image();
+        avatar = new Avatar("User menu");
         avatar.setClassName(CLASS_NAME + "__avatar");
-        //TODO вернуть
-//        avatar.setSrc(IMG_PATH + "avatar.png");
 
         ContextMenu contextMenu = new ContextMenu(avatar);
         contextMenu.setOpenOnClick(true);
-        contextMenu.addItem("Settings",
+        contextMenu.addItem("Настройки",
                 e -> Notification.show("Not implemented yet.", 3000,
-                        Notification.Position.BOTTOM_CENTER));
-        contextMenu.addItem("Log Out",
-                e -> Notification.show("Not implemented yet.", 3000,
-                        Notification.Position.BOTTOM_CENTER));
+                        Notification.Position.TOP_CENTER));
+        contextMenu.addItem("Выход",
+                e -> new AuthService(null).logout()
+        );
 
         addTab = UIUtils.createSmallButton(VaadinIcon.PLUS);
         addTab.addClickListener(e -> tabs

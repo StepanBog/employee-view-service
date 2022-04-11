@@ -14,6 +14,10 @@ public class CustomTextField extends TextField {
         super(label);
     }
 
+    public CustomTextField() {
+        super();
+    }
+
     @Override
     public void setValue(String value) {
         super.setValue(value);

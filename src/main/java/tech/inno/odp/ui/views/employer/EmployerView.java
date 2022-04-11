@@ -18,6 +18,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import tech.inno.odp.backend.data.containers.Employee;
 import tech.inno.odp.backend.data.containers.Employer;
 import tech.inno.odp.backend.data.containers.Requisites;
 import tech.inno.odp.backend.data.containers.Tariff;
@@ -38,6 +39,7 @@ import tech.inno.odp.ui.views.employer.form.EmployerSettingsForm;
 import tech.inno.odp.ui.views.employer.form.EmployerTariffSettingsForm;
 import tech.inno.odp.ui.views.requisites.RequisitesForm;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -59,53 +61,79 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
     private final EmployerSettingsForm commonSettingsForm = new EmployerSettingsForm();
     private final EmployerTariffSettingsForm tariffSettingsForm = new EmployerTariffSettingsForm();
     private final RequisitesForm requisitesForm = new RequisitesForm();
-    private final DocumentGroupGrid documentTemplateSettingsForm = new DocumentGroupGrid();
+    private final DocumentGroupGrid documentGroupGrid = new DocumentGroupGrid();
     private final EmployeeGrid employeeGrid = new EmployeeGrid();
+
+    @PostConstruct
+    public void init() {
+        final Button save = UIUtils.createPrimaryButton("Сохранить");
+        save.addClickListener(event -> {
+            boolean isNew = StringUtils.isEmpty(employer.getId());
+            
+            Employer employer = commonSettingsForm.getBinder().getBean();
+            employer.setRequisites(requisitesForm.getBinder().getBean());
+            employer.setTariff(tariffSettingsForm.getBinder().getBean());
+            employer = employerService.save(employer);
+
+            if (isNew) {
+                List<DocumentTemplateGroup> groupList = documentGroupGrid.getGroupList();
+                for (DocumentTemplateGroup group : groupList) {
+                    group.setEmployerId(employer.getId());
+                    documentTemplateService.save(group);
+                }
+            }
+
+            UI.getCurrent().navigate(EmployerList.class);
+        });
+        final Button cancel = UIUtils.createTertiaryButton("Отменить");
+        cancel.addClickListener(event -> UI.getCurrent().navigate(EmployerList.class));
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(save, cancel);
+        buttonLayout.setSpacing(true);
+        buttonLayout.setPadding(true);
+
+        setViewContent(createContent());
+        setViewFooter(buttonLayout);
+    }
 
     private Component createContent() {
         FlexBoxLayout content = new FlexBoxLayout(
                 createEmployerUI()
         );
         content.setFlexDirection(FlexLayout.FlexDirection.COLUMN);
-        content.setMargin(Horizontal.AUTO, Vertical.RESPONSIVE_L);
-        content.setWidth("100%");
-        content.setHeightFull();
+        content.setMargin(Horizontal.XS, Vertical.XS);
+        content.setSizeFull();
         return content;
     }
 
     private Component createEmployerUI() {
         commonSettingsForm.init();
         commonSettingsForm.setVisible(true);
-        commonSettingsForm.setId("commonSettingsForm");
         commonSettingsForm.setMaxWidth("800px");
 
         tariffSettingsForm.init();
         tariffSettingsForm.setVisible(false);
-        tariffSettingsForm.setId("tariffSettingsForm");
         tariffSettingsForm.setMaxWidth("800px");
 
         requisitesForm.init();
         requisitesForm.setVisible(false);
-        requisitesForm.setId("requisitesForm");
         requisitesForm.setMaxWidth("800px");
 
-        documentTemplateSettingsForm.setDocumentTemplateService(documentTemplateService);
-        documentTemplateSettingsForm.init();
-        documentTemplateSettingsForm.setVisible(false);
-        documentTemplateSettingsForm.setId("documentTemplateSettingsForm");
+        documentGroupGrid.setDocumentTemplateService(documentTemplateService);
+        documentGroupGrid.init();
+        documentGroupGrid.setVisible(false);
 
-        employeeGrid.setFromEmployer(employer);
+        employeeGrid.setFromEmployer(true);
         employeeGrid.setEmployeeService(employeeService);
         employeeGrid.init();
         employeeGrid.setVisible(false);
-        employeeGrid.setId("employeeGrid");
 
         this.tabLayoutMap =
-                Map.of("commonSettingsForm", commonSettingsForm,
-                        "tariffSettingsForm", tariffSettingsForm,
-                        "requisitesForm", requisitesForm,
-                        "documentTemplateSettingsForm", documentTemplateSettingsForm,
-                        "employeeGrid", employeeGrid
+                Map.of(EmployerSettingsForm.ID, commonSettingsForm,
+                        EmployerTariffSettingsForm.ID, tariffSettingsForm,
+                        RequisitesForm.ID, requisitesForm,
+                        DocumentGroupGrid.ID, documentGroupGrid,
+                        EmployeeGrid.ID, employeeGrid
                 );
 
         VerticalLayout verticalLayout = new VerticalLayout();
@@ -114,7 +142,7 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
                 requisitesForm,
                 tariffSettingsForm,
                 employeeGrid,
-                documentTemplateSettingsForm
+                documentGroupGrid
         );
         verticalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
@@ -137,11 +165,11 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
     private AppBar initAppBar() {
         AppBar appBar = MainLayout.get().getAppBar();
 
-        appBar.addTab(createTab("commonSettingsForm", VaadinIcon.FORM.create(), "Настройки"));
-        appBar.addTab(createTab("requisitesForm", VaadinIcon.MODAL_LIST.create(), "Реквизиты"));
-        appBar.addTab(createTab("employeeGrid", VaadinIcon.USERS.create(), "Работники"));
-        appBar.addTab(createTab("tariffSettingsForm", VaadinIcon.LIST.create(), "Тариф"));
-        appBar.addTab(createTab("documentTemplateSettingsForm", VaadinIcon.BOOK.create(), "Шаблоны"));
+        appBar.addTab(createTab(EmployerSettingsForm.ID, VaadinIcon.FORM.create(), "Настройки"));
+        appBar.addTab(createTab(RequisitesForm.ID, VaadinIcon.MODAL_LIST.create(), "Реквизиты"));
+        appBar.addTab(createTab(EmployeeGrid.ID, VaadinIcon.USERS.create(), "Работники"));
+        appBar.addTab(createTab(EmployerTariffSettingsForm.ID, VaadinIcon.LIST.create(), "Тариф"));
+        appBar.addTab(createTab(DocumentGroupGrid.ID, VaadinIcon.BOOK.create(), "Шаблоны"));
         appBar.centerTabs();
 
         appBar.addTabSelectionListener(event -> {
@@ -165,39 +193,14 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
         } else {
             employer = employerService.findById(UUID.fromString(param));
         }
-        commonSettingsForm.setEmployer(employer);
-        tariffSettingsForm.setTariff(employer.getTariff());
-        requisitesForm.setRequisites(employer.getRequisites());
-        documentTemplateSettingsForm.setEmployer(employer);
 
+        requisitesForm.withBean(employer.getRequisites());
+        commonSettingsForm.withBean(employer);
+        tariffSettingsForm.withBean(employer.getTariff());
+        documentGroupGrid.withBean(employer);
 
-        final Button save = UIUtils.createPrimaryButton("Сохранить");
-        save.addClickListener(event -> {
-            boolean isNew = StringUtils.isEmpty(employer.getId());
-
-            Employer employer = commonSettingsForm.getBinder().getBean();
-            employer.setRequisites(requisitesForm.getBinder().getBean());
-            employer.setTariff(tariffSettingsForm.getBinder().getBean());
-            employer = employerService.save(employer);
-
-            if (isNew) {
-                List<DocumentTemplateGroup> groupList = documentTemplateSettingsForm.getGroupList();
-                for (DocumentTemplateGroup group : groupList) {
-                    group.setEmployerId(employer.getId());
-                    documentTemplateService.save(group);
-                }
-            }
-
-            UI.getCurrent().navigate(EmployerList.class);
-        });
-        final Button cancel = UIUtils.createTertiaryButton("Отменить");
-        cancel.addClickListener(event -> UI.getCurrent().navigate(EmployerList.class));
-
-        HorizontalLayout buttonLayout = new HorizontalLayout(save, cancel);
-        buttonLayout.setSpacing(true);
-        buttonLayout.setPadding(true);
-
-        setViewContent(createContent());
-        setViewFooter(buttonLayout);
+        Employee employeeFilter = employeeGrid.getEmployeeFilter();
+        employeeFilter.setEmployerId(employer.getId());
+        employeeGrid.withFilter(employeeFilter);
     }
 }

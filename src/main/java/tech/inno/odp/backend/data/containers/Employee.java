@@ -31,6 +31,11 @@ public class Employee {
     private String firstName;
 
     /**
+     * Отчество работника
+     */
+    private String patronymicName;
+
+    /**
      * Фамилия работника
      */
     private String lastName;

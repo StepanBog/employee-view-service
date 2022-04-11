@@ -15,6 +15,7 @@ import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.server.ErrorHandler;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +31,12 @@ import tech.inno.odp.ui.views.Home;
 import tech.inno.odp.ui.views.employee.EmployeeList;
 import tech.inno.odp.ui.views.employer.EmployerList;
 import tech.inno.odp.ui.views.transaction.TransactionList;
+import tech.inno.odp.ui.views.user.UserList;
 
 @CssImport(value = "./styles/components/charts.css", themeFor = "vaadin-chart", include = "vaadin-chart-default-theme")
 @CssImport(value = "./styles/components/floating-action-button.css", themeFor = "vaadin-button")
 @CssImport(value = "./styles/components/grid.css", themeFor = "vaadin-grid")
+@CssImport("./styles/components/text-field.css")
 @CssImport("./styles/lumo/border-radius.css")
 @CssImport("./styles/lumo/icon-size.css")
 @CssImport("./styles/lumo/margin.css")
@@ -46,6 +49,7 @@ import tech.inno.odp.ui.views.transaction.TransactionList;
 @JsModule("@vaadin/vaadin-lumo-styles/badge")
 @PWA(name = "ODP admin panel", shortName = "ODP admin",
         backgroundColor = "#233348", themeColor = "#233348")
+@Theme(value = Lumo.class, variant = Lumo.DARK)
 @Viewport("width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
 public class MainLayout extends FlexBoxLayout implements RouterLayout, AfterNavigationObserver {
 
@@ -65,7 +69,7 @@ public class MainLayout extends FlexBoxLayout implements RouterLayout, AfterNavi
     private Div appFooterOuter;
 
     private TabBar tabBar;
-    private boolean navigationTabs = false;
+    private boolean navigationTabs = true;
     private AppBar appBar;
 
     public MainLayout() {
@@ -124,6 +128,7 @@ public class MainLayout extends FlexBoxLayout implements RouterLayout, AfterNavi
         menu.addNaviItem(VaadinIcon.CREDIT_CARD, "Платежи", TransactionList.class);
         menu.addNaviItem(VaadinIcon.USER_STAR, "Работодатели", EmployerList.class);
         menu.addNaviItem(VaadinIcon.USER, "Работники", EmployeeList.class);
+        menu.addNaviItem(VaadinIcon.USERS, "Пользователи", UserList.class);
     }
 
     /**
@@ -148,8 +153,6 @@ public class MainLayout extends FlexBoxLayout implements RouterLayout, AfterNavi
             }
             appBar.getAvatar().setVisible(false);
             setAppHeaderInner(tabBar, appBar);
-
-            // Default navigation
         } else {
             UIUtils.setTheme(Lumo.DARK, appBar);
             setAppHeaderInner(appBar);

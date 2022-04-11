@@ -17,8 +17,7 @@ import java.util.Base64;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CustomAuthenticationProvider implements AuthenticationProvider 
-{
+public class CustomAuthenticationProvider implements AuthenticationProvider {
     private final IAuthService authService;
 
     public RefreshedPreAuthenticatedAuthenticationToken login(UsernamePasswordAuthenticationToken token) {

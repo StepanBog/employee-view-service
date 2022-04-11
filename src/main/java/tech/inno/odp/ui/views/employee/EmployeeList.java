@@ -1,8 +1,6 @@
 package tech.inno.odp.ui.views.employee;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import lombok.RequiredArgsConstructor;
@@ -10,10 +8,12 @@ import tech.inno.odp.backend.service.IEmployeeService;
 import tech.inno.odp.backend.service.IEmployerService;
 import tech.inno.odp.ui.MainLayout;
 import tech.inno.odp.ui.components.FlexBoxLayout;
-import tech.inno.odp.ui.layout.size.Horizontal;
-import tech.inno.odp.ui.layout.size.Top;
+import tech.inno.odp.ui.layout.SplitLayoutToggle;
 import tech.inno.odp.ui.util.css.BoxSizing;
 import tech.inno.odp.ui.views.ViewFrame;
+import tech.inno.odp.ui.views.employee.form.EmployeeSearchInGridForm;
+
+import javax.annotation.PostConstruct;
 
 @PageTitle("Работники")
 @Route(value = EmployeeList.ROUTE, layout = MainLayout.class)
@@ -25,28 +25,34 @@ public class EmployeeList extends ViewFrame {
     private final IEmployeeService employeeService;
     private final IEmployerService employerService;
 
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
+    @PostConstruct
+    public void init() {
         setViewContent(createContent());
     }
 
     private Component createContent() {
+        EmployeeGrid grid = createGrid();
+        EmployeeSearchInGridForm searchForm = new EmployeeSearchInGridForm(employerService, grid);
+        searchForm.init();
+
+        SplitLayoutToggle splitLayoutToggle = new SplitLayoutToggle(
+                searchForm,
+                grid
+        );
+
         FlexBoxLayout content = new FlexBoxLayout(
-                createGrid()
+                splitLayoutToggle
         );
         content.setBoxSizing(BoxSizing.BORDER_BOX);
-        content.setHeightFull();
-        content.setPadding(Horizontal.RESPONSIVE_X, Top.RESPONSIVE_X);
+        content.setSizeFull();
         return content;
     }
 
-    private VerticalLayout createGrid() {
+    private EmployeeGrid createGrid() {
         EmployeeGrid employeeGrid = new EmployeeGrid();
         employeeGrid.setEmployeeService(employeeService);
         employeeGrid.setEmployerService(employerService);
         employeeGrid.init();
-
         return employeeGrid;
     }
 }

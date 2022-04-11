@@ -2,6 +2,7 @@ package tech.inno.odp.ui.components.navigation.bar;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
@@ -14,6 +15,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.shared.Registration;
+import lombok.Getter;
 import tech.inno.odp.backend.service.impl.AuthService;
 import tech.inno.odp.ui.MainLayout;
 import tech.inno.odp.ui.components.FlexBoxLayout;
@@ -37,9 +39,10 @@ public class AppBar extends FlexBoxLayout {
 
     private H4 title;
     private FlexBoxLayout actionItems;
-    private Image avatar;
+    private Avatar avatar;
 
     private FlexBoxLayout tabContainer;
+    @Getter
     private NaviTabs tabs;
     private ArrayList<Registration> tabSelectionListeners;
     private Button addTab;
@@ -95,11 +98,8 @@ public class AppBar extends FlexBoxLayout {
     }
 
     private void initAvatar() {
-        avatar = new Image();
+        avatar = new Avatar("User menu");
         avatar.setClassName(CLASS_NAME + "__avatar");
-        //TODO вернуть
-//        avatar.setSrc(IMG_PATH + "avatar.png");
-        avatar.setAlt("User menu");
 
         ContextMenu contextMenu = new ContextMenu(avatar);
         contextMenu.setOpenOnClick(true);
@@ -191,7 +191,7 @@ public class AppBar extends FlexBoxLayout {
 
     /* === AVATAR == */
 
-    public Image getAvatar() {
+    public Avatar getAvatar() {
         return avatar;
     }
 

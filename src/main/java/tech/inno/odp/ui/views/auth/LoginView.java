@@ -8,13 +8,15 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import tech.inno.odp.backend.config.security.CustomAuthenticationProvider;
 import tech.inno.odp.ui.views.Home;
+
+import javax.annotation.PostConstruct;
 
 /**
  * @author VKozlov
@@ -22,16 +24,17 @@ import tech.inno.odp.ui.views.Home;
 @Slf4j
 @Route(value = LoginView.ROUTE)
 @PageTitle("Login")
+@RequiredArgsConstructor
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     public static final String ROUTE = "login";
 
-    @Autowired
-    private CustomAuthenticationProvider authenticationProvider;
+    private final CustomAuthenticationProvider authenticationProvider;
 
-    private final LoginOverlay loginOverlay = new LoginOverlay();
+    private LoginOverlay loginOverlay = new LoginOverlay();
 
-    public LoginView() {
+    @PostConstruct
+    public void init() {
         loginOverlay.setOpened(true);
 
         LoginI18n i18n = LoginI18n.createDefault();

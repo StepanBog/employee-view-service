@@ -7,50 +7,143 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.data.binder.PropertyId;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import tech.inno.odp.backend.data.containers.Transaction;
 import tech.inno.odp.backend.data.enums.TransactionStatus;
-import tech.inno.odp.backend.data.enums.WithDescription;
 import tech.inno.odp.backend.service.ITransactionService;
 import tech.inno.odp.ui.components.Badge;
 import tech.inno.odp.ui.components.grid.PaginatedGrid;
 import tech.inno.odp.ui.util.UIUtils;
+import tech.inno.odp.ui.util.converter.LocalDateToLocalDateTimeConverter;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+@RequiredArgsConstructor
 public class TransactionGrid extends VerticalLayout {
 
     private final int PAGE_SIZE = 20;
 
-    @Setter
-    private ITransactionService transactionService;
+    private final ITransactionService transactionService;
 
     private PaginatedGrid<Transaction> grid;
-    private ConfigurableFilterDataProvider<Transaction, Void, Transaction> dataProvider;
     @Getter
+    private ConfigurableFilterDataProvider<Transaction, Void, Transaction> dataProvider;
+
+    @PropertyId("id")
+    private TextField idField = new TextField();
+    @PropertyId("status")
+    private ComboBox<TransactionStatus> statusField = new ComboBox();
+    @PropertyId("totalSum")
+    private BigDecimalField totalSumField = new BigDecimalField();
+
+    @PropertyId("updatedAt")
+    private DatePicker updatedAtField = new DatePicker();
+    @PropertyId("createdAt")
+    private DatePicker createdAtField = new DatePicker();
+
     private Transaction transactionFilter;
+    @Getter
+    private BeanValidationBinder<Transaction> binder;
 
     public void init() {
         setSizeFull();
+        initFields();
+
+        initDataProvider();
+
+        this.binder = new BeanValidationBinder<>(Transaction.class);
+        this.binder.setBean(this.transactionFilter);
+
+        LocalDateToLocalDateTimeConverter localDateTimeConverter = new LocalDateToLocalDateTimeConverter();
+        this.binder.forField(updatedAtField)
+                .withConverter(localDateTimeConverter)
+                .bind(Transaction::getUpdatedAt, Transaction::setUpdatedAt);
+        this.binder.forField(createdAtField)
+                .withConverter(localDateTimeConverter)
+                .bind(Transaction::getCreatedAt, Transaction::setCreatedAt);
+        this.binder.bindInstanceFields(this);
+
         add(createContent());
     }
 
+    private void initFields() {
+        idField.setPlaceholder("ID");
+        idField.setValueChangeMode(ValueChangeMode.EAGER);
+        idField.setClearButtonVisible(true);
+        idField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+        idField.setWidthFull();
+        idField.getStyle().set("max-width", "100%");
+        idField.addValueChangeListener(e -> {
+            transactionFilter.setId(StringUtils.isEmpty(e.getValue()) ? null : e.getValue());
+            grid.getDataProvider().refreshAll();
+            grid.refreshPaginator();
+        });
+
+        statusField.setPlaceholder("Статус");
+        statusField.setItems(TransactionStatus.values());
+        statusField.setItemLabelGenerator(TransactionStatus::getDescription);
+        statusField.setClearButtonVisible(true);
+        statusField.setWidthFull();
+        statusField.getStyle().set("max-width", "100%");
+        statusField.addValueChangeListener(
+                s -> {
+                    transactionFilter.setStatus(s.getValue());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }
+        );
+
+        totalSumField.setPlaceholder("Общая сумма");
+        totalSumField.setClearButtonVisible(true);
+        totalSumField.setWidthFull();
+        totalSumField.getStyle().set("max-width", "100%");
+        totalSumField.addValueChangeListener(
+                s -> {
+                    //TODO сделать фильтрацию
+//                    transactionFilter.setTotalSum(s.getValue());
+//                    grid.getDataProvider().refreshAll();
+//                    grid.refreshPaginator();
+                }
+        );
+
+        updatedAtField.setPlaceholder("Дата обновления");
+        updatedAtField.setClearButtonVisible(true);
+        updatedAtField.setWidthFull();
+        updatedAtField.getStyle().set("max-width", "100%");
+        updatedAtField.addValueChangeListener(
+                e -> {
+                    //TODO сделать фильтрацию
+//                    transactionFilter.setUpdatedAt(e.getValue().atStartOfDay());
+//                    grid.getDataProvider().refreshAll();
+//                    grid.refreshPaginator();
+                });
+
+        createdAtField.setPlaceholder("Дата создания");
+        createdAtField.setClearButtonVisible(true);
+        createdAtField.setWidthFull();
+        createdAtField.getStyle().set("max-width", "100%");
+        createdAtField.addValueChangeListener(
+                e -> {
+                    //TODO сделать фильтрацию
+//                    transactionFilter.setCreatedAt(e.getValue().atStartOfDay());
+//                    grid.getDataProvider().refreshAll();
+//                    grid.refreshPaginator();
+                });
+    }
+
     private Component createContent() {
-        initDataProvider();
 
         VerticalLayout content = new VerticalLayout(
                 createGrid()
@@ -58,7 +151,9 @@ public class TransactionGrid extends VerticalLayout {
 
         content.setBoxSizing(BoxSizing.BORDER_BOX);
         content.setHeightFull();
-        content.setPadding(true);
+        content.setPadding(false);
+        content.setMargin(false);
+        content.setSpacing(false);
         return content;
     }
 
@@ -95,12 +190,14 @@ public class TransactionGrid extends VerticalLayout {
 
         Grid.Column<Transaction> statusColumn = grid.addColumn(badgeRenderer)
                 .setAutoWidth(true)
+                .setComparator(Transaction::getStatus)
                 .setWidth("200px")
                 .setHeader("Статус")
                 .setSortable(true);
 
         Grid.Column<Transaction> totalSumColumn = grid.addColumn(new ComponentRenderer<>(this::createAmount))
                 .setWidth("200px")
+                .setComparator(Transaction::getTotalSum)
                 .setHeader("Общая сумма")
                 .setSortable(true);
 
@@ -119,86 +216,29 @@ public class TransactionGrid extends VerticalLayout {
         grid.getHeaderRows().clear();
         HeaderRow headerRow = grid.appendHeaderRow();
 
-        headerRow.getCell(idColumn).setComponent(
-                createTextFieldFilterHeader("ID", name -> {
-                    transactionFilter.setId(StringUtils.isEmpty(name) ? null : name);
-                    grid.getDataProvider().refreshAll();
-                    grid.refreshPaginator();
-                }));
-
-        headerRow.getCell(statusColumn).setComponent(
-                createComboBoxFilterHeader("Статус",
-                        Stream.of(TransactionStatus.values()).collect(Collectors.toList()),
-                        s -> {
-                            transactionFilter.setStatus(s);
-                            grid.getDataProvider().refreshAll();
-                            grid.refreshPaginator();
-                        }));
-
-        headerRow.getCell(updatedAtColumn).setComponent(
-                createCDataPickerFilterHeader("Дата обновления", name -> {
-                    transactionFilter.setUpdatedAt(name.atStartOfDay());
-                    grid.getDataProvider().refreshAll();
-                    grid.refreshPaginator();
-                }));
-
-        headerRow.getCell(createdAtColumn).setComponent(
-                createCDataPickerFilterHeader("Дата создания", name -> {
-                    transactionFilter.setCreatedAt(name.atStartOfDay());
-                    grid.getDataProvider().refreshAll();
-                    grid.refreshPaginator();
-                }));
+        headerRow.getCell(idColumn).setComponent(idField);
+        headerRow.getCell(statusColumn).setComponent(statusField);
+        headerRow.getCell(totalSumColumn).setComponent(totalSumField);
+        headerRow.getCell(updatedAtColumn).setComponent(updatedAtField);
+        headerRow.getCell(createdAtColumn).setComponent(createdAtField);
 
         return grid;
     }
 
-    private static TextField createTextFieldFilterHeader(String placeHolder,
-                                                         Consumer<String> filterChangeConsumer) {
-        TextField textField = new TextField();
-        textField.setPlaceholder(placeHolder);
-        textField.setValueChangeMode(ValueChangeMode.EAGER);
-        textField.setClearButtonVisible(true);
-        textField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
-        textField.setWidthFull();
-        textField.getStyle().set("max-width", "100%");
-        textField.addValueChangeListener(
-                e -> filterChangeConsumer.accept(e.getValue()));
-        return textField;
-    }
-
-    private static <T extends WithDescription> ComboBox<T> createComboBoxFilterHeader(String placeHolder,
-                                                                                      List<T> items,
-                                                                                      Consumer<T> filterChangeConsumer) {
-        ComboBox<T> comboBox = new ComboBox<>();
-        comboBox.setItems(items);
-        comboBox.setItemLabelGenerator(T::getDescription);
-
-        comboBox.setPlaceholder(placeHolder);
-        comboBox.setClearButtonVisible(true);
-        comboBox.setWidthFull();
-        comboBox.getStyle().set("max-width", "100%");
-        comboBox.addValueChangeListener(
-                e -> filterChangeConsumer.accept(e.getValue()));
-        return comboBox;
-    }
-
-    private static DatePicker createCDataPickerFilterHeader(String placeHolder,
-                                                            Consumer<LocalDate> filterChangeConsumer) {
-        DatePicker datePicker = new DatePicker();
-
-        datePicker.setPlaceholder(placeHolder);
-        datePicker.setClearButtonVisible(true);
-        datePicker.setWidthFull();
-        datePicker.getStyle().set("max-width", "100%");
-        datePicker.addValueChangeListener(
-                e -> filterChangeConsumer.accept(e.getValue()));
-        return datePicker;
-    }
-
-
     private Component createAmount(Transaction transaction) {
         Double amount = transaction.getTotalSum().movePointLeft(2).doubleValue();
         return UIUtils.createAmountLabel(amount);
+    }
+
+    public void withFilter(Transaction transactionFilter) {
+        this.transactionFilter = transactionFilter;
+
+        binder.removeBean();
+        binder.setBean(transactionFilter);
+        binder.bindInstanceFields(this);
+
+        dataProvider.setFilter(transactionFilter);
+        grid.getDataProvider().refreshAll();
     }
 
     private void toViewPage(Transaction transaction) {

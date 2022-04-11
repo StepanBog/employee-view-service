@@ -34,6 +34,7 @@ import tech.inno.odp.ui.views.employee.form.EmployeeSettingsForm;
 import tech.inno.odp.ui.views.employer.EmployerView;
 import tech.inno.odp.ui.views.requisites.RequisitesForm;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -45,65 +46,84 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
 
     public static final String ROUTE = "employee-details";
 
-    private final IDocumentService documentService;
     private final IEmployeeService employeeService;
+    private final IDocumentService documentService;
     private final IServiceStopIntervalService serviceStopIntervalService;
 
     private Map<String, VerticalLayout> tabLayoutMap;
     private Employee employee;
     private boolean backToEmployerForm = false;
 
-    private final EmployeeSettingsForm commonSettingsForm = new EmployeeSettingsForm();
+    private final EmployeeSettingsForm employeeSettingsForm = new EmployeeSettingsForm();
     private final RequisitesForm requisitesForm = new RequisitesForm();
     private final EmployeeDocumentsGrid employeeDocumentsGrid = new EmployeeDocumentsGrid();
     private final EmployeeServiceStopIntervalForm employeeServiceStopIntervalForm = new EmployeeServiceStopIntervalForm();
+
+    @PostConstruct
+    public void init() {
+        final Button toEmployer = UIUtils.createPrimaryButton("К работодателю");
+        toEmployer.addClickListener(event -> {
+            UI.getCurrent().navigate(EmployerView.class, employee.getEmployerId());
+        });
+
+        final Button save = UIUtils.createPrimaryButton("Сохранить");
+        save.addClickListener(event -> {
+
+            Employee employee = employeeSettingsForm.getBinder().getBean();
+            employee.setRequisites(requisitesForm.getBinder().getBean());
+            employeeService.save(employee);
+            navigateToBack();
+        });
+        final Button cancel = UIUtils.createTertiaryButton("Отменить");
+        cancel.addClickListener(event -> navigateToBack());
+
+        HorizontalLayout buttonFooterLayout = new HorizontalLayout(save, toEmployer, cancel);
+        buttonFooterLayout.setSpacing(true);
+        buttonFooterLayout.setPadding(true);
+
+        setViewContent(createContent());
+        setViewFooter(buttonFooterLayout);
+    }
 
     private Component createContent() {
         FlexBoxLayout content = new FlexBoxLayout(
                 createEmployerUI()
         );
         content.setFlexDirection(FlexLayout.FlexDirection.COLUMN);
-        content.setMargin(Horizontal.AUTO, Vertical.RESPONSIVE_L);
+        content.setMargin(Horizontal.AUTO, Vertical.RESPONSIVE_X);
         content.setWidth("100%");
         content.setHeightFull();
         return content;
     }
 
     private Component createEmployerUI() {
-        commonSettingsForm.setEmployee(employee);
-        commonSettingsForm.init();
-        commonSettingsForm.setVisible(true);
-        commonSettingsForm.setId("commonSettingsForm");
-        commonSettingsForm.setMaxWidth("800px");
+        employeeSettingsForm.init();
+        employeeSettingsForm.setVisible(true);
+        employeeSettingsForm.setMaxWidth("800px");
 
-        requisitesForm.setRequisites(employee.getRequisites());
         requisitesForm.init();
         requisitesForm.setVisible(false);
-        requisitesForm.setId("requisitesForm");
         requisitesForm.setMaxWidth("800px");
 
-        employeeDocumentsGrid.setEmployee(employee);
         employeeDocumentsGrid.setDocumentService(documentService);
         employeeDocumentsGrid.init();
         employeeDocumentsGrid.setVisible(false);
-        employeeDocumentsGrid.setId("employeeDocumentsGrid");
 
-        employeeServiceStopIntervalForm.setEmployee(employee);
+        employeeServiceStopIntervalForm.setServiceStopIntervalService(serviceStopIntervalService);
         employeeServiceStopIntervalForm.init();
         employeeServiceStopIntervalForm.setVisible(false);
-        employeeServiceStopIntervalForm.setId("employeeServiceStopIntervalForm");
 
         tabLayoutMap =
-                Map.of("commonSettingsForm", commonSettingsForm,
-                        "requisitesForm", requisitesForm,
-                        "employeeDocumentsGrid", employeeDocumentsGrid,
-                        "employeeServiceStopIntervalForm", employeeServiceStopIntervalForm
+                Map.of(EmployeeSettingsForm.ID, employeeSettingsForm,
+                        RequisitesForm.ID, requisitesForm,
+                        EmployeeDocumentsGrid.ID, employeeDocumentsGrid,
+                        EmployeeServiceStopIntervalForm.ID, employeeServiceStopIntervalForm
                 );
 
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setSizeFull();
         verticalLayout.add(
-                commonSettingsForm,
+                employeeSettingsForm,
                 requisitesForm,
                 employeeServiceStopIntervalForm,
                 employeeDocumentsGrid);
@@ -128,10 +148,10 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
     private AppBar initAppBar() {
         AppBar appBar = MainLayout.get().getAppBar();
 
-        appBar.addTab(createTab("commonSettingsForm", VaadinIcon.FORM.create(), "Настройки"));
-        appBar.addTab(createTab("requisitesForm", VaadinIcon.MODAL_LIST.create(), "Реквизиты"));
-        appBar.addTab(createTab("employeeServiceStopIntervalForm", VaadinIcon.MODAL_LIST.create(), "Стоп интервалы"));
-        appBar.addTab(createTab("employeeDocumentsGrid", VaadinIcon.MODAL_LIST.create(), "Документы"));
+        appBar.addTab(createTab(EmployeeSettingsForm.ID, VaadinIcon.FORM.create(), "Настройки"));
+        appBar.addTab(createTab(RequisitesForm.ID, VaadinIcon.MODAL_LIST.create(), "Реквизиты"));
+        appBar.addTab(createTab(EmployeeServiceStopIntervalForm.ID, VaadinIcon.MODAL_LIST.create(), "Стоп интервалы"));
+        appBar.addTab(createTab(EmployeeDocumentsGrid.ID, VaadinIcon.MODAL_LIST.create(), "Документы"));
         appBar.centerTabs();
 
         appBar.addTabSelectionListener(event -> {
@@ -165,34 +185,11 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
         );
 
         employee = employeeService.findById(employerId);
-        employee.setServiceStopIntervals(
-                serviceStopIntervalService.findByEmployeeId(
-                        UUID.fromString(employee.getId())
-                )
-        );
 
-        final Button toEmployer = UIUtils.createPrimaryButton("К работодателю");
-        toEmployer.addClickListener(event -> {
-            UI.getCurrent().navigate(EmployerView.class, employee.getEmployerId());
-        });
-
-        final Button save = UIUtils.createPrimaryButton("Сохранить");
-        save.addClickListener(event -> {
-
-            Employee employee = commonSettingsForm.getBinder().getBean();
-            employee.setRequisites(requisitesForm.getBinder().getBean());
-            employee = employeeService.save(employee);
-            navigateToBack();
-        });
-        final Button cancel = UIUtils.createTertiaryButton("Отменить");
-        cancel.addClickListener(event -> navigateToBack());
-
-        HorizontalLayout buttonFooterLayout = new HorizontalLayout(save, toEmployer, cancel);
-        buttonFooterLayout.setSpacing(true);
-        buttonFooterLayout.setPadding(true);
-
-        setViewContent(createContent());
-        setViewFooter(buttonFooterLayout);
+        requisitesForm.withBean(employee.getRequisites());
+        employeeSettingsForm.withBean(employee);
+        employeeServiceStopIntervalForm.withBean(employee);
+        employeeDocumentsGrid.withBean(employee);
     }
 
     private void navigateToBack() {

@@ -11,6 +11,9 @@ import tech.inno.odp.backend.data.enums.PaymentGatewayProvider;
 import tech.inno.odp.ui.util.css.lumo.BadgeColor;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 
 @Data
@@ -22,23 +25,27 @@ public class Employer {
     private String id;
 
     @Builder.Default
+    @NotEmpty(message = "Значение не может быть пустым")
     private String name = "Новый работодатель";
 
     /**
      * Email работодателя
      */
+    @Pattern(message = "Неверное значение", regexp = "^\\w+([-+.']\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$")
     private String email;
 
     /**
      * Статус работодателя
      */
     @Builder.Default
+    @NotNull(message = "Значение не может быть пустым")
     private EmployerStatus status = EmployerStatus.CREATED;
 
     /**
      * Платежный метод используемый для
      */
     @Builder.Default
+    @NotNull(message = "Значение не может быть пустым")
     private PaymentGatewayProvider paymentProvider = PaymentGatewayProvider.REGISTRY;
 
     /**
@@ -46,7 +53,8 @@ public class Employer {
      */
     @Builder.Default
     @Min(value = 0, message = "Не может быть меньше 0")
-    private double withdrawalPercentage = 0.60;
+    @NotNull(message = "Значение не может быть пустым")
+    private Double withdrawalPercentage = 0.60;
 
     /**
      * Размер комиссии
@@ -54,12 +62,14 @@ public class Employer {
      */
     @Builder.Default
     @Min(value = 0, message = "Не может быть меньше 0")
-    private long commissionAmount = 0L;
+    @NotNull(message = "Значение не может быть пустым")
+    private Long commissionAmount = 0L;
 
     /**
      * Плательщик комиссии
      */
     @Builder.Default
+    @NotNull(message = "Значение не может быть пустым")
     private CommissionPayer commissionPayer = CommissionPayer.EMPLOYER_PAYER;
 
     /**
@@ -67,6 +77,7 @@ public class Employer {
      */
     @Builder.Default
     @Min(value = 1, message = "Не может быть меньше 1")
+    @NotNull(message = "Значение не может быть пустым")
     private Long minAmount = 1L;
 
     /**
@@ -74,6 +85,7 @@ public class Employer {
      */
     @Builder.Default
     @Min(value = 1, message = "Не может быть меньше 1")
+    @NotNull(message = "Значение не может быть пустым")
     private Long maxAmount = 1L;
 
     /**
@@ -81,6 +93,7 @@ public class Employer {
      */
     @Builder.Default
     @Min(value = 1, message = "Не может быть меньше 1")
+    @NotNull(message = "Значение не может быть пустым")
     private Long maxMonthlyEmployerTurnover = 100L;
 
     private Requisites requisites;

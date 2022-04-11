@@ -7,11 +7,8 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldVariant;
-import tech.inno.odp.ui.components.FlexBoxLayout;
-import tech.inno.odp.ui.layout.size.Right;
 import tech.inno.odp.ui.util.css.*;
 
 import java.text.DecimalFormat;

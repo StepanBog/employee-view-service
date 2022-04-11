@@ -6,8 +6,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.PropertyId;
+import com.vaadin.flow.spring.annotation.SpringComponent;
+import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.Getter;
-import lombok.Setter;
 import tech.inno.odp.backend.data.containers.Employee;
 import tech.inno.odp.backend.data.enums.EmployeeStatus;
 import tech.inno.odp.ui.components.field.CustomTextField;
@@ -15,10 +16,14 @@ import tech.inno.odp.ui.util.LumoStyles;
 import tech.inno.odp.ui.util.converter.StringToLocalDateTimeConverter;
 import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
 
+import javax.annotation.PostConstruct;
 
+@SpringComponent
+@UIScope
 public class EmployeeSettingsForm extends VerticalLayout {
 
-    @Setter
+    public static final String ID = "employeeSettingsForm";
+
     private Employee employee;
 
     @Getter
@@ -42,21 +47,20 @@ public class EmployeeSettingsForm extends VerticalLayout {
     @PropertyId("createdAt")
     private TextField createdAtField = new TextField("Дата создания");
 
+    @PostConstruct
     public void init() {
-        initFields();
+        setId(ID);
 
+        initFields();
         StringToLocalDateTimeConverter stringToLocalDateTimeConverter = new StringToLocalDateTimeConverter();
 
         this.binder = new BeanValidationBinder<>(Employee.class);
-        this.binder.setBean(this.employee);
         this.binder.forField(updatedAtField)
                 .withConverter(stringToLocalDateTimeConverter)
                 .bind(Employee::getUpdatedAt, Employee::setUpdatedAt);
         this.binder.forField(createdAtField)
                 .withConverter(stringToLocalDateTimeConverter)
                 .bind(Employee::getCreatedAt, Employee::setCreatedAt);
-        this.binder.bindInstanceFields(this);
-
         add(createForm());
     }
 
@@ -93,8 +97,10 @@ public class EmployeeSettingsForm extends VerticalLayout {
         formLayout.add(statusField);
 
 
-        formLayout.addClassNames(LumoStyles.Padding.Bottom.L,
-                LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.S);
+        formLayout.addClassNames(
+                LumoStyles.Padding.Bottom.XS,
+                LumoStyles.Padding.Horizontal.XS,
+                LumoStyles.Padding.Top.XS);
         formLayout.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1,
                         FormLayout.ResponsiveStep.LabelsPosition.TOP),
@@ -103,5 +109,12 @@ public class EmployeeSettingsForm extends VerticalLayout {
                 new FormLayout.ResponsiveStep("1024px", 2,
                         FormLayout.ResponsiveStep.LabelsPosition.TOP));
         return formLayout;
+    }
+
+    public void withBean(Employee employee) {
+        this.employee = employee;
+        this.binder.removeBean();
+        this.binder.setBean(this.employee);
+        this.binder.bindInstanceFields(this);
     }
 }

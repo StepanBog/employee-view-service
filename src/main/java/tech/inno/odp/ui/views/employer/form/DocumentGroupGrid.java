@@ -31,6 +31,8 @@ import java.util.function.Consumer;
 
 public class DocumentGroupGrid extends VerticalLayout {
 
+    public static final String ID = "documentGroupGrid";
+
     private final int PAGE_SIZE = 20;
 
     private PaginatedGrid<DocumentTemplateGroup> grid;
@@ -40,11 +42,13 @@ public class DocumentGroupGrid extends VerticalLayout {
     @Setter
     private IDocumentTemplateService documentTemplateService;
     @Setter
-    private Employer employer;
+    private Employer employer = new Employer();
     @Getter
     private List<DocumentTemplateGroup> groupList = new ArrayList<>();
 
     public void init() {
+        setId(ID);
+
         setSizeFull();
         setMinHeight("600px");
         initDataProvider();
@@ -60,10 +64,6 @@ public class DocumentGroupGrid extends VerticalLayout {
                 query -> StringUtils.isEmpty(employer.getId()) ? groupList.size() : documentTemplateService.getTotalCount(query))
                 .withConfigurableFilter();
 
-        this.documentTemplateGroupFilter = DocumentTemplateGroup.builder()
-                .employerId(employer.getId())
-                .build();
-        dataProvider.setFilter(this.documentTemplateGroupFilter);
         this.dataProvider = dataProvider;
     }
 
@@ -178,5 +178,14 @@ public class DocumentGroupGrid extends VerticalLayout {
                                 .build()
                 ).open());
         return addItem;
+    }
+
+    public void withBean(Employer employer) {
+        this.employer = employer;
+        documentTemplateGroupFilter = DocumentTemplateGroup.builder()
+                .employerId(employer.getId())
+                .build();
+        dataProvider.setFilter(this.documentTemplateGroupFilter);
+        grid.getDataProvider().refreshAll();
     }
 }

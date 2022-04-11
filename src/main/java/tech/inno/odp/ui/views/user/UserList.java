@@ -1,36 +1,40 @@
-package tech.inno.odp.ui.views.employer;
+package tech.inno.odp.ui.views.user;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.RequiredArgsConstructor;
 import tech.inno.odp.backend.service.IEmployerService;
+import tech.inno.odp.backend.service.IUserService;
 import tech.inno.odp.ui.MainLayout;
 import tech.inno.odp.ui.components.FlexBoxLayout;
 import tech.inno.odp.ui.layout.SplitLayoutToggle;
 import tech.inno.odp.ui.util.css.BoxSizing;
 import tech.inno.odp.ui.views.ViewFrame;
-import tech.inno.odp.ui.views.employer.form.EmployerSearchInGridForm;
+import tech.inno.odp.ui.views.user.form.UserSearchInGridForm;
 
-@PageTitle("Работодатель")
-@Route(value = EmployerList.ROUTE, layout = MainLayout.class)
+import javax.annotation.PostConstruct;
+
+@PageTitle("Пользователи")
+@Route(value = UserList.ROUTE, layout = MainLayout.class)
+@UIScope
 @RequiredArgsConstructor
-public class EmployerList extends ViewFrame {
+public class UserList extends ViewFrame {
+    public static final String ROUTE = "users";
 
-    public static final String ROUTE = "employers";
-
+    private final IUserService userService;
     private final IEmployerService employerService;
 
-    @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        super.onAttach(attachEvent);
+    @PostConstruct
+    public void init() {
         setViewContent(createContent());
     }
 
     private Component createContent() {
-        EmployerGrid grid = createGrid();
-        EmployerSearchInGridForm searchForm = new EmployerSearchInGridForm(grid);
+        UserGrid grid = createGrid();
+        UserSearchInGridForm searchForm = new UserSearchInGridForm(employerService, grid);
         searchForm.init();
 
         SplitLayoutToggle splitLayoutToggle = new SplitLayoutToggle(
@@ -46,10 +50,9 @@ public class EmployerList extends ViewFrame {
         return content;
     }
 
-    private EmployerGrid createGrid() {
-        EmployerGrid employerGrid = new EmployerGrid();
-        employerGrid.setEmployerService(employerService);
-        employerGrid.init();
-        return employerGrid;
+    private UserGrid createGrid() {
+        UserGrid userGrid = new UserGrid(userService);
+        userGrid.init();
+        return userGrid;
     }
 }
