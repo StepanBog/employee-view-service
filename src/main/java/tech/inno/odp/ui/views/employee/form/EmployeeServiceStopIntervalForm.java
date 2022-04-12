@@ -16,7 +16,7 @@ import java.util.UUID;
 public class EmployeeServiceStopIntervalForm extends VerticalLayout {
 
     public static final String ID = "employeeServiceStopIntervalForm";
-    private final int PAGE_SIZE = 20;
+    private final int PAGE_SIZE = 15;
 
     private PaginatedGrid<ServiceStopInterval> grid;
 

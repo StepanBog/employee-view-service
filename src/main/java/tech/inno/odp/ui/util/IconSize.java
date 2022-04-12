@@ -2,6 +2,7 @@ package tech.inno.odp.ui.util;
 
 public enum IconSize {
 
+    XS("size-xs"),
     S("size-s"),
     M("size-m"),
     L("size-l");

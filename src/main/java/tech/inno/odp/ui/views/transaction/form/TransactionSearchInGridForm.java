@@ -9,6 +9,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.PropertyId;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -81,17 +82,19 @@ public class TransactionSearchInGridForm extends VerticalLayout {
 
     private void initFields() {
         idField.setPlaceholder("ID");
-        
+        idField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+
         statusField.setItems(TransactionStatus.values());
         statusField.setItemLabelGenerator(TransactionStatus::getDescription);
         statusField.setPlaceholder("Статус");
+        statusField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         totalSumField.setPlaceholder("Сумма");
+        totalSumField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         employerField.setItemLabelGenerator(Employer::getName);
         ComboBox.ItemFilter<Employer> filter = (employer, filterString) ->
                 employer.getName().toLowerCase().startsWith(filterString.toLowerCase());
-
         employerField.setDataProvider(filter, DataProvider.fromStream(
                 employerService.findAll(
                         SearchEmployerRequest.newBuilder()
@@ -101,10 +104,13 @@ public class TransactionSearchInGridForm extends VerticalLayout {
         employerField.addValueChangeListener(
                 e -> transactionFilter.setEmployerId(e.getValue() != null ? e.getValue().getId() : null));
         employerField.setPlaceholder("Работодатель");
-
+        employerField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         updatedAtField.setPlaceholder("Дата обновления");
+        updatedAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+
         createdAtField.setPlaceholder("Дата создания");
+        createdAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
     }
 
     public FormLayout createForm() {

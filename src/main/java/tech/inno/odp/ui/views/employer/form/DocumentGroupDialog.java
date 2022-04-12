@@ -42,7 +42,7 @@ import java.util.function.Consumer;
 @Slf4j
 public class DocumentGroupDialog extends Dialog {
 
-    private final int PAGE_SIZE = 20;
+    private final int PAGE_SIZE = 15;
 
     @Getter
     private BeanValidationBinder<DocumentTemplateGroup> binder;

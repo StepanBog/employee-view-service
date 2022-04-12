@@ -1,6 +1,8 @@
 package tech.inno.odp.ui.views.user;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
@@ -25,8 +27,11 @@ import tech.inno.odp.backend.data.containers.User;
 import tech.inno.odp.backend.data.enums.UserRoleName;
 import tech.inno.odp.backend.service.IUserService;
 import tech.inno.odp.ui.components.Badge;
+import tech.inno.odp.ui.components.ColumnToggleContextMenu;
 import tech.inno.odp.ui.components.field.CustomTextField;
 import tech.inno.odp.ui.components.grid.PaginatedGrid;
+import tech.inno.odp.ui.util.IconSize;
+import tech.inno.odp.ui.util.LumoStyles;
 import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.util.converter.LocalDateToLocalDateTimeConverter;
 import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
@@ -38,7 +43,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserGrid extends VerticalLayout {
 
-    private final int PAGE_SIZE = 20;
+    private final int PAGE_SIZE = 15;
 
     private final IUserService userService;
 
@@ -112,7 +117,7 @@ public class UserGrid extends VerticalLayout {
             grid.refreshPaginator();
         });
 
-
+        userRoleNameField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
         userRoleNameField.setItems(UserRoleName.values());
         userRoleNameField.setItemLabelGenerator(UserRoleName::getDescription);
         userRoleNameField.setPlaceholder("Роль");
@@ -126,6 +131,7 @@ public class UserGrid extends VerticalLayout {
         updatedAtField.setPlaceholder("Дата обновления");
         updatedAtField.setClearButtonVisible(true);
         updatedAtField.setWidthFull();
+        updatedAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
         updatedAtField.getStyle().set("max-width", "100%");
         updatedAtField.addValueChangeListener(
                 e -> {
@@ -137,6 +143,7 @@ public class UserGrid extends VerticalLayout {
 
         createdAtField.setPlaceholder("Дата создания");
         createdAtField.setClearButtonVisible(true);
+        createdAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
         createdAtField.setWidthFull();
         createdAtField.getStyle().set("max-width", "100%");
         createdAtField.addValueChangeListener(
@@ -177,20 +184,19 @@ public class UserGrid extends VerticalLayout {
     private Grid<User> createGrid() {
         grid = new PaginatedGrid<>();
         grid.setPageSize(PAGE_SIZE);
-        grid.addSelectionListener(event -> event.getFirstSelectedItem().ifPresent(this::toViewPage));
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
 
-        Grid.Column<User> idColumn = grid.addColumn(User::getId)
-                .setWidth("200px")
-                .setHeader("ID");
-
-        Grid.Column<User> usernameColumn = grid.addColumn(User::getUsername)
-                .setAutoWidth(true)
-                .setComparator(User::getUsername)
-                .setWidth("200px")
-                .setHeader("Username")
-                .setSortable(true);
+        ComponentRenderer<Button, User> actionRenderer = new ComponentRenderer<>(
+                user -> {
+                    Button editButton = UIUtils.createButton(VaadinIcon.EDIT,
+                            ButtonVariant.LUMO_ICON,
+                            ButtonVariant.LUMO_SMALL);
+                    editButton.addClassName(IconSize.XS.getClassName());
+                    editButton.addClickListener(event -> toViewPage(user));
+                    return editButton;
+                }
+        );
 
         ComponentRenderer<VerticalLayout, User> userRolesRenderer = new ComponentRenderer<>(
                 users -> {
@@ -208,10 +214,34 @@ public class UserGrid extends VerticalLayout {
                     return layout;
                 }
         );
+
+        Grid.Column<User> actionColumn = grid.addColumn(actionRenderer)
+                .setFrozen(true)
+                .setFlexGrow(0)
+                .setWidth("100px")
+                .setHeader("Действие");
+
+        Grid.Column<User> idColumn = grid.addColumn(User::getId)
+                .setAutoWidth(true)
+                .setWidth("100px")
+                .setHeader("ID")
+                .setSortable(true)
+                .setResizable(true)
+                .setComparator(User::getId);
+        idColumn.setVisible(false);
+
+        Grid.Column<User> usernameColumn = grid.addColumn(User::getUsername)
+                .setAutoWidth(true)
+                .setComparator(User::getUsername)
+                .setWidth("200px")
+                .setHeader("Username")
+                .setSortable(true)
+                .setResizable(true);
         Grid.Column<User> rolesColumn = grid.addColumn(userRolesRenderer)
                 .setAutoWidth(true)
                 .setWidth("200px")
-                .setHeader("Роли");
+                .setHeader("Роли")
+                .setResizable(true);
 
 //        grid.addColumn(new ComponentRenderer<>(this::createEnabled))
 //                .setAutoWidth(true)
@@ -225,17 +255,32 @@ public class UserGrid extends VerticalLayout {
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setComparator(User::getUpdatedAt)
+                .setResizable(true)
                 .setHeader("Дата обновления");
 
         Grid.Column<User> createdAtColumn = grid.addColumn(new LocalDateTimeRenderer<>(User::getCreatedAt, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
                 .setAutoWidth(true)
                 .setFlexGrow(0)
                 .setComparator(User::getCreatedAt)
+                .setResizable(true)
                 .setHeader("Дата создания");
+
+        Button menuButton = new Button();
+        menuButton.setIcon(VaadinIcon.ELLIPSIS_DOTS_H.create());
+        menuButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        ColumnToggleContextMenu columnToggleContextMenu = new ColumnToggleContextMenu(
+                menuButton);
+        columnToggleContextMenu.addColumnToggleItem("id", idColumn);
+        columnToggleContextMenu.addColumnToggleItem("Username", usernameColumn);
+        columnToggleContextMenu.addColumnToggleItem("Роли", rolesColumn);
+        columnToggleContextMenu.addColumnToggleItem("Дата обновления", updatedAtColumn);
+        columnToggleContextMenu.addColumnToggleItem("Дата создания", createdAtColumn);
+
 
         grid.getHeaderRows().clear();
         HeaderRow headerRow = grid.appendHeaderRow();
 
+        headerRow.getCell(actionColumn).setComponent(menuButton);
         headerRow.getCell(idColumn).setComponent(idField);
         headerRow.getCell(usernameColumn).setComponent(usernameField);
         headerRow.getCell(rolesColumn).setComponent(userRoleNameField);

@@ -18,8 +18,6 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.spring.annotation.SpringComponent;
-import com.vaadin.flow.spring.annotation.UIScope;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -46,7 +44,7 @@ import java.util.stream.Stream;
 public class EmployeeDocumentsGrid extends VerticalLayout {
 
     public static final String ID = "employeeDocumentsGrid";
-    private final int PAGE_SIZE = 20;
+    private final int PAGE_SIZE = 15;
 
     private PaginatedGrid<Document> grid;
     private ConfigurableFilterDataProvider<Document, Void, Document> dataProvider;
@@ -74,7 +72,7 @@ public class EmployeeDocumentsGrid extends VerticalLayout {
         grid = new PaginatedGrid<>();
         grid.setPageSize(PAGE_SIZE);
         grid.setPaginatorSize(2);
-        grid.setHeightFull();
+        grid.setSizeFull();
         grid.setDataProvider(dataProvider);
 
         ComponentRenderer<Badge, Document> badgeRenderer = new ComponentRenderer<>(

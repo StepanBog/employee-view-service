@@ -33,7 +33,7 @@ public class DocumentGroupGrid extends VerticalLayout {
 
     public static final String ID = "documentGroupGrid";
 
-    private final int PAGE_SIZE = 20;
+    private final int PAGE_SIZE = 15;
 
     private PaginatedGrid<DocumentTemplateGroup> grid;
     private ConfigurableFilterDataProvider<DocumentTemplateGroup, Void, DocumentTemplateGroup> dataProvider;
@@ -50,7 +50,6 @@ public class DocumentGroupGrid extends VerticalLayout {
         setId(ID);
 
         setSizeFull();
-        setMinHeight("600px");
         initDataProvider();
         add(createAddButton());
         add(createGrid());
@@ -79,7 +78,7 @@ public class DocumentGroupGrid extends VerticalLayout {
         );
         grid.setPageSize(PAGE_SIZE);
         grid.setPaginatorSize(2);
-        grid.setHeightFull();
+        grid.setSizeFull();
 
         grid.setDataProvider(dataProvider);
 

@@ -369,6 +369,12 @@ public class UIUtils {
         return i;
     }
 
+    public static Icon createXSmallIcon(VaadinIcon icon) {
+        Icon i = new Icon(icon);
+        i.addClassName(IconSize.XS.getClassName());
+        return i;
+    }
+
     public static Icon createLargeIcon(VaadinIcon icon) {
         Icon i = new Icon(icon);
         i.addClassName(IconSize.L.getClassName());

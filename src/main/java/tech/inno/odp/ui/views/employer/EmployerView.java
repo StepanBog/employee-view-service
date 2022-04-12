@@ -137,6 +137,9 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
                 );
 
         VerticalLayout verticalLayout = new VerticalLayout();
+        verticalLayout.setPadding(false);
+        verticalLayout.setMargin(false);
+        verticalLayout.setSpacing(false);
         verticalLayout.setSizeFull();
         verticalLayout.add(commonSettingsForm,
                 requisitesForm,

@@ -9,6 +9,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.PropertyId;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -92,25 +93,32 @@ public class EmployeeSearchInGridForm extends VerticalLayout {
         StringToStringWithNullValueConverter stringWithNullValueConverter = new StringToStringWithNullValueConverter();
         idField.setConverters(stringWithNullValueConverter);
         idField.setPlaceholder("ID");
+        idField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         lastNameNameField.setConverters(stringWithNullValueConverter);
         lastNameNameField.setPlaceholder("Фамилия");
+        lastNameNameField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         firstNameField.setConverters(stringWithNullValueConverter);
         firstNameField.setPlaceholder("Имя");
+        firstNameField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         patronymicNameField.setConverters(stringWithNullValueConverter);
         patronymicNameField.setPlaceholder("Отчество");
+        patronymicNameField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         phoneField.setConverters(stringWithNullValueConverter);
         phoneField.setPlaceholder("Телефон");
         phoneField.setPrefixComponent(new Div(new Text("+7")));
+        phoneField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         statusField.setItems(EmployeeStatus.values());
         statusField.setItemLabelGenerator(EmployeeStatus::getDescription);
         statusField.setPlaceholder("Статус");
+        statusField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         employerField.setPlaceholder("Работодатель");
+        employerField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
         employerField.setItemLabelGenerator(Employer::getName);
         ComboBox.ItemFilter<Employer> filter = (employer, filterString) ->
                 employer.getName().toLowerCase().startsWith(filterString.toLowerCase());
@@ -125,7 +133,10 @@ public class EmployeeSearchInGridForm extends VerticalLayout {
                 e -> employeeFilter.setEmployerId(e.getValue() != null ? e.getValue().getId() : null));
 
         updatedAtField.setPlaceholder("Дата обновления");
+        updatedAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        
         createdAtField.setPlaceholder("Дата создания");
+        createdAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
     }
 
     public FormLayout createForm() {

@@ -3,10 +3,12 @@ package tech.inno.odp.ui.views.employer;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.HeaderRow;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
@@ -25,8 +27,10 @@ import tech.inno.odp.backend.data.containers.Employer;
 import tech.inno.odp.backend.data.enums.EmployerStatus;
 import tech.inno.odp.backend.service.IEmployerService;
 import tech.inno.odp.ui.components.Badge;
+import tech.inno.odp.ui.components.ColumnToggleContextMenu;
 import tech.inno.odp.ui.components.field.CustomTextField;
 import tech.inno.odp.ui.components.grid.PaginatedGrid;
+import tech.inno.odp.ui.util.IconSize;
 import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.util.converter.LocalDateToLocalDateTimeConverter;
 import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
@@ -36,7 +40,7 @@ import java.time.format.DateTimeFormatter;
 public class EmployerGrid extends VerticalLayout {
 
     public static final String ID = "employerGrid";
-    private final int PAGE_SIZE = 20;
+    private final int PAGE_SIZE = 15;
 
     @Setter
     private IEmployerService employerService;
@@ -120,6 +124,7 @@ public class EmployerGrid extends VerticalLayout {
         statusField.setItemLabelGenerator(EmployerStatus::getDescription);
         statusField.setClearButtonVisible(true);
         statusField.setWidthFull();
+        statusField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
         statusField.getStyle().set("max-width", "100%");
         statusField.addValueChangeListener(
                 s -> {
@@ -132,6 +137,7 @@ public class EmployerGrid extends VerticalLayout {
         emailField.setPlaceholder("Email");
         emailField.setClearButtonVisible(true);
         emailField.setWidthFull();
+        emailField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
         emailField.getStyle().set("max-width", "100%");
         emailField.addValueChangeListener(
                 s -> {
@@ -144,6 +150,7 @@ public class EmployerGrid extends VerticalLayout {
         updatedAtField.setPlaceholder("Дата обновления");
         updatedAtField.setClearButtonVisible(true);
         updatedAtField.setWidthFull();
+        updatedAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
         updatedAtField.getStyle().set("max-width", "100%");
         updatedAtField.addValueChangeListener(
                 e -> {
@@ -156,6 +163,7 @@ public class EmployerGrid extends VerticalLayout {
         createdAtField.setPlaceholder("Дата создания");
         createdAtField.setClearButtonVisible(true);
         createdAtField.setWidthFull();
+        createdAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
         createdAtField.getStyle().set("max-width", "100%");
         createdAtField.addValueChangeListener(
                 e -> {
@@ -194,7 +202,7 @@ public class EmployerGrid extends VerticalLayout {
     }
 
     private Button createAddButton() {
-        final Button save = UIUtils.createPrimaryButton("Добавить");
+        final Button save = UIUtils.createPrimaryButton("Добавить", VaadinIcon.PLUS);
         save.addClickListener(event -> toViewPage(
                 new Employer()
         ));
@@ -204,13 +212,22 @@ public class EmployerGrid extends VerticalLayout {
 
     private Grid<Employer> createGrid() {
         grid = new PaginatedGrid<>();
-        grid.addSelectionListener(event -> event.getFirstSelectedItem().ifPresent(this::toViewPage));
         grid.setPageSize(PAGE_SIZE);
         grid.setPaginatorSize(2);
 
         grid.setHeightFull();
         grid.setDataProvider(dataProvider);
 
+        ComponentRenderer<Button, Employer> actionRenderer = new ComponentRenderer<>(
+                employer -> {
+                    Button editButton = UIUtils.createButton(VaadinIcon.EDIT,
+                            ButtonVariant.LUMO_ICON,
+                            ButtonVariant.LUMO_SMALL);
+                    editButton.addClassName(IconSize.XS.getClassName());
+                    editButton.addClickListener(event -> toViewPage(employer));
+                    return editButton;
+                }
+        );
         ComponentRenderer<Badge, Employer> badgeRenderer = new ComponentRenderer<>(
                 employer -> {
                     EmployerStatus status = employer.getStatus();
@@ -218,36 +235,63 @@ public class EmployerGrid extends VerticalLayout {
                     return badge;
                 }
         );
+        Grid.Column<Employer> actionColumn = grid.addColumn(actionRenderer)
+                .setFrozen(true)
+                .setFlexGrow(0)
+                .setWidth("100px")
+                .setHeader("Действие")
+                .setResizable(true);
+
         Grid.Column<Employer> idColumn = grid.addColumn(Employer::getId)
                 .setAutoWidth(true)
-                .setFlexGrow(0)
-                .setHeader("ID");
+                .setWidth("100px")
+                .setHeader("ID")
+                .setSortable(true)
+                .setComparator(Employer::getId);
+        idColumn.setVisible(false);
 
         Grid.Column<Employer> nameColumn = grid.addColumn(Employer::getName)
                 .setWidth("200px")
                 .setHeader("Работодатель")
-                .setSortable(true);
+                .setSortable(true)
+                .setComparator(Employer::getName)
+                .setResizable(true);
 
         Grid.Column<Employer> statusColumn = grid.addColumn(badgeRenderer)
                 .setWidth("200px")
-                .setHeader("Статус");
+                .setHeader("Статус")
+                .setResizable(true)
+                .setComparator(Employer::getStatus)
+                .setSortable(true);
 
         Grid.Column<Employer> updatedAtColumn = grid.addColumn(new LocalDateTimeRenderer<>(Employer::getUpdatedAt, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
                 .setAutoWidth(true)
-                .setFlexGrow(0)
+                .setResizable(true)
                 .setComparator(Employer::getUpdatedAt)
                 .setHeader("Дата обновления");
+        updatedAtColumn.setVisible(false);
 
         Grid.Column<Employer> createdAtColumn = grid.addColumn(new LocalDateTimeRenderer<>(Employer::getCreatedAt, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
                 .setAutoWidth(true)
-                .setFlexGrow(0)
+                .setResizable(true)
                 .setComparator(Employer::getCreatedAt)
                 .setHeader("Дата создания");
 
+        Button menuButton = new Button();
+        menuButton.setIcon(VaadinIcon.ELLIPSIS_DOTS_H.create());
+        menuButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        ColumnToggleContextMenu columnToggleContextMenu = new ColumnToggleContextMenu(
+                menuButton);
+        columnToggleContextMenu.addColumnToggleItem("id", idColumn);
+        columnToggleContextMenu.addColumnToggleItem("Работодатель", nameColumn);
+        columnToggleContextMenu.addColumnToggleItem("Статус", statusColumn);
+        columnToggleContextMenu.addColumnToggleItem("Дата обновления", updatedAtColumn);
+        columnToggleContextMenu.addColumnToggleItem("Дата создания", createdAtColumn);
 
         grid.getHeaderRows().clear();
         HeaderRow headerRow = grid.appendHeaderRow();
 
+        headerRow.getCell(actionColumn).setComponent(menuButton);
         headerRow.getCell(idColumn).setComponent(idField);
         headerRow.getCell(nameColumn).setComponent(nameField);
         headerRow.getCell(statusColumn).setComponent(statusField);
@@ -265,7 +309,6 @@ public class EmployerGrid extends VerticalLayout {
     public void withFilter(Employer employerFilter) {
         this.employerFilter = employerFilter;
 
-        binder.removeBean();
         binder.setBean(employerFilter);
         binder.bindInstanceFields(this);
 

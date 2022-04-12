@@ -37,7 +37,7 @@ import java.util.UUID;
 public class EmployeeSalaryForm extends VerticalLayout {
 
     public static final String ID = "employeeSalaryForm";
-    private final int PAGE_SIZE = 20;
+    private final int PAGE_SIZE = 15;
 
     @Setter
     private ISalaryService salaryService;

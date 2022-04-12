@@ -2,14 +2,12 @@ package tech.inno.odp.ui.components.navigation.drawer;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import elemental.json.JsonObject;
@@ -47,6 +45,7 @@ public class NaviDrawer extends Div implements AfterNavigationObserver {
         initScrim();
         initMainContent();
 
+        getElement().setAttribute(OPEN, true);
 
         initScrollableArea();
         initMenu();
@@ -80,10 +79,11 @@ public class NaviDrawer extends Div implements AfterNavigationObserver {
     }
 
     private void initFooter() {
-        railButton = UIUtils.createSmallButton("Collapse", VaadinIcon.CHEVRON_LEFT_SMALL);
+        getElement().setAttribute(RAIL, true);
+        railButton = UIUtils.createSmallButton("Expand", VaadinIcon.CHEVRON_RIGHT_SMALL);
         railButton.addClassName(CLASS_NAME + "__footer");
         railButton.addClickListener(event -> toggleRailMode());
-        railButton.getElement().setAttribute("aria-label", "Collapse menu");
+        railButton.getElement().setAttribute("aria-label", "Expand menu");
         mainContent.add(railButton);
     }
 

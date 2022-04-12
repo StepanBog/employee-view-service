@@ -8,6 +8,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
+import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.PropertyId;
 import lombok.Getter;
@@ -85,18 +86,25 @@ public class EmployerSearchInGridForm extends VerticalLayout {
         StringToStringWithNullValueConverter stringWithNullValueConverter = new StringToStringWithNullValueConverter();
         idField.setConverters(stringWithNullValueConverter);
         idField.setPlaceholder("ID");
+        idField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         emailField.setPlaceholder("Email");
+        emailField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         statusField.setItems(EmployerStatus.values());
         statusField.setItemLabelGenerator(EmployerStatus::getDescription);
         statusField.setPlaceholder("Статус");
+        statusField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         nameField.setPlaceholder("Работодатель");
         nameField.setConverters(stringWithNullValueConverter);
+        nameField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
 
         updatedAtField.setPlaceholder("Дата обновления");
+        updatedAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+
         createdAtField.setPlaceholder("Дата создания");
+        createdAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
     }
 
     public FormLayout createForm() {

@@ -137,6 +137,9 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
 
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setSizeFull();
+        verticalLayout.setPadding(false);
+        verticalLayout.setMargin(false);
+        verticalLayout.setSpacing(false);
         verticalLayout.add(
                 employeeSettingsForm,
                 requisitesForm,
