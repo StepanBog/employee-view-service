@@ -31,6 +31,10 @@ public interface TransactionMapper {
 
     @Mapping(target = "pageNumber", source = "pageNumber")
     @Mapping(target = "pageSize", source = "pageSize")
+    @Mapping(target = "sum", source = "transaction.totalSum")
+    @Mapping(target = "employerId", source = "transaction.employerId")
+    @Mapping(target = "employeeId", source = "transaction.employeeId")
+    @Mapping(target = "id", source = "transaction.id")
     SearchTransactionRequest transformToSearch(Transaction transaction,
                                                int pageNumber,
                                                int pageSize);

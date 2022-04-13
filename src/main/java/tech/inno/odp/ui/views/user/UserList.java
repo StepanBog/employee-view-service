@@ -1,7 +1,6 @@
 package tech.inno.odp.ui.views.user;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
@@ -33,7 +32,7 @@ public class UserList extends ViewFrame {
     }
 
     private Component createContent() {
-        UserGrid grid = createGrid();
+        UserGridWithFilter grid = createGrid();
         UserSearchInGridForm searchForm = new UserSearchInGridForm(employerService, grid);
         searchForm.init();
 
@@ -50,9 +49,9 @@ public class UserList extends ViewFrame {
         return content;
     }
 
-    private UserGrid createGrid() {
-        UserGrid userGrid = new UserGrid(userService);
-        userGrid.init();
-        return userGrid;
+    private UserGridWithFilter createGrid() {
+        UserGridWithFilter userGridWithFilter = new UserGridWithFilter(userService);
+        userGridWithFilter.init();
+        return userGridWithFilter;
     }
 }
