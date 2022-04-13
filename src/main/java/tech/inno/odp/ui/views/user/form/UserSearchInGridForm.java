@@ -23,6 +23,7 @@ import tech.inno.odp.ui.util.LumoStyles;
 import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.util.converter.LocalDateToLocalDateTimeConverter;
 import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
+import tech.inno.odp.ui.views.user.UserGrid;
 import tech.inno.odp.ui.views.user.UserGridWithFilter;
 
 import java.util.Collections;
@@ -37,7 +38,7 @@ public class UserSearchInGridForm extends VerticalLayout {
     public static final String ID = "UserSearchForm";
 
     private final IEmployerService employerService;
-    private final UserGridWithFilter grid;
+    private final UserGrid grid;
 
     @PropertyId("id")
     private CustomTextField idField = new CustomTextField();

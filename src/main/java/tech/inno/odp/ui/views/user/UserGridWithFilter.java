@@ -39,16 +39,10 @@ import tech.inno.odp.ui.util.css.lumo.BadgeColor;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@RequiredArgsConstructor
 public class UserGridWithFilter extends UserGrid {
-
-    private final int PAGE_SIZE = 15;
-
-    private final IUserService userService;
-
-    private PaginatedGrid<User> grid;
-    @Getter
-    private ConfigurableFilterDataProvider<User, Void, User> dataProvider;
+    public UserGridWithFilter(IUserService userService) {
+        super(userService);
+    }
 
     @PropertyId("id")
     private CustomTextField idField = new CustomTextField();
@@ -62,7 +56,6 @@ public class UserGridWithFilter extends UserGrid {
     @PropertyId("createdAt")
     private DatePicker createdAtField = new DatePicker();
 
-    private User userFilter;
     @Getter
     private BeanValidationBinder<User> binder;
 
@@ -134,9 +127,9 @@ public class UserGridWithFilter extends UserGrid {
         updatedAtField.getStyle().set("max-width", "100%");
         updatedAtField.addValueChangeListener(
                 e -> {
-//                    transactionFilter.setUpdatedAt(e.getValue().atStartOfDay());
-//                    grid.getDataProvider().refreshAll();
-//                    grid.refreshPaginator();
+                    userFilter.setUpdatedAt(e.getValue().atStartOfDay());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
                 });
 
         createdAtField.setPlaceholder("Дата создания");
@@ -146,10 +139,9 @@ public class UserGridWithFilter extends UserGrid {
         createdAtField.getStyle().set("max-width", "100%");
         createdAtField.addValueChangeListener(
                 e -> {
-                    //TODO сделать фильтрацию
-//                    transactionFilter.setCreatedAt(e.getValue().atStartOfDay());
-//                    grid.getDataProvider().refreshAll();
-//                    grid.refreshPaginator();
+                    userFilter.setCreatedAt(e.getValue().atStartOfDay());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
                 });
     }
 

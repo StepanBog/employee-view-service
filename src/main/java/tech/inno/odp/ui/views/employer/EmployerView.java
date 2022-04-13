@@ -33,7 +33,7 @@ import tech.inno.odp.ui.layout.size.Horizontal;
 import tech.inno.odp.ui.layout.size.Vertical;
 import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.views.ViewFrame;
-import tech.inno.odp.ui.views.employee.EmployeeGrid;
+import tech.inno.odp.ui.views.employee.EmployeeGridWithFilter;
 import tech.inno.odp.ui.views.employer.form.DocumentGroupGrid;
 import tech.inno.odp.ui.views.employer.form.EmployerSettingsForm;
 import tech.inno.odp.ui.views.employer.form.EmployerTariffSettingsForm;
@@ -62,7 +62,7 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
     private final EmployerTariffSettingsForm tariffSettingsForm = new EmployerTariffSettingsForm();
     private final RequisitesForm requisitesForm = new RequisitesForm();
     private final DocumentGroupGrid documentGroupGrid = new DocumentGroupGrid();
-    private final EmployeeGrid employeeGrid = new EmployeeGrid();
+    private final EmployeeGridWithFilter employeeGridWithFilter = new EmployeeGridWithFilter();
 
     @PostConstruct
     public void init() {
@@ -123,17 +123,17 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
         documentGroupGrid.init();
         documentGroupGrid.setVisible(false);
 
-        employeeGrid.setFromEmployer(true);
-        employeeGrid.setEmployeeService(employeeService);
-        employeeGrid.init();
-        employeeGrid.setVisible(false);
+        employeeGridWithFilter.setFromEmployer(true);
+        employeeGridWithFilter.setEmployeeService(employeeService);
+        employeeGridWithFilter.init();
+        employeeGridWithFilter.setVisible(false);
 
         this.tabLayoutMap =
                 Map.of(EmployerSettingsForm.ID, commonSettingsForm,
                         EmployerTariffSettingsForm.ID, tariffSettingsForm,
                         RequisitesForm.ID, requisitesForm,
                         DocumentGroupGrid.ID, documentGroupGrid,
-                        EmployeeGrid.ID, employeeGrid
+                        EmployeeGridWithFilter.ID, employeeGridWithFilter
                 );
 
         VerticalLayout verticalLayout = new VerticalLayout();
@@ -144,7 +144,7 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
         verticalLayout.add(commonSettingsForm,
                 requisitesForm,
                 tariffSettingsForm,
-                employeeGrid,
+                employeeGridWithFilter,
                 documentGroupGrid
         );
         verticalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -170,7 +170,7 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
 
         appBar.addTab(createTab(EmployerSettingsForm.ID, VaadinIcon.FORM.create(), "Настройки"));
         appBar.addTab(createTab(RequisitesForm.ID, VaadinIcon.MODAL_LIST.create(), "Реквизиты"));
-        appBar.addTab(createTab(EmployeeGrid.ID, VaadinIcon.USERS.create(), "Работники"));
+        appBar.addTab(createTab(employeeGridWithFilter.ID, VaadinIcon.USERS.create(), "Работники"));
         appBar.addTab(createTab(EmployerTariffSettingsForm.ID, VaadinIcon.LIST.create(), "Тариф"));
         appBar.addTab(createTab(DocumentGroupGrid.ID, VaadinIcon.BOOK.create(), "Шаблоны"));
         appBar.centerTabs();
@@ -202,8 +202,8 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
         tariffSettingsForm.withBean(employer.getTariff());
         documentGroupGrid.withBean(employer);
 
-        Employee employeeFilter = employeeGrid.getEmployeeFilter();
+        Employee employeeFilter = employeeGridWithFilter.getEmployeeFilter();
         employeeFilter.setEmployerId(employer.getId());
-        employeeGrid.withFilter(employeeFilter);
+        employeeGridWithFilter.withFilter(employeeFilter);
     }
 }

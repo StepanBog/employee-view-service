@@ -32,7 +32,7 @@ public class UserList extends ViewFrame {
     }
 
     private Component createContent() {
-        UserGridWithFilter grid = createGrid();
+        UserGrid grid = createGrid();
         UserSearchInGridForm searchForm = new UserSearchInGridForm(employerService, grid);
         searchForm.init();
 
@@ -49,9 +49,9 @@ public class UserList extends ViewFrame {
         return content;
     }
 
-    private UserGridWithFilter createGrid() {
-        UserGridWithFilter userGridWithFilter = new UserGridWithFilter(userService);
-        userGridWithFilter.init();
-        return userGridWithFilter;
+    private UserGrid createGrid() {
+        UserGrid userGrid= new UserGrid(userService);
+        userGrid.init();
+        return userGrid;
     }
 }

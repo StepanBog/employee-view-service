@@ -44,6 +44,7 @@ public class UserGrid extends VerticalLayout {
     protected final IUserService userService;
 
     protected PaginatedGrid<User> grid;
+
     @Getter
     protected ConfigurableFilterDataProvider<User, Void, User> dataProvider;
 
