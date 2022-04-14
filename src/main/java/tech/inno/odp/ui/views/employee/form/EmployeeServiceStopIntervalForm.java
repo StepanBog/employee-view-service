@@ -39,12 +39,12 @@ public class EmployeeServiceStopIntervalForm extends VerticalLayout {
                 .setAutoWidth(true)
                 .setHeader("ID");
 
-        grid.addColumn(new LocalDateTimeRenderer<>(ServiceStopInterval::getUpdatedAt, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
+        grid.addColumn(new LocalDateTimeRenderer<>(ServiceStopInterval::getFrom, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
                 .setAutoWidth(true)
                 .setComparator(ServiceStopInterval::getFrom)
                 .setHeader("Дата начала интервала");
 
-        grid.addColumn(new LocalDateTimeRenderer<>(ServiceStopInterval::getCreatedAt, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
+        grid.addColumn(new LocalDateTimeRenderer<>(ServiceStopInterval::getTo, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
                 .setAutoWidth(true)
                 .setComparator(ServiceStopInterval::getTo)
                 .setHeader("Дата конца интервала");
