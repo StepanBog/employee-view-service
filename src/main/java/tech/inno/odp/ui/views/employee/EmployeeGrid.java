@@ -149,6 +149,20 @@ public class EmployeeGrid extends VerticalLayout {
                 .setResizable(true);
         lastNameColumn.setVisible(false);
 
+        Grid.Column<Employee> patronymicNameColumn = grid.addColumn(Employee::getPatronymicName)
+                .setAutoWidth(true)
+                .setComparator(Employee::getPatronymicName)
+                .setHeader("Отчество")
+                .setResizable(true);
+        patronymicNameColumn.setVisible(false);
+
+        Grid.Column<Employee> phoneColumn = grid.addColumn(Employee::getPhone)
+                .setAutoWidth(true)
+                .setComparator(Employee::getPhone)
+                .setHeader("Телефон")
+                .setResizable(true);
+        phoneColumn.setVisible(false);
+
         Grid.Column<Employee> employerNameColumn = null;
         if (!fromEmployer) {
             employerNameColumn = grid.addColumn(Employee::getEmployerName)
@@ -187,6 +201,8 @@ public class EmployeeGrid extends VerticalLayout {
         columnToggleContextMenu.addColumnToggleItem("id", idColumn);
         columnToggleContextMenu.addColumnToggleItem("Имя", firstNameColumn);
         columnToggleContextMenu.addColumnToggleItem("Фамилия", lastNameColumn);
+        columnToggleContextMenu.addColumnToggleItem("Отчество", patronymicNameColumn);
+        columnToggleContextMenu.addColumnToggleItem("Телефон", phoneColumn);
         columnToggleContextMenu.addColumnToggleItem("Статус", statusColumn);
         columnToggleContextMenu.addColumnToggleItem("Дата обновления", updatedAtColumn);
         columnToggleContextMenu.addColumnToggleItem("Дата создания", createdAtColumn);
