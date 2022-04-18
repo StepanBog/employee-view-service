@@ -127,7 +127,11 @@ public class UserGridWithFilter extends UserGrid {
         updatedAtField.getStyle().set("max-width", "100%");
         updatedAtField.addValueChangeListener(
                 e -> {
-                    userFilter.setUpdatedAt(e.getValue().atStartOfDay());
+                    if (e.getValue() != null) {
+                        userFilter.setUpdatedAt(e.getValue().atStartOfDay());
+                    } else {
+                        userFilter.setUsername(null);
+                    }
                     grid.getDataProvider().refreshAll();
                     grid.refreshPaginator();
                 });
@@ -139,7 +143,11 @@ public class UserGridWithFilter extends UserGrid {
         createdAtField.getStyle().set("max-width", "100%");
         createdAtField.addValueChangeListener(
                 e -> {
-                    userFilter.setCreatedAt(e.getValue().atStartOfDay());
+                    if (e.getValue() != null) {
+                        userFilter.setCreatedAt(e.getValue().atStartOfDay());
+                    } else {
+                        userFilter.setCreatedAt(null);
+                    }
                     grid.getDataProvider().refreshAll();
                     grid.refreshPaginator();
                 });
@@ -232,14 +240,6 @@ public class UserGridWithFilter extends UserGrid {
                 .setWidth("200px")
                 .setHeader("Роли")
                 .setResizable(true);
-
-//        grid.addColumn(new ComponentRenderer<>(this::createEnabled))
-//                .setAutoWidth(true)
-//                .setFlexGrow(0)
-//                .setComparator(User::isEnabled)
-//                .setHeader("Пользователь активен")
-//                .setTextAlign(ColumnTextAlign.END)
-//                .setSortable(true);
 
         Grid.Column<User> updatedAtColumn = grid.addColumn(new LocalDateTimeRenderer<>(User::getUpdatedAt, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
                 .setAutoWidth(true)

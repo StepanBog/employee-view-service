@@ -119,7 +119,12 @@ public class TransactionGridWithFilter extends TransactionGrid{
         updatedAtField.getStyle().set("max-width", "100%");
         updatedAtField.addValueChangeListener(
                 e -> {
-                    transactionFilter.setUpdatedAt(e.getValue().atStartOfDay());
+                    if (e.getValue() != null) {
+                        transactionFilter.setUpdatedAt(e.getValue().atStartOfDay());
+                    } else {
+                        transactionFilter.setUpdatedAt(null);
+                    }
+
                     grid.getDataProvider().refreshAll();
                     grid.refreshPaginator();
                 });
@@ -131,7 +136,11 @@ public class TransactionGridWithFilter extends TransactionGrid{
         createdAtField.getStyle().set("max-width", "100%");
         createdAtField.addValueChangeListener(
                 e -> {
-                    transactionFilter.setCreatedAt(e.getValue().atStartOfDay());
+                    if (e.getValue() != null) {
+                        transactionFilter.setCreatedAt(e.getValue().atStartOfDay());
+                    } else {
+                        transactionFilter.setCreatedAt(null);
+                    }
                     grid.getDataProvider().refreshAll();
                     grid.refreshPaginator();
                 });

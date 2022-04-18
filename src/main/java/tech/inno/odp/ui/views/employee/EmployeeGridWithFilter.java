@@ -209,10 +209,13 @@ public class EmployeeGridWithFilter extends EmployeeGrid{
         updatedAtField.getStyle().set("max-width", "100%");
         updatedAtField.addValueChangeListener(
                 e -> {
-                    //TODO сделать фильтрацию
-//                    employeeFilter.setUpdatedAt(e.getValue().atStartOfDay());
-//                    grid.getDataProvider().refreshAll();
-//                    grid.refreshPaginator();
+                    if (e.getValue() != null) {
+                        employeeFilter.setUpdatedAt(e.getValue().atStartOfDay());
+                    } else {
+                        employeeFilter.setUpdatedAt(null);
+                    }
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
                 });
 
         createdAtField.setPlaceholder("Дата создания");
@@ -222,10 +225,13 @@ public class EmployeeGridWithFilter extends EmployeeGrid{
         createdAtField.getStyle().set("max-width", "100%");
         createdAtField.addValueChangeListener(
                 e -> {
-                    //TODO сделать фильтрацию
-//                    employeeFilter.setCreatedAt(e.getValue().atStartOfDay());
-//                    grid.getDataProvider().refreshAll();
-//                    grid.refreshPaginator();
+                    if (e.getValue() != null) {
+                        employeeFilter.setCreatedAt(e.getValue().atStartOfDay());
+                    } else {
+                        employeeFilter.setCreatedAt(null);
+                    }
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
                 });
     }
 

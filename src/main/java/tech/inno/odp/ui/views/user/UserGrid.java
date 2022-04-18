@@ -144,14 +144,6 @@ public class UserGrid extends VerticalLayout {
                 .setHeader("Роли")
                 .setResizable(true);
 
-//        grid.addColumn(new ComponentRenderer<>(this::createEnabled))
-//                .setAutoWidth(true)
-//                .setFlexGrow(0)
-//                .setComparator(User::isEnabled)
-//                .setHeader("Пользователь активен")
-//                .setTextAlign(ColumnTextAlign.END)
-//                .setSortable(true);
-
         Grid.Column<User> updatedAtColumn = grid.addColumn(new LocalDateTimeRenderer<>(User::getUpdatedAt, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
                 .setAutoWidth(true)
                 .setFlexGrow(0)
