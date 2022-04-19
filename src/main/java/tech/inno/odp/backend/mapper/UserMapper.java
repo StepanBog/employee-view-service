@@ -8,6 +8,7 @@ import tech.inno.odp.backend.mapper.common.StringValueMapper;
 import tech.inno.odp.backend.mapper.common.TimestampMapper;
 import tech.inno.odp.backend.mapper.common.UUIDValueMapper;
 import tech.inno.odp.backend.mapper.status.StatusMapper;
+import tech.inno.odp.grpc.generated.auth.model.Role;
 import tech.inno.odp.grpc.generated.auth.user.UserSearchRequest;
 
 import java.util.List;
@@ -19,16 +20,20 @@ import java.util.List;
         TimestampMapper.class,
         UserSettingsMapper.class,
         StatusMapper.class,
+        RoleMapper.class,
 },
         collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
 public interface UserMapper {
 
+    @Mapping(target = "rolesList", source = "roleNames")
+    @Mapping(target = "enable", source = "enabled")
     tech.inno.odp.grpc.generated.auth.model.User transform(User user);
 
     @Mapping(target = "authorities", source = "rolesList")
     @Mapping(target = "roleNames", source = "rolesList")
+    @Mapping(target = "enabled", source = "enable")
     User transform(tech.inno.odp.grpc.generated.auth.model.User user);
 
     List<User> transform(List<tech.inno.odp.grpc.generated.auth.model.User> users);
@@ -43,8 +48,7 @@ public interface UserMapper {
                                         int pageNumber,
                                         int pageSize);
 
-    default SimpleGrantedAuthority map(String role) {
-        return new SimpleGrantedAuthority(role);
+    default SimpleGrantedAuthority map(Role role) {
+        return new SimpleGrantedAuthority(role.getRoleName().name());
     }
-
 }

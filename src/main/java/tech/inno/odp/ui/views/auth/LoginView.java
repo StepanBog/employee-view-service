@@ -75,6 +75,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
         });
 
         add(loginOverlay);
+        UI.getCurrent().getPage().executeJs("document.getElementById(\"vaadinLoginUsername\").focus();");
     }
 
     @Override

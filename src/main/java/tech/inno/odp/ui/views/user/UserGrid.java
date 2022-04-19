@@ -1,6 +1,7 @@
 package tech.inno.odp.ui.views.user;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -31,7 +32,6 @@ import tech.inno.odp.ui.components.ColumnToggleContextMenu;
 import tech.inno.odp.ui.components.field.CustomTextField;
 import tech.inno.odp.ui.components.grid.PaginatedGrid;
 import tech.inno.odp.ui.util.IconSize;
-import tech.inno.odp.ui.util.LumoStyles;
 import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.util.converter.LocalDateToLocalDateTimeConverter;
 import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
@@ -318,5 +318,6 @@ public class UserGrid extends VerticalLayout {
 
     private void toViewPage(User user) {
 //        UI.getCurrent().navigate(AccountDetails.class, bankAccount.getId());
+        UI.getCurrent().navigate(UserView.class, user.getId());
     }
 }
