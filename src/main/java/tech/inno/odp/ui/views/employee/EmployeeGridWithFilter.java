@@ -42,30 +42,53 @@ import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
-public class EmployeeGrid extends VerticalLayout {
+public class EmployeeGridWithFilter extends EmployeeGrid{
 
-    public static final String ID = "employeeGrid";
-    protected final int PAGE_SIZE = 15;
+    public static final String ID = "employeeGridWithFilter";
 
     @Setter
-    protected IEmployeeService employeeService;
-    @Setter
-    protected IEmployerService employerService;
-    @Setter
-    protected boolean fromEmployer = false;
+    private boolean fromEmployer = false;
+
+    @PropertyId("id")
+    private CustomTextField idField = new CustomTextField();
+    @PropertyId("status")
+    private ComboBox<EmployeeStatus> statusField = new ComboBox();
+    @PropertyId("lastName")
+    private CustomTextField lastNameNameField = new CustomTextField();
+    @PropertyId("firstName")
+    private CustomTextField firstNameField = new CustomTextField();
+    @PropertyId("patronymicName")
+    private CustomTextField patronymicNameField = new CustomTextField();
 
     private ComboBox<Employer> employerField = new ComboBox<>();
 
-    @Getter
-    protected Employee employeeFilter;
+    @PropertyId("updatedAt")
+    private DatePicker updatedAtField = new DatePicker();
+    @PropertyId("createdAt")
+    private DatePicker createdAtField = new DatePicker();
 
-    protected PaginatedGrid<Employee> grid;
-    protected ConfigurableFilterDataProvider<Employee, Void, Employee> dataProvider;
+    @Getter
+    private BeanValidationBinder<Employee> binder;
 
     public void init() {
         setId(ID);
         setSizeFull();
+        initFields();
+
         initDataProvider();
+
+        this.binder = new BeanValidationBinder<>(Employee.class);
+        this.binder.setBean(this.employeeFilter);
+
+        LocalDateToLocalDateTimeConverter localDateTimeConverter = new LocalDateToLocalDateTimeConverter();
+        this.binder.forField(updatedAtField)
+                .withConverter(localDateTimeConverter)
+                .bind(Employee::getUpdatedAt, Employee::setUpdatedAt);
+        this.binder.forField(createdAtField)
+                .withConverter(localDateTimeConverter)
+                .bind(Employee::getCreatedAt, Employee::setCreatedAt);
+        this.binder.bindInstanceFields(this);
+
         add(createContent());
     }
 
@@ -80,6 +103,136 @@ public class EmployeeGrid extends VerticalLayout {
         content.setMargin(false);
         content.setSpacing(false);
         return content;
+    }
+
+    private void initFields() {
+
+        StringToStringWithNullValueConverter stringToStringWithNullValueConverter = new StringToStringWithNullValueConverter();
+
+        idField.setConverters(stringToStringWithNullValueConverter);
+        idField.setPlaceholder("ID");
+        idField.setValueChangeMode(ValueChangeMode.EAGER);
+        idField.setClearButtonVisible(true);
+        idField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+        idField.setWidthFull();
+        idField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        idField.getStyle().set("max-width", "100%");
+        idField.addValueChangeListener(e -> {
+            employeeFilter.setId(StringUtils.isEmpty(e.getValue()) ? null : e.getValue());
+            grid.getDataProvider().refreshAll();
+            grid.refreshPaginator();
+        });
+
+        statusField.setPlaceholder("Статус");
+        statusField.setItems(EmployeeStatus.values());
+        statusField.setItemLabelGenerator(EmployeeStatus::getDescription);
+        statusField.setClearButtonVisible(true);
+        statusField.setWidthFull();
+        statusField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        statusField.getStyle().set("max-width", "100%");
+        statusField.addValueChangeListener(
+                s -> {
+                    employeeFilter.setStatus(s.getValue());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }
+        );
+
+        lastNameNameField.setConverters(stringToStringWithNullValueConverter);
+        lastNameNameField.setPlaceholder("Фамилия");
+        lastNameNameField.setClearButtonVisible(true);
+        lastNameNameField.setWidthFull();
+        lastNameNameField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        lastNameNameField.getStyle().set("max-width", "100%");
+        lastNameNameField.addValueChangeListener(
+                s -> {
+                    employeeFilter.setLastName(s.getValue());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }
+        );
+
+        firstNameField.setConverters(stringToStringWithNullValueConverter);
+        firstNameField.setPlaceholder("Имя");
+        firstNameField.setClearButtonVisible(true);
+        firstNameField.setWidthFull();
+        firstNameField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        firstNameField.getStyle().set("max-width", "100%");
+        firstNameField.addValueChangeListener(
+                s -> {
+                    employeeFilter.setFirstName(s.getValue());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }
+        );
+
+        patronymicNameField.setConverters(stringToStringWithNullValueConverter);
+        patronymicNameField.setPlaceholder("Отчество");
+        patronymicNameField.setClearButtonVisible(true);
+        patronymicNameField.setWidthFull();
+        patronymicNameField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        patronymicNameField.getStyle().set("max-width", "100%");
+        patronymicNameField.addValueChangeListener(
+                s -> {
+                    employeeFilter.setPatronymicName(s.getValue());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }
+        );
+
+        if (!fromEmployer) {
+            employerField.setPlaceholder("Работодатель");
+            employerField.setItemLabelGenerator(Employer::getName);
+            employerField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+            employerField.setDataProvider(
+                    (employer, filterString) ->
+                            employer.getName().toLowerCase().startsWith(filterString.toLowerCase()),
+                    DataProvider.fromStream(
+                            employerService.findAll(
+                                    SearchEmployerRequest.newBuilder()
+                                            .build()
+                            ).stream()
+                    ));
+
+            employerField.addValueChangeListener(e -> {
+                employeeFilter.setEmployerId(e.getValue() != null ? e.getValue().getId() : null);
+                grid.getDataProvider().refreshAll();
+                grid.refreshPaginator();
+            });
+        }
+
+
+        updatedAtField.setPlaceholder("Дата обновления");
+        updatedAtField.setClearButtonVisible(true);
+        updatedAtField.setWidthFull();
+        updatedAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        updatedAtField.getStyle().set("max-width", "100%");
+        updatedAtField.addValueChangeListener(
+                e -> {
+                    if (e.getValue() != null) {
+                        employeeFilter.setUpdatedAt(e.getValue().atStartOfDay());
+                    } else {
+                        employeeFilter.setUpdatedAt(null);
+                    }
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                });
+
+        createdAtField.setPlaceholder("Дата создания");
+        createdAtField.setClearButtonVisible(true);
+        createdAtField.setWidthFull();
+        createdAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        createdAtField.getStyle().set("max-width", "100%");
+        createdAtField.addValueChangeListener(
+                e -> {
+                    if (e.getValue() != null) {
+                        employeeFilter.setCreatedAt(e.getValue().atStartOfDay());
+                    } else {
+                        employeeFilter.setCreatedAt(null);
+                    }
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                });
     }
 
     private void initDataProvider() {
@@ -149,20 +302,6 @@ public class EmployeeGrid extends VerticalLayout {
                 .setResizable(true);
         lastNameColumn.setVisible(false);
 
-        Grid.Column<Employee> patronymicNameColumn = grid.addColumn(Employee::getPatronymicName)
-                .setAutoWidth(true)
-                .setComparator(Employee::getPatronymicName)
-                .setHeader("Отчество")
-                .setResizable(true);
-        patronymicNameColumn.setVisible(false);
-
-        Grid.Column<Employee> phoneColumn = grid.addColumn(Employee::getPhone)
-                .setAutoWidth(true)
-                .setComparator(Employee::getPhone)
-                .setHeader("Телефон")
-                .setResizable(true);
-        phoneColumn.setVisible(false);
-
         Grid.Column<Employee> employerNameColumn = null;
         if (!fromEmployer) {
             employerNameColumn = grid.addColumn(Employee::getEmployerName)
@@ -201,16 +340,21 @@ public class EmployeeGrid extends VerticalLayout {
         columnToggleContextMenu.addColumnToggleItem("id", idColumn);
         columnToggleContextMenu.addColumnToggleItem("Имя", firstNameColumn);
         columnToggleContextMenu.addColumnToggleItem("Фамилия", lastNameColumn);
-        columnToggleContextMenu.addColumnToggleItem("Отчество", patronymicNameColumn);
-        columnToggleContextMenu.addColumnToggleItem("Телефон", phoneColumn);
         columnToggleContextMenu.addColumnToggleItem("Статус", statusColumn);
         columnToggleContextMenu.addColumnToggleItem("Дата обновления", updatedAtColumn);
         columnToggleContextMenu.addColumnToggleItem("Дата создания", createdAtColumn);
 
         grid.getHeaderRows().clear();
-        HeaderRow headerRow = grid.getHeaderRows().get(0);
+        HeaderRow headerRow = grid.appendHeaderRow();
 
         headerRow.getCell(actionColumn).setComponent(menuButton);
+        headerRow.getCell(idColumn).setComponent(idField);
+        headerRow.getCell(statusColumn).setComponent(statusField);
+        headerRow.getCell(firstNameColumn).setComponent(firstNameField);
+        headerRow.getCell(lastNameColumn).setComponent(lastNameNameField);
+        headerRow.getCell(updatedAtColumn).setComponent(updatedAtField);
+        headerRow.getCell(createdAtColumn).setComponent(createdAtField);
+
         if (employerNameColumn != null) {
             headerRow.getCell(employerNameColumn).setComponent(employerField);
         }
@@ -232,8 +376,11 @@ public class EmployeeGrid extends VerticalLayout {
 
     public void withFilter(Employee employeeFilter) {
         this.employeeFilter = employeeFilter;
+
+        binder.setBean(employeeFilter);
+        binder.bindInstanceFields(this);
+
         dataProvider.setFilter(employeeFilter);
         grid.getDataProvider().refreshAll();
     }
-
 }

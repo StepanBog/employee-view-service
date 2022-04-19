@@ -16,16 +16,13 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.PropertyId;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
-import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import tech.inno.odp.backend.data.containers.Transaction;
 import tech.inno.odp.backend.data.enums.TransactionStatus;
-import tech.inno.odp.backend.service.ITransactionService;
 import tech.inno.odp.ui.components.Badge;
 import tech.inno.odp.ui.components.ColumnToggleContextMenu;
 import tech.inno.odp.ui.components.grid.PaginatedGrid;
@@ -35,26 +32,118 @@ import tech.inno.odp.ui.util.converter.LocalDateToLocalDateTimeConverter;
 
 import java.time.format.DateTimeFormatter;
 
-public class TransactionGrid extends VerticalLayout {
+public class TransactionGridWithFilter extends TransactionGrid{
+    public static final String ID = "transactionGridWithFilter";
+    @PropertyId("id")
+    protected TextField idField = new TextField();
+    @PropertyId("status")
+    protected ComboBox<TransactionStatus> statusField = new ComboBox();
+    @PropertyId("totalSum")
+    protected BigDecimalField totalSumField = new BigDecimalField();
 
-    public static final String ID = "transactionGrid";
-    protected final int PAGE_SIZE = 15;
-
-    @Setter
-    protected ITransactionService transactionService;
-
-    protected PaginatedGrid<Transaction> grid;
+    @PropertyId("updatedAt")
+    protected DatePicker updatedAtField = new DatePicker();
+    @PropertyId("createdAt")
+    protected DatePicker createdAtField = new DatePicker();
     @Getter
-    protected ConfigurableFilterDataProvider<Transaction, Void, Transaction> dataProvider;
-
-    protected Transaction transactionFilter;
+    private BeanValidationBinder<Transaction> binder;
 
 
     public void init() {
         setId(ID);
         setSizeFull();
+        initFields();
+
         initDataProvider();
+
+        this.binder = new BeanValidationBinder<>(Transaction.class);
+        this.binder.setBean(this.transactionFilter);
+
+        LocalDateToLocalDateTimeConverter localDateTimeConverter = new LocalDateToLocalDateTimeConverter();
+        this.binder.forField(updatedAtField)
+                .withConverter(localDateTimeConverter)
+                .bind(Transaction::getUpdatedAt, Transaction::setUpdatedAt);
+        this.binder.forField(createdAtField)
+                .withConverter(localDateTimeConverter)
+                .bind(Transaction::getCreatedAt, Transaction::setCreatedAt);
+        this.binder.bindInstanceFields(this);
+
         add(createContent());
+    }
+
+    private void initFields() {
+        idField.setPlaceholder("ID");
+        idField.setValueChangeMode(ValueChangeMode.EAGER);
+        idField.setClearButtonVisible(true);
+        idField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+        idField.setWidthFull();
+        idField.getStyle().set("max-width", "100%");
+        idField.addValueChangeListener(e -> {
+            transactionFilter.setId(StringUtils.isEmpty(e.getValue()) ? null : e.getValue());
+            grid.getDataProvider().refreshAll();
+            grid.refreshPaginator();
+        });
+
+        statusField.setPlaceholder("Статус");
+        statusField.setItems(TransactionStatus.values());
+        statusField.setItemLabelGenerator(TransactionStatus::getDescription);
+        statusField.setClearButtonVisible(true);
+        statusField.setWidthFull();
+        statusField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        statusField.getStyle().set("max-width", "100%");
+        statusField.addValueChangeListener(
+                s -> {
+                    transactionFilter.setStatus(s.getValue());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }
+        );
+
+        totalSumField.setPlaceholder("Общая сумма");
+        totalSumField.setClearButtonVisible(true);
+        totalSumField.setWidthFull();
+        totalSumField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        totalSumField.getStyle().set("max-width", "100%");
+        totalSumField.addValueChangeListener(
+                s -> {
+                    transactionFilter.setTotalSum(s.getValue());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }
+        );
+
+        updatedAtField.setPlaceholder("Дата обновления");
+        updatedAtField.setClearButtonVisible(true);
+        updatedAtField.setWidthFull();
+        updatedAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        updatedAtField.getStyle().set("max-width", "100%");
+        updatedAtField.addValueChangeListener(
+                e -> {
+                    if (e.getValue() != null) {
+                        transactionFilter.setUpdatedAt(e.getValue().atStartOfDay());
+                    } else {
+                        transactionFilter.setUpdatedAt(null);
+                    }
+
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                });
+
+        createdAtField.setPlaceholder("Дата создания");
+        createdAtField.setClearButtonVisible(true);
+        createdAtField.setWidthFull();
+        createdAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        createdAtField.getStyle().set("max-width", "100%");
+        createdAtField.addValueChangeListener(
+                e -> {
+                    if (e.getValue() != null) {
+                        transactionFilter.setCreatedAt(e.getValue().atStartOfDay());
+                    } else {
+                        transactionFilter.setCreatedAt(null);
+                    }
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                });
     }
 
     private Component createContent() {
@@ -165,9 +254,14 @@ public class TransactionGrid extends VerticalLayout {
         columnToggleContextMenu.addColumnToggleItem("Дата создания", createdAtColumn);
 
         grid.getHeaderRows().clear();
-        HeaderRow headerRow = grid.getHeaderRows().get(0);
+        HeaderRow headerRow = grid.appendHeaderRow();
 
         headerRow.getCell(actionColumn).setComponent(menuButton);
+        headerRow.getCell(idColumn).setComponent(idField);
+        headerRow.getCell(statusColumn).setComponent(statusField);
+        headerRow.getCell(totalSumColumn).setComponent(totalSumField);
+        headerRow.getCell(updatedAtColumn).setComponent(updatedAtField);
+        headerRow.getCell(createdAtColumn).setComponent(createdAtField);
 
         return grid;
     }
@@ -180,6 +274,10 @@ public class TransactionGrid extends VerticalLayout {
     public void withFilter(Transaction transactionFilter) {
         this.transactionFilter = transactionFilter;
         dataProvider.setFilter(transactionFilter);
+        binder.setBean(transactionFilter);
+        binder.bindInstanceFields(this);
+
+
         grid.getDataProvider().refreshAll();
     }
 
@@ -187,3 +285,4 @@ public class TransactionGrid extends VerticalLayout {
 //        UI.getCurrent().navigate(AccountDetails.class, bankAccount.getId());
     }
 }
+

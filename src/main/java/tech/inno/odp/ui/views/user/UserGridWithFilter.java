@@ -32,28 +32,125 @@ import tech.inno.odp.ui.components.field.CustomTextField;
 import tech.inno.odp.ui.components.grid.PaginatedGrid;
 import tech.inno.odp.ui.util.IconSize;
 import tech.inno.odp.ui.util.UIUtils;
+import tech.inno.odp.ui.util.converter.LocalDateToLocalDateTimeConverter;
+import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
 import tech.inno.odp.ui.util.css.lumo.BadgeColor;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@RequiredArgsConstructor
-public class UserGrid extends VerticalLayout {
-    protected final int PAGE_SIZE = 15;
+public class UserGridWithFilter extends UserGrid {
+    public UserGridWithFilter(IUserService userService) {
+        super(userService);
+    }
 
-    protected final IUserService userService;
+    @PropertyId("id")
+    private CustomTextField idField = new CustomTextField();
+    @PropertyId("username")
+    private CustomTextField usernameField = new CustomTextField();
 
-    protected PaginatedGrid<User> grid;
+    private ComboBox<UserRoleName> userRoleNameField = new ComboBox<>();
+
+    @PropertyId("updatedAt")
+    private DatePicker updatedAtField = new DatePicker();
+    @PropertyId("createdAt")
+    private DatePicker createdAtField = new DatePicker();
 
     @Getter
-    protected ConfigurableFilterDataProvider<User, Void, User> dataProvider;
-
-    protected User userFilter;
+    private BeanValidationBinder<User> binder;
 
     public void init() {
         setSizeFull();
+        initFields();
+
         initDataProvider();
+
+        this.binder = new BeanValidationBinder<>(User.class);
+        this.binder.setBean(this.userFilter);
+
+        LocalDateToLocalDateTimeConverter localDateTimeConverter = new LocalDateToLocalDateTimeConverter();
+        this.binder.forField(updatedAtField)
+                .withConverter(localDateTimeConverter)
+                .bind(User::getUpdatedAt, User::setUpdatedAt);
+        this.binder.forField(createdAtField)
+                .withConverter(localDateTimeConverter)
+                .bind(User::getCreatedAt, User::setCreatedAt);
+        this.binder.bindInstanceFields(this);
+
         add(createContent());
+    }
+
+    private void initFields() {
+        StringToStringWithNullValueConverter stringToStringWithNullValueConverter = new StringToStringWithNullValueConverter();
+
+        idField.setConverters(stringToStringWithNullValueConverter);
+        idField.setPlaceholder("ID");
+        idField.setValueChangeMode(ValueChangeMode.EAGER);
+        idField.setClearButtonVisible(true);
+        idField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+        idField.setWidthFull();
+        idField.getStyle().set("max-width", "100%");
+        idField.addValueChangeListener(e -> {
+            userFilter.setId(StringUtils.isEmpty(e.getValue()) ? null : e.getValue());
+            grid.getDataProvider().refreshAll();
+            grid.refreshPaginator();
+        });
+
+        usernameField.setConverters(stringToStringWithNullValueConverter);
+        usernameField.setPlaceholder("Username");
+        usernameField.setValueChangeMode(ValueChangeMode.EAGER);
+        usernameField.setClearButtonVisible(true);
+        usernameField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+        usernameField.setWidthFull();
+        usernameField.getStyle().set("max-width", "100%");
+        usernameField.addValueChangeListener(e -> {
+            userFilter.setUsername(StringUtils.isEmpty(e.getValue()) ? null : e.getValue());
+            grid.getDataProvider().refreshAll();
+            grid.refreshPaginator();
+        });
+
+        userRoleNameField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        userRoleNameField.setItems(UserRoleName.values());
+        userRoleNameField.setItemLabelGenerator(UserRoleName::getDescription);
+        userRoleNameField.setPlaceholder("Роль");
+        userRoleNameField.addValueChangeListener(e -> {
+            userFilter.setRoleNames(e.getValue() != null ? List.of(e.getValue()) : null);
+            grid.getDataProvider().refreshAll();
+            grid.refreshPaginator();
+        });
+
+
+        updatedAtField.setPlaceholder("Дата обновления");
+        updatedAtField.setClearButtonVisible(true);
+        updatedAtField.setWidthFull();
+        updatedAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        updatedAtField.getStyle().set("max-width", "100%");
+        updatedAtField.addValueChangeListener(
+                e -> {
+                    if (e.getValue() != null) {
+                        userFilter.setUpdatedAt(e.getValue().atStartOfDay());
+                    } else {
+                        userFilter.setUsername(null);
+                    }
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                });
+
+        createdAtField.setPlaceholder("Дата создания");
+        createdAtField.setClearButtonVisible(true);
+        createdAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        createdAtField.setWidthFull();
+        createdAtField.getStyle().set("max-width", "100%");
+        createdAtField.addValueChangeListener(
+                e -> {
+                    if (e.getValue() != null) {
+                        userFilter.setCreatedAt(e.getValue().atStartOfDay());
+                    } else {
+                        userFilter.setCreatedAt(null);
+                    }
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                });
     }
 
     private Component createContent() {
@@ -171,9 +268,14 @@ public class UserGrid extends VerticalLayout {
 
 
         grid.getHeaderRows().clear();
-        HeaderRow headerRow = grid.getHeaderRows().get(0);
+        HeaderRow headerRow = grid.appendHeaderRow();
 
         headerRow.getCell(actionColumn).setComponent(menuButton);
+        headerRow.getCell(idColumn).setComponent(idField);
+        headerRow.getCell(usernameColumn).setComponent(usernameField);
+        headerRow.getCell(rolesColumn).setComponent(userRoleNameField);
+        headerRow.getCell(updatedAtColumn).setComponent(updatedAtField);
+        headerRow.getCell(createdAtColumn).setComponent(createdAtField);
 
         return grid;
     }
@@ -190,6 +292,16 @@ public class UserGrid extends VerticalLayout {
 
     public void withFilter(User userFilter) {
         this.userFilter = userFilter;
+
+        binder.setBean(userFilter);
+        binder.bindInstanceFields(this);
+
+        if (!CollectionUtils.isEmpty(userFilter.getRoleNames())) {
+            this.userRoleNameField.setValue(userFilter.getRoleNames().get(0));
+        } else {
+            this.userRoleNameField.setValue(null);
+        }
+
         dataProvider.setFilter(userFilter);
         grid.getDataProvider().refreshAll();
     }

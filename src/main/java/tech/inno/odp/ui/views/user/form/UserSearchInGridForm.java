@@ -24,6 +24,7 @@ import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.util.converter.LocalDateToLocalDateTimeConverter;
 import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
 import tech.inno.odp.ui.views.user.UserGrid;
+import tech.inno.odp.ui.views.user.UserGridWithFilter;
 
 import java.util.Collections;
 import java.util.List;

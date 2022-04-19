@@ -37,26 +37,140 @@ import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
 
 import java.time.format.DateTimeFormatter;
 
-public class EmployerGrid  extends VerticalLayout {
+public class EmployerGridWithFilter extends EmployerGrid {
 
+    public static final String ID = "employerGridWithFilter";
 
-    public static final String ID = "employerGrid";
-    protected final int PAGE_SIZE = 15;
+    @PropertyId("id")
+    private CustomTextField idField = new CustomTextField();
+    @PropertyId("name")
+    private CustomTextField nameField = new CustomTextField();
 
-    @Setter
-    protected IEmployerService employerService;
+    @PropertyId("email")
+    private EmailField emailField = new EmailField();
+    @PropertyId("status")
+    private ComboBox<EmployerStatus> statusField = new ComboBox();
+    @PropertyId("updatedAt")
+    private DatePicker updatedAtField = new DatePicker();
+    @PropertyId("createdAt")
+    private DatePicker createdAtField = new DatePicker();
 
-    protected PaginatedGrid<Employer> grid;
-    protected ConfigurableFilterDataProvider<Employer, Void, Employer> dataProvider;
-    protected Employer employerFilter;
+    @Getter
+    private BeanValidationBinder<Employer> binder;
 
     public void init() {
         setId(ID);
         setSizeFull();
+        initFields();
+
         initDataProvider();
+
+        this.binder = new BeanValidationBinder<>(Employer.class);
+        this.binder.setBean(this.employerFilter);
+
+        LocalDateToLocalDateTimeConverter localDateTimeConverter = new LocalDateToLocalDateTimeConverter();
+        this.binder.forField(updatedAtField)
+                .withConverter(localDateTimeConverter)
+                .bind(Employer::getUpdatedAt, Employer::setUpdatedAt);
+        this.binder.forField(createdAtField)
+                .withConverter(localDateTimeConverter)
+                .bind(Employer::getCreatedAt, Employer::setCreatedAt);
+        this.binder.setValidatorsDisabled(true);
+        this.binder.bindInstanceFields(this);
+
         add(createContent());
     }
 
+    private void initFields() {
+
+        StringToStringWithNullValueConverter stringToStringWithNullValueConverter = new StringToStringWithNullValueConverter();
+
+        idField.setConverters(stringToStringWithNullValueConverter);
+        idField.setPlaceholder("ID");
+        idField.setValueChangeMode(ValueChangeMode.EAGER);
+        idField.setClearButtonVisible(true);
+        idField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+        idField.setWidthFull();
+        idField.getStyle().set("max-width", "100%");
+        idField.addValueChangeListener(e -> {
+            employerFilter.setId(StringUtils.isEmpty(e.getValue()) ? null : e.getValue());
+            grid.getDataProvider().refreshAll();
+            grid.refreshPaginator();
+        });
+
+        nameField.setConverters(stringToStringWithNullValueConverter);
+        nameField.setPlaceholder("Работодатель");
+        nameField.setValueChangeMode(ValueChangeMode.EAGER);
+        nameField.setClearButtonVisible(true);
+        nameField.addThemeVariants(TextFieldVariant.LUMO_SMALL);
+        nameField.setWidthFull();
+        nameField.getStyle().set("max-width", "100%");
+        nameField.addValueChangeListener(e -> {
+            employerFilter.setName(StringUtils.isEmpty(e.getValue()) ? null : e.getValue());
+            grid.getDataProvider().refreshAll();
+            grid.refreshPaginator();
+        });
+
+        statusField.setPlaceholder("Статус");
+        statusField.setItems(EmployerStatus.values());
+        statusField.setItemLabelGenerator(EmployerStatus::getDescription);
+        statusField.setClearButtonVisible(true);
+        statusField.setWidthFull();
+        statusField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        statusField.getStyle().set("max-width", "100%");
+        statusField.addValueChangeListener(
+                s -> {
+                    employerFilter.setStatus(s.getValue());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }
+        );
+
+        emailField.setPlaceholder("Email");
+        emailField.setClearButtonVisible(true);
+        emailField.setWidthFull();
+        emailField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        emailField.getStyle().set("max-width", "100%");
+        emailField.addValueChangeListener(
+                s -> {
+                    employerFilter.setEmail(s.getValue());
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                }
+        );
+
+        updatedAtField.setPlaceholder("Дата обновления");
+        updatedAtField.setClearButtonVisible(true);
+        updatedAtField.setWidthFull();
+        updatedAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        updatedAtField.getStyle().set("max-width", "100%");
+        updatedAtField.addValueChangeListener(
+                e -> {
+                    if (e.getValue() != null) {
+                        employerFilter.setUpdatedAt(e.getValue().atStartOfDay());
+                    } else {
+                        employerFilter.setUpdatedAt(null);
+                    }
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                });
+
+        createdAtField.setPlaceholder("Дата создания");
+        createdAtField.setClearButtonVisible(true);
+        createdAtField.setWidthFull();
+        createdAtField.getElement().getThemeList().add(TextFieldVariant.LUMO_SMALL.getVariantName());
+        createdAtField.getStyle().set("max-width", "100%");
+        createdAtField.addValueChangeListener(
+                e -> {
+                    if (e.getValue() != null) {
+                        employerFilter.setCreatedAt(e.getValue().atStartOfDay());
+                    } else {
+                        employerFilter.setCreatedAt(null);
+                    }
+                    grid.getDataProvider().refreshAll();
+                    grid.refreshPaginator();
+                });
+    }
 
     private Component createContent() {
         VerticalLayout content = new VerticalLayout(
@@ -173,9 +287,14 @@ public class EmployerGrid  extends VerticalLayout {
         columnToggleContextMenu.addColumnToggleItem("Дата создания", createdAtColumn);
 
         grid.getHeaderRows().clear();
-        HeaderRow headerRow = grid.getHeaderRows().get(0);
+        HeaderRow headerRow = grid.appendHeaderRow();
 
         headerRow.getCell(actionColumn).setComponent(menuButton);
+        headerRow.getCell(idColumn).setComponent(idField);
+        headerRow.getCell(nameColumn).setComponent(nameField);
+        headerRow.getCell(statusColumn).setComponent(statusField);
+        headerRow.getCell(updatedAtColumn).setComponent(updatedAtField);
+        headerRow.getCell(createdAtColumn).setComponent(createdAtField);
 
         return grid;
     }
@@ -187,6 +306,10 @@ public class EmployerGrid  extends VerticalLayout {
 
     public void withFilter(Employer employerFilter) {
         this.employerFilter = employerFilter;
+
+        binder.setBean(employerFilter);
+        binder.bindInstanceFields(this);
+
         dataProvider.setFilter(employerFilter);
         grid.getDataProvider().refreshAll();
     }

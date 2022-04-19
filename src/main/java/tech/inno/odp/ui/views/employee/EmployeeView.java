@@ -33,7 +33,7 @@ import tech.inno.odp.ui.views.employee.form.EmployeeServiceStopIntervalForm;
 import tech.inno.odp.ui.views.employee.form.EmployeeSettingsForm;
 import tech.inno.odp.ui.views.employer.EmployerView;
 import tech.inno.odp.ui.views.requisites.RequisitesForm;
-import tech.inno.odp.ui.views.transaction.TransactionGrid;
+import tech.inno.odp.ui.views.transaction.TransactionGridWithFilter;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -60,7 +60,7 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
     private final EmployeeSettingsForm employeeSettingsForm = new EmployeeSettingsForm();
     private final RequisitesForm requisitesForm = new RequisitesForm();
     private final EmployeeDocumentsGrid employeeDocumentsGrid = new EmployeeDocumentsGrid();
-    private final TransactionGrid transactionGrid = new TransactionGrid();
+    private final TransactionGridWithFilter transactionGridWithFilter = new TransactionGridWithFilter();
     private final EmployeeSalaryForm employeeSalaryForm = new EmployeeSalaryForm();
     private final EmployeeServiceStopIntervalForm employeeServiceStopIntervalForm = new EmployeeServiceStopIntervalForm();
 
@@ -114,9 +114,9 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
         employeeDocumentsGrid.init();
         employeeDocumentsGrid.setVisible(false);
 
-        transactionGrid.setTransactionService(transactionService);
-        transactionGrid.init();
-        transactionGrid.setVisible(false);
+        transactionGridWithFilter.setTransactionService(transactionService);
+        transactionGridWithFilter.init();
+        transactionGridWithFilter.setVisible(false);
 
         employeeSalaryForm.setSalaryService(salaryService);
         employeeSalaryForm.init();
@@ -132,7 +132,7 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
                         EmployeeDocumentsGrid.ID, employeeDocumentsGrid,
                         EmployeeSalaryForm.ID, employeeSalaryForm,
                         EmployeeServiceStopIntervalForm.ID, employeeServiceStopIntervalForm,
-                        TransactionGrid.ID, transactionGrid
+                        TransactionGridWithFilter.ID, transactionGridWithFilter
                 );
 
         VerticalLayout verticalLayout = new VerticalLayout();
@@ -144,7 +144,7 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
                 employeeSettingsForm,
                 requisitesForm,
                 employeeSalaryForm,
-                transactionGrid,
+                transactionGridWithFilter,
                 employeeServiceStopIntervalForm,
                 employeeDocumentsGrid);
         verticalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -170,7 +170,7 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
 
         appBar.addTab(createTab(EmployeeSettingsForm.ID, VaadinIcon.FORM.create(), "Настройки"));
         appBar.addTab(createTab(RequisitesForm.ID, VaadinIcon.MODAL_LIST.create(), "Реквизиты"));
-        appBar.addTab(createTab(TransactionGrid.ID, VaadinIcon.MONEY.create(), "Платежи"));
+        appBar.addTab(createTab(TransactionGridWithFilter.ID, VaadinIcon.MONEY.create(), "Платежи"));
         appBar.addTab(createTab(EmployeeSalaryForm.ID, VaadinIcon.BOOK.create(), "Зарплата"));
         appBar.addTab(createTab(EmployeeServiceStopIntervalForm.ID, VaadinIcon.MODAL_LIST.create(), "Стоп интервалы"));
         appBar.addTab(createTab(EmployeeDocumentsGrid.ID, VaadinIcon.MODAL_LIST.create(), "Документы"));
@@ -214,7 +214,7 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
         employeeDocumentsGrid.withBean(employee);
 
         employeeSalaryForm.withBean(employee);
-        transactionGrid.withFilter(
+        transactionGridWithFilter.withFilter(
                 Transaction.builder()
                         .employeeId(employee.getId())
                         .employerId(employee.getEmployerId())

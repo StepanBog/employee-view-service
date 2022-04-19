@@ -42,6 +42,9 @@ public interface EmployeeMapper {
     @Mapping(target = "employeeId", source = "employee.id")
     @Mapping(target = "pageNumber", source = "pageNumber")
     @Mapping(target = "pageSize", source = "pageSize")
+    @Mapping(target = "firstName", source = "employee.firstName")
+    @Mapping(target = "lastName", source = "employee.lastName")
+    @Mapping(target = "patronymicName", source = "employee.patronymicName")
     SearchEmployeeRequest transformToSearch(Employee employee,
                                             int pageNumber,
                                             int pageSize);

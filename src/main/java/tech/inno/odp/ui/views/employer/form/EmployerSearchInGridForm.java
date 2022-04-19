@@ -21,6 +21,7 @@ import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.util.converter.LocalDateToLocalDateTimeConverter;
 import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
 import tech.inno.odp.ui.views.employer.EmployerGrid;
+import tech.inno.odp.ui.views.employer.EmployerGridWithFilter;
 
 /**
  * @author VKozlov
