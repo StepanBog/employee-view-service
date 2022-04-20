@@ -55,7 +55,6 @@ public class TokenSettingsForm extends VerticalLayout {
     }
 
     public void withBean(UserSettings userSettings) {
-        this.binder.removeBean();
         this.binder.setBean(userSettings);
         this.binder.bindInstanceFields(this);
     }

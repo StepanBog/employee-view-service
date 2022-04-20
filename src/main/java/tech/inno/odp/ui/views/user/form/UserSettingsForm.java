@@ -138,7 +138,6 @@ public class UserSettingsForm extends VerticalLayout {
     }
 
     public void withBean(User user) {
-        this.binder.removeBean();
         this.binder.setBean(user);
         this.binder.bindInstanceFields(this);
     }
