@@ -55,10 +55,10 @@ public class EmployeeService implements IEmployeeService {
     }
 
     @Override
-    public Employee save(@NotNull Employee employer) {
+    public Employee save(@NotNull Employee employee) {
         return employeeMapper.transform(
                 employeeClient.update(
-                        employeeMapper.transform(employer)
+                        employeeMapper.transform(employee)
                 )
         );
     }
