@@ -8,12 +8,14 @@ import org.springframework.stereotype.Service;
 import tech.inno.odp.backend.data.containers.User;
 import tech.inno.odp.backend.mapper.UserMapper;
 import tech.inno.odp.backend.service.IUserService;
+import tech.inno.odp.grpc.generated.auth.user.OneUserRequest;
 import tech.inno.odp.grpc.generated.auth.user.UserSearchRequest;
 import tech.inno.odp.grpc.generated.auth.user.UserServiceGrpc;
 import tech.inno.odp.grpc.generated.auth.user.UsersResponse;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author VKozlov
@@ -35,6 +37,17 @@ public class UserService implements IUserService {
 
     public List<User> findAll(@NotNull UserSearchRequest request) {
         return userMapper.transform(find(request).getUsersList());
+    }
+
+    @Override
+    public User findById(@NotNull UUID userId) {
+        return userMapper.transform(
+                userServiceClient.findOne(
+                        OneUserRequest.newBuilder()
+                                .setUserId(userId.toString())
+                                .build()
+                )
+        );
     }
 
     @Override

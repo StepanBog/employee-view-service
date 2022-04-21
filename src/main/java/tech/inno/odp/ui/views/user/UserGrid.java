@@ -1,6 +1,7 @@
 package tech.inno.odp.ui.views.user;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -195,6 +196,6 @@ public class UserGrid extends VerticalLayout {
     }
 
     private void toViewPage(User user) {
-//        UI.getCurrent().navigate(AccountDetails.class, bankAccount.getId());
+        UI.getCurrent().navigate(UserView.class, user.getId());
     }
 }

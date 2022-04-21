@@ -32,10 +32,19 @@ public class User implements UserDetails {
      */
     private String password;
 
+    /**
+     * Поле не используется, пришло из UserDetails
+     */
     private boolean accountNonExpired;
 
+    /**
+     * Поле не используется, пришло из UserDetails
+     */
     private boolean accountNonLocked;
 
+    /**
+     * Поле не используется, пришло из UserDetails
+     */
     private boolean credentialsNonExpired;
 
     /**

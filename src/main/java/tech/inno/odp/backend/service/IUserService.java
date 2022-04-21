@@ -8,6 +8,7 @@ import tech.inno.odp.grpc.generated.auth.user.UsersResponse;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author VKozlov
@@ -31,6 +32,14 @@ public interface IUserService {
      * @return - список пользователей
      */
     List<User> find(Query<User, User> query, int pageSize);
+
+    /**
+     * Найти пользователя по id
+     *
+     * @param userId - id пользователя
+     * @return -  пользователь
+     */
+    User findById(final @NotNull UUID userId);
 
     /**
      * Сохранить пользователя
