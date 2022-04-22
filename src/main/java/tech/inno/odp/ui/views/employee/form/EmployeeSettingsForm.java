@@ -34,7 +34,7 @@ public class EmployeeSettingsForm extends VerticalLayout {
     @PropertyId("employerId")
     private CustomTextField employerIdField = new CustomTextField("EmployerId");
     @PropertyId("status")
-    private ComboBox<EmployeeStatus> statusField = new ComboBox("Статус");
+    private ComboBox<EmployeeStatus> statusField = new ComboBox<>("Статус");
     @PropertyId("phone")
     private TextField phoneField = new TextField("Телефон");
     @PropertyId("firstName")
@@ -113,7 +113,6 @@ public class EmployeeSettingsForm extends VerticalLayout {
 
     public void withBean(Employee employee) {
         this.employee = employee;
-        this.binder.removeBean();
         this.binder.setBean(this.employee);
         this.binder.bindInstanceFields(this);
     }
