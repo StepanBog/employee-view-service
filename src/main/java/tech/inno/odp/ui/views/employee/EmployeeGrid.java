@@ -163,14 +163,11 @@ public class EmployeeGrid extends VerticalLayout {
                 .setResizable(true);
         phoneColumn.setVisible(false);
 
-        Grid.Column<Employee> employerNameColumn = null;
-        if (!fromEmployer) {
-            employerNameColumn = grid.addColumn(Employee::getEmployerName)
-                    .setAutoWidth(true)
-                    .setComparator(Employee::getEmployerName)
-                    .setHeader("Работодатель")
-                    .setResizable(true);
-        }
+        Grid.Column<Employee> employerNameColumn = grid.addColumn(Employee::getEmployerName)
+                .setAutoWidth(true)
+                .setComparator(Employee::getEmployerName)
+                .setHeader("Работодатель")
+                .setResizable(true);
 
         Grid.Column<Employee> statusColumn = grid.addColumn(badgeRenderer)
                 .setAutoWidth(true)
@@ -211,9 +208,6 @@ public class EmployeeGrid extends VerticalLayout {
         HeaderRow headerRow = grid.getHeaderRows().get(0);
 
         headerRow.getCell(actionColumn).setComponent(menuButton);
-        if (employerNameColumn != null) {
-            headerRow.getCell(employerNameColumn).setComponent(employerField);
-        }
 
         return grid;
     }
