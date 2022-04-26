@@ -13,6 +13,7 @@ import com.vaadin.flow.component.textfield.TextFieldVariant;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.PropertyId;
 import com.vaadin.flow.data.provider.DataProvider;
+import com.vaadin.flow.data.validator.RegexpValidator;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import tech.inno.odp.backend.data.containers.Employee;
@@ -27,6 +28,8 @@ import tech.inno.odp.ui.util.converter.LocalDateToLocalDateTimeConverter;
 import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
 import tech.inno.odp.ui.views.employee.EmployeeGrid;
 import tech.inno.odp.ui.views.employee.EmployeeGridWithFilter;
+
+import javax.validation.constraints.Pattern;
 
 /**
  * @author VKozlov
@@ -84,6 +87,9 @@ public class EmployeeSearchInGridForm extends VerticalLayout {
         this.binder.forField(createdAtField)
                 .withConverter(localDateTimeConverter)
                 .bind(Employee::getCreatedAt, Employee::setCreatedAt);
+        this.binder.forField(phoneField)
+                .withValidator(new RegexpValidator("Введите номер телефона без +7 и 8","\\d{10}"))
+                .bind(Employee::getPhone, Employee::setPhone);
         this.binder.bindInstanceFields(this);
 
         add(createForm());
