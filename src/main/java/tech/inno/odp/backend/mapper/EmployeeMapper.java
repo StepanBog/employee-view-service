@@ -8,7 +8,6 @@ import tech.inno.odp.backend.mapper.common.TimestampMapper;
 import tech.inno.odp.backend.mapper.common.UUIDValueMapper;
 import tech.inno.odp.backend.mapper.common.ProtoEnumMapper;
 import tech.inno.odp.backend.mapper.common.*;
-import tech.inno.odp.backend.mapper.status.StatusMapper;
 import tech.inno.odp.grpc.generated.service.employee.SearchEmployeeRequest;
 import tech.inno.odp.utils.PhoneUtils;
 
