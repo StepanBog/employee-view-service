@@ -7,7 +7,10 @@ import tech.inno.odp.backend.mapper.common.StringValueMapper;
 import tech.inno.odp.backend.mapper.common.TimestampMapper;
 import tech.inno.odp.backend.mapper.common.UUIDValueMapper;
 import tech.inno.odp.backend.mapper.common.ProtoEnumMapper;
+import tech.inno.odp.backend.mapper.common.*;
+import tech.inno.odp.backend.mapper.status.StatusMapper;
 import tech.inno.odp.grpc.generated.service.employee.SearchEmployeeRequest;
+import tech.inno.odp.utils.PhoneUtils;
 
 import java.util.List;
 
@@ -19,8 +22,8 @@ import java.util.List;
         ProtoEnumMapper.class,
         RequisitesMapper.class,
         PositionMapper.class,
-        ServiceStopIntervalMapper.class
-},
+        ServiceStopIntervalMapper.class,
+},imports = {PhoneUtils.class},
         collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS)
@@ -45,6 +48,7 @@ public interface EmployeeMapper {
     @Mapping(target = "firstName", source = "employee.firstName")
     @Mapping(target = "lastName", source = "employee.lastName")
     @Mapping(target = "patronymicName", source = "employee.patronymicName")
+    @Mapping(target = "phone",expression = "java(PhoneUtils.addPrefix(employee.getPhone()))")
     SearchEmployeeRequest transformToSearch(Employee employee,
                                             int pageNumber,
                                             int pageSize);
