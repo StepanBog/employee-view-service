@@ -6,7 +6,7 @@ import tech.inno.odp.backend.mapper.common.BoolValueMapper;
 import tech.inno.odp.backend.mapper.common.StringValueMapper;
 import tech.inno.odp.backend.mapper.common.TimestampMapper;
 import tech.inno.odp.backend.mapper.common.UUIDValueMapper;
-import tech.inno.odp.backend.mapper.status.StatusMapper;
+import tech.inno.odp.backend.mapper.common.ProtoEnumMapper;
 import tech.inno.odp.grpc.generated.documents.DocumentSearchRequest;
 
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
         UUIDValueMapper.class,
         BoolValueMapper.class,
         TimestampMapper.class,
-        StatusMapper.class,
+        ProtoEnumMapper.class,
         DocumentBodyMapper.class,
 },
         collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,

@@ -5,16 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import tech.inno.odp.backend.data.enums.CommissionPayer;
 import tech.inno.odp.backend.data.enums.EmployerStatus;
 import tech.inno.odp.backend.data.enums.PaymentGatewayProvider;
 import tech.inno.odp.ui.util.css.lumo.BadgeColor;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -46,59 +45,11 @@ public class Employer {
      */
     @Builder.Default
     @NotNull(message = "Значение не может быть пустым")
-    private PaymentGatewayProvider paymentProvider = PaymentGatewayProvider.REGISTRY;
-
-    /**
-     * Процент выдачи
-     */
-    @Builder.Default
-    @Min(value = 0, message = "Не может быть меньше 0")
-    @NotNull(message = "Значение не может быть пустым")
-    private Double withdrawalPercentage = 0.60;
-
-    /**
-     * Размер комиссии
-     * Сумма в копейках. В интерфейсах будет указываться как дробное число в рублях, но хранить нужно целое в копейках
-     */
-    @Builder.Default
-    @Min(value = 0, message = "Не может быть меньше 0")
-    @NotNull(message = "Значение не может быть пустым")
-    private Long commissionAmount = 0L;
-
-    /**
-     * Плательщик комиссии
-     */
-    @Builder.Default
-    @NotNull(message = "Значение не может быть пустым")
-    private CommissionPayer commissionPayer = CommissionPayer.EMPLOYER_PAYER;
-
-    /**
-     * Минимальный платеж
-     */
-    @Builder.Default
-    @Min(value = 1, message = "Не может быть меньше 1")
-    @NotNull(message = "Значение не может быть пустым")
-    private Long minAmount = 1L;
-
-    /**
-     * Максимальный платеж
-     */
-    @Builder.Default
-    @Min(value = 1, message = "Не может быть меньше 1")
-    @NotNull(message = "Значение не может быть пустым")
-    private Long maxAmount = 1L;
-
-    /**
-     * Максимальная сумма всех платежей работодателя за 1 календарный месяц с 1-ого числа с 00:00. Ноль означает полную остановку выплат всему работодателю
-     */
-    @Builder.Default
-    @Min(value = 1, message = "Не может быть меньше 1")
-    @NotNull(message = "Значение не может быть пустым")
-    private Long maxMonthlyEmployerTurnover = 100L;
+    private PaymentGatewayProvider paymentProvider = PaymentGatewayProvider.NONE_PAYMENT_PROVIDER;
 
     private Requisites requisites;
 
-    private Tariff tariff;
+    private Set<Tariff> tariffs;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

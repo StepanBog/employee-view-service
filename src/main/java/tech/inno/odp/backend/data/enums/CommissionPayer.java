@@ -9,6 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum CommissionPayer implements WithDescription {
 
+    UNKNOWN_PAYER("Отсутствует"),
     EMPLOYER_PAYER("Работодатель"),
     EMPLOYEE_PAYER("Работник"),
     BANK_PAYER("Банк"),

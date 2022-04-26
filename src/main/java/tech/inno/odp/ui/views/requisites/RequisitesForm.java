@@ -98,6 +98,8 @@ public class RequisitesForm extends VerticalLayout {
         verticalLayout.setMargin(false);
         verticalLayout.setSpacing(false);
 
+        accountNumberField.setRequired(true);
+
         accountLayout.add(accountNumberField);
         accountLayout.add(bankNameField);
         accountLayout.add(snilsField);
