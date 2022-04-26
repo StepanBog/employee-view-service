@@ -6,7 +6,7 @@ import tech.inno.odp.backend.mapper.common.BoolValueMapper;
 import tech.inno.odp.backend.mapper.common.StringValueMapper;
 import tech.inno.odp.backend.mapper.common.TimestampMapper;
 import tech.inno.odp.backend.mapper.common.UUIDValueMapper;
-import tech.inno.odp.backend.mapper.status.StatusMapper;
+import tech.inno.odp.backend.mapper.common.ProtoEnumMapper;
 import tech.inno.odp.grpc.generated.service.employer.SearchEmployerRequest;
 
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
         UUIDValueMapper.class,
         BoolValueMapper.class,
         TimestampMapper.class,
-        StatusMapper.class,
+        ProtoEnumMapper.class,
         RequisitesMapper.class,
         TariffMapper.class
 },
@@ -26,9 +26,11 @@ import java.util.List;
 public interface EmployerMapper {
 
     @Mapping(target = "paymentProvider", source = "paymentProvider")
+    @Mapping(target = "tariffsList", source = "tariffs")
     tech.inno.odp.grpc.generated.service.Employer transform(Employer employer);
 
     @Mapping(target = "paymentProvider", source = "paymentProvider")
+    @Mapping(target = "tariffs", source = "tariffsList")
     Employer transform(tech.inno.odp.grpc.generated.service.Employer employer);
 
     List<Employer> transform(List<tech.inno.odp.grpc.generated.service.Employer> employers);

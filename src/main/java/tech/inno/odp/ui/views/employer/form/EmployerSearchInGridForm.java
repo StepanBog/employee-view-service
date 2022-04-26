@@ -21,7 +21,6 @@ import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.util.converter.LocalDateToLocalDateTimeConverter;
 import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
 import tech.inno.odp.ui.views.employer.EmployerGrid;
-import tech.inno.odp.ui.views.employer.EmployerGridWithFilter;
 
 /**
  * @author VKozlov
@@ -61,7 +60,6 @@ public class EmployerSearchInGridForm extends VerticalLayout {
         this.employerFilter = Employer.builder()
                 .status(null)
                 .name(null)
-                .commissionPayer(null)
                 .paymentProvider(null)
                 .build();
 
@@ -147,7 +145,6 @@ public class EmployerSearchInGridForm extends VerticalLayout {
             this.employerFilter = Employer.builder()
                     .status(null)
                     .name(null)
-                    .commissionPayer(null)
                     .paymentProvider(null)
                     .build();
             binder.setBean(employerFilter);

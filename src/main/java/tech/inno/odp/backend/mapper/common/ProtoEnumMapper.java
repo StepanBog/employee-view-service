@@ -1,4 +1,4 @@
-package tech.inno.odp.backend.mapper.status;
+package tech.inno.odp.backend.mapper.common;
 
 import org.mapstruct.Mapper;
 import tech.inno.odp.backend.data.enums.*;
@@ -7,10 +7,9 @@ import tech.inno.odp.backend.data.enums.*;
  * @author VKozlov
  */
 @Mapper
-public interface StatusMapper {
+public interface ProtoEnumMapper {
 
-    default tech.inno.odp.grpc.generated.common.employer.EmployerStatus mapToProto(
-            EmployerStatus status) {
+    default tech.inno.odp.grpc.generated.common.employer.EmployerStatus mapToProto(EmployerStatus status) {
         return tech.inno.odp.grpc.generated.common.employer.EmployerStatus.valueOf(status.name());
     }
 
@@ -18,26 +17,24 @@ public interface StatusMapper {
         return EmployerStatus.valueOf(status.name());
     }
 
-    default tech.inno.odp.grpc.generated.common.CommissionPayer mapToProto(
-            CommissionPayer status) {
-        return tech.inno.odp.grpc.generated.common.CommissionPayer.valueOf(status.name());
+    default tech.inno.odp.grpc.generated.common.CommissionPayer mapToProto(CommissionPayer commissionPayer) {
+        return tech.inno.odp.grpc.generated.common.CommissionPayer.valueOf(commissionPayer.name());
     }
 
-    default CommissionPayer mapTo(tech.inno.odp.grpc.generated.common.CommissionPayer status) {
-        return CommissionPayer.valueOf(status.name());
+    default CommissionPayer mapTo(tech.inno.odp.grpc.generated.common.CommissionPayer commissionPayer) {
+        return CommissionPayer.valueOf(commissionPayer.name());
     }
 
     default tech.inno.odp.grpc.generated.common.PaymentGatewayProvider mapToProto(
-            PaymentGatewayProvider status) {
-        return tech.inno.odp.grpc.generated.common.PaymentGatewayProvider.valueOf(status.name());
+            PaymentGatewayProvider paymentProvider) {
+        return tech.inno.odp.grpc.generated.common.PaymentGatewayProvider.valueOf(paymentProvider.name());
     }
 
     default PaymentGatewayProvider mapTo(tech.inno.odp.grpc.generated.common.PaymentGatewayProvider status) {
         return PaymentGatewayProvider.valueOf(status.name());
     }
 
-    default tech.inno.odp.grpc.generated.common.transaction.TransactionStatus mapToProto(
-            TransactionStatus status) {
+    default tech.inno.odp.grpc.generated.common.transaction.TransactionStatus mapToProto(TransactionStatus status) {
         return tech.inno.odp.grpc.generated.common.transaction.TransactionStatus.valueOf(status.name());
     }
 
@@ -75,5 +72,22 @@ public interface StatusMapper {
 
     default UserRoleName mapTo(tech.inno.odp.grpc.generated.common.UserRole role) {
         return UserRoleName.valueOf(role.name());
+    }
+
+    default tech.inno.odp.grpc.generated.service.TariffStatus mapToProto(TariffStatus tariffStatus) {
+        return tech.inno.odp.grpc.generated.service.TariffStatus.valueOf(tariffStatus.name());
+    }
+
+    default TariffStatus mapTo(tech.inno.odp.grpc.generated.service.TariffStatus tariffStatus) {
+        return TariffStatus.valueOf(tariffStatus.name());
+    }
+
+    default tech.inno.odp.grpc.generated.service.SpecTariffCondition mapToProto(
+            SpecTariffCondition specTariffCondition) {
+        return tech.inno.odp.grpc.generated.service.SpecTariffCondition.valueOf(specTariffCondition.name());
+    }
+
+    default SpecTariffCondition mapTo(tech.inno.odp.grpc.generated.service.SpecTariffCondition specTariffCondition) {
+        return SpecTariffCondition.valueOf(specTariffCondition.name());
     }
 }

@@ -10,6 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum PaymentGatewayProvider implements WithDescription {
 
+    NONE_PAYMENT_PROVIDER("Отсутствует"),
     MOBI("Моби.Деньги"),
     REGISTRY("Платежные реестры (Банк)");
 

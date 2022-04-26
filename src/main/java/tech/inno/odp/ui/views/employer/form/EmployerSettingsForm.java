@@ -39,18 +39,6 @@ public class EmployerSettingsForm extends VerticalLayout {
     private ComboBox<EmployerStatus> statusField = new ComboBox("Статус");
     @PropertyId("paymentProvider")
     private ComboBox<PaymentGatewayProvider> paymentMethodField = new ComboBox("Платежный шлюз");
-    @PropertyId("withdrawalPercentage")
-    private NumberField withdrawalPercentageField = new NumberField("Процент выдачи");
-    @PropertyId("commissionAmount")
-    private BigDecimalField commissionAmountField = new BigDecimalField("Размер комиссии");
-    @PropertyId("commissionPayer")
-    private ComboBox<CommissionPayer> commissionPayerField = new ComboBox("Плательщик комиссии");
-    @PropertyId("minAmount")
-    private BigDecimalField minAmountField = new BigDecimalField("Минимальная сумма платежа");
-    @PropertyId("maxAmount")
-    private BigDecimalField maxAmountField = new BigDecimalField("Максимальная сумма платежа");
-    @PropertyId("maxMonthlyEmployerTurnover")
-    private BigDecimalField maxMonthlyEmployerTurnoverField = new BigDecimalField("Месячный лимит работодателя");
     @PropertyId("updatedAt")
     private TextField updatedAtField = new TextField("Дата обновления");
     @PropertyId("createdAt")
@@ -58,25 +46,10 @@ public class EmployerSettingsForm extends VerticalLayout {
 
     public void init() {
         setId(ID);
-
         initFields();
-
-        BigDecimalToLongConverter bigDecimalToLongConverter = new BigDecimalToLongConverter();
         StringToLocalDateTimeConverter stringToLocalDateTimeConverter = new StringToLocalDateTimeConverter();
 
         this.binder = new BeanValidationBinder<>(Employer.class);
-        this.binder.forField(commissionAmountField)
-                .withConverter(bigDecimalToLongConverter)
-                .bind("commissionAmount");
-        this.binder.forField(minAmountField)
-                .withConverter(bigDecimalToLongConverter)
-                .bind("minAmount");
-        this.binder.forField(maxAmountField)
-                .withConverter(bigDecimalToLongConverter)
-                .bind("maxAmount");
-        this.binder.forField(maxMonthlyEmployerTurnoverField)
-                .withConverter(bigDecimalToLongConverter)
-                .bind("maxMonthlyEmployerTurnover");
         this.binder.forField(updatedAtField)
                 .withConverter(stringToLocalDateTimeConverter)
                 .bind(Employer::getUpdatedAt, Employer::setUpdatedAt);
@@ -98,18 +71,9 @@ public class EmployerSettingsForm extends VerticalLayout {
         paymentMethodField.setItemLabelGenerator(PaymentGatewayProvider::getDescription);
         paymentMethodField.setRequired(true);
 
-        commissionPayerField.setItems(CommissionPayer.values());
-        commissionPayerField.setItemLabelGenerator(CommissionPayer::getDescription);
-        commissionPayerField.setRequired(true);
-
         statusField.setItems(EmployerStatus.values());
         statusField.setItemLabelGenerator(EmployerStatus::getDescription);
         statusField.setRequired(true);
-//        statusField.setReadOnly(true);
-
-        withdrawalPercentageField.setMax(100.0);
-        withdrawalPercentageField.setMin(0.0);
-        withdrawalPercentageField.setRequiredIndicatorVisible(true);
 
         updatedAtField.setReadOnly(true);
         createdAtField.setReadOnly(true);
@@ -117,24 +81,13 @@ public class EmployerSettingsForm extends VerticalLayout {
 
     public FormLayout createForm() {
         FormLayout formLayout = new FormLayout();
-
         formLayout.add(idField);
-        formLayout.setColspan(idField, 2);
-
         formLayout.add(updatedAtField);
         formLayout.add(createdAtField);
-
         formLayout.add(nameField);
         formLayout.add(statusField);
         formLayout.add(emailField);
-
         formLayout.add(paymentMethodField);
-        formLayout.add(commissionPayerField);
-        formLayout.add(withdrawalPercentageField);
-        formLayout.add(commissionAmountField);
-        formLayout.add(minAmountField);
-        formLayout.add(maxAmountField);
-        formLayout.add(maxMonthlyEmployerTurnoverField);
 
         formLayout.addClassNames(LumoStyles.Padding.Bottom.L,
                 LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.S);
@@ -143,18 +96,15 @@ public class EmployerSettingsForm extends VerticalLayout {
                         FormLayout.ResponsiveStep.LabelsPosition.TOP),
                 new FormLayout.ResponsiveStep("600px", 2,
                         FormLayout.ResponsiveStep.LabelsPosition.TOP),
-                new FormLayout.ResponsiveStep("1024px", 2,
+                new FormLayout.ResponsiveStep("1024px", 3,
                         FormLayout.ResponsiveStep.LabelsPosition.TOP));
         return formLayout;
     }
 
-
     public void withBean(Employer employer) {
-
         if (StringUtils.isEmpty(employer.getId())) {
             employer.setStatus(EmployerStatus.CREATED);
         }
-
         this.binder.removeBean();
         this.binder.setBean(employer);
         this.binder.bindInstanceFields(this);

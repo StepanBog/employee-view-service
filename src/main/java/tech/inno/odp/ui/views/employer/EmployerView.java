@@ -1,6 +1,7 @@
 package tech.inno.odp.ui.views.employer;
 
 import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -21,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import tech.inno.odp.backend.data.containers.Employee;
 import tech.inno.odp.backend.data.containers.Employer;
 import tech.inno.odp.backend.data.containers.Requisites;
-import tech.inno.odp.backend.data.containers.Tariff;
 import tech.inno.odp.backend.data.containers.document.DocumentTemplateGroup;
 import tech.inno.odp.backend.service.IDocumentTemplateService;
 import tech.inno.odp.backend.service.IEmployeeService;
@@ -40,6 +40,7 @@ import tech.inno.odp.ui.views.employer.form.EmployerTariffSettingsForm;
 import tech.inno.odp.ui.views.requisites.RequisitesForm;
 
 import javax.annotation.PostConstruct;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -67,28 +68,22 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
     @PostConstruct
     public void init() {
         final Button save = UIUtils.createPrimaryButton("Сохранить");
-        save.addClickListener(event -> {
-            boolean isNew = StringUtils.isEmpty(employer.getId());
-            
-            Employer employer = commonSettingsForm.getBinder().getBean();
-            employer.setRequisites(requisitesForm.getBinder().getBean());
-            employer.setTariff(tariffSettingsForm.getBinder().getBean());
-            employer = employerService.save(employer);
+        save.addClickListener(this::onComponentEvent);
+        save.setVisible(false);
 
-            if (isNew) {
-                List<DocumentTemplateGroup> groupList = documentGroupGrid.getGroupList();
-                for (DocumentTemplateGroup group : groupList) {
-                    group.setEmployerId(employer.getId());
-                    documentTemplateService.save(group);
-                }
-            }
-
-            UI.getCurrent().navigate(EmployerList.class);
-        });
         final Button cancel = UIUtils.createTertiaryButton("Отменить");
         cancel.addClickListener(event -> UI.getCurrent().navigate(EmployerList.class));
+        cancel.setVisible(false);
 
-        HorizontalLayout buttonLayout = new HorizontalLayout(save, cancel);
+        final Button edit = UIUtils.createPrimaryButton("Редактировать");
+        edit.addClickListener(event -> {
+            edit.setVisible(false);
+            save.setVisible(true);
+            cancel.setVisible(true);
+            tariffSettingsForm.setFieldsReadOnly(false);
+        });
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(save, cancel, edit);
         buttonLayout.setSpacing(true);
         buttonLayout.setPadding(true);
 
@@ -97,9 +92,7 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
     }
 
     private Component createContent() {
-        FlexBoxLayout content = new FlexBoxLayout(
-                createEmployerUI()
-        );
+        FlexBoxLayout content = new FlexBoxLayout(createEmployerUI());
         content.setFlexDirection(FlexLayout.FlexDirection.COLUMN);
         content.setMargin(Horizontal.XS, Vertical.XS);
         content.setSizeFull();
@@ -109,11 +102,9 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
     private Component createEmployerUI() {
         commonSettingsForm.init();
         commonSettingsForm.setVisible(true);
-        commonSettingsForm.setMaxWidth("800px");
 
         tariffSettingsForm.init();
         tariffSettingsForm.setVisible(false);
-        tariffSettingsForm.setMaxWidth("800px");
 
         requisitesForm.init();
         requisitesForm.setVisible(false);
@@ -165,12 +156,12 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
         UI.getCurrent().getPage().setTitle(employer.getName());
     }
 
-    private AppBar initAppBar() {
+    private void initAppBar() {
         AppBar appBar = MainLayout.get().getAppBar();
 
         appBar.addTab(createTab(EmployerSettingsForm.ID, VaadinIcon.FORM.create(), "Настройки"));
         appBar.addTab(createTab(RequisitesForm.ID, VaadinIcon.MODAL_LIST.create(), "Реквизиты"));
-        appBar.addTab(createTab(employeeGridWithFilter.ID, VaadinIcon.USERS.create(), "Работники"));
+        appBar.addTab(createTab(EmployeeGridWithFilter.ID, VaadinIcon.USERS.create(), "Работники"));
         appBar.addTab(createTab(EmployerTariffSettingsForm.ID, VaadinIcon.LIST.create(), "Тариф"));
         appBar.addTab(createTab(DocumentGroupGrid.ID, VaadinIcon.BOOK.create(), "Шаблоны"));
         appBar.centerTabs();
@@ -183,14 +174,13 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
         appBar.setNaviMode(AppBar.NaviMode.CONTEXTUAL);
         appBar.getContextIcon().addClickListener(e -> UI.getCurrent().navigate(EmployerList.class));
         appBar.setTitle(employer.getName());
-        return appBar;
     }
 
     @Override
     public void setParameter(BeforeEvent paramEvent, String param) {
         if (param.equalsIgnoreCase("new")) {
             employer = Employer.builder()
-                    .tariff(Tariff.builder().build())
+                    .tariffs(new HashSet<>())
                     .requisites(Requisites.builder().build())
                     .build();
         } else {
@@ -199,11 +189,27 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
 
         requisitesForm.withBean(employer.getRequisites());
         commonSettingsForm.withBean(employer);
-        tariffSettingsForm.withBean(employer.getTariff());
+        tariffSettingsForm.withBean(employer);
         documentGroupGrid.withBean(employer);
 
         Employee employeeFilter = employeeGridWithFilter.getEmployeeFilter();
         employeeFilter.setEmployerId(employer.getId());
         employeeGridWithFilter.withFilter(employeeFilter);
+    }
+
+    private void onComponentEvent(ClickEvent<Button> event) {
+        boolean isNew = StringUtils.isEmpty(employer.getId());
+
+        Employer employer = commonSettingsForm.getBinder().getBean();
+        employer = employerService.save(employer);
+
+        if (isNew) {
+            List<DocumentTemplateGroup> groupList = documentGroupGrid.getGroupList();
+            for (DocumentTemplateGroup group : groupList) {
+                group.setEmployerId(employer.getId());
+                documentTemplateService.save(group);
+            }
+        }
+        UI.getCurrent().navigate(EmployerList.class);
     }
 }

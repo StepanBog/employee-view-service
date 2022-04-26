@@ -7,7 +7,7 @@ import tech.inno.odp.backend.mapper.common.BoolValueMapper;
 import tech.inno.odp.backend.mapper.common.StringValueMapper;
 import tech.inno.odp.backend.mapper.common.TimestampMapper;
 import tech.inno.odp.backend.mapper.common.UUIDValueMapper;
-import tech.inno.odp.backend.mapper.status.StatusMapper;
+import tech.inno.odp.backend.mapper.common.ProtoEnumMapper;
 import tech.inno.odp.grpc.generated.auth.model.Role;
 import tech.inno.odp.grpc.generated.auth.user.UserSearchRequest;
 
@@ -19,7 +19,7 @@ import java.util.List;
         BoolValueMapper.class,
         TimestampMapper.class,
         UserSettingsMapper.class,
-        StatusMapper.class,
+        ProtoEnumMapper.class,
         RoleMapper.class,
 },
         collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,

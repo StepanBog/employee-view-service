@@ -5,16 +5,14 @@ import org.mapstruct.Mapper;
 import org.mapstruct.NullValueCheckStrategy;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import tech.inno.odp.backend.data.containers.Tariff;
-import tech.inno.odp.backend.mapper.common.BoolValueMapper;
-import tech.inno.odp.backend.mapper.common.StringValueMapper;
-import tech.inno.odp.backend.mapper.common.TimestampMapper;
-import tech.inno.odp.backend.mapper.common.UUIDValueMapper;
+import tech.inno.odp.backend.mapper.common.*;
 
 @Mapper(uses = {
         StringValueMapper.class,
         UUIDValueMapper.class,
         BoolValueMapper.class,
         TimestampMapper.class,
+        ProtoEnumMapper.class,
 },
         collectionMappingStrategy = CollectionMappingStrategy.ADDER_PREFERRED,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
