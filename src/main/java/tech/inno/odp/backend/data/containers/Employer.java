@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import tech.inno.odp.backend.data.enums.BudgetOrganization;
 import tech.inno.odp.backend.data.enums.EmployerStatus;
 import tech.inno.odp.backend.data.enums.PaymentGatewayProvider;
 import tech.inno.odp.ui.util.css.lumo.BadgeColor;
@@ -13,6 +14,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -38,7 +40,24 @@ public class Employer {
      */
     @Builder.Default
     @NotNull(message = "Значение не может быть пустым")
-    private EmployerStatus status = EmployerStatus.CREATED;
+    private EmployerStatus status = EmployerStatus.NONE_STATUS;
+
+    /**
+     * Бюджетная организация
+     */
+    @Builder.Default
+    @NotNull(message = "Значение не может быть пустым")
+    private BudgetOrganization budgetOrg = BudgetOrganization.NO;
+
+    /**
+     * ИНН
+     */
+    private String inn;
+
+    /**
+     * КПП
+     */
+    private String kpp;
 
     /**
      * Платежный метод используемый для
@@ -50,6 +69,8 @@ public class Employer {
     private Requisites requisites;
 
     private Set<Tariff> tariffs;
+
+    private Set<Contact> contacts;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -90,4 +90,22 @@ public interface ProtoEnumMapper {
     default SpecTariffCondition mapTo(tech.inno.odp.grpc.generated.service.SpecTariffCondition specTariffCondition) {
         return SpecTariffCondition.valueOf(specTariffCondition.name());
     }
+
+    default tech.inno.odp.grpc.generated.service.BudgetOrganization mapToProto(
+            BudgetOrganization budgetOrg) {
+        return tech.inno.odp.grpc.generated.service.BudgetOrganization.valueOf(budgetOrg.name());
+    }
+
+    default BudgetOrganization mapTo(tech.inno.odp.grpc.generated.service.BudgetOrganization budgetOrg) {
+        return BudgetOrganization.valueOf(budgetOrg.name());
+    }
+
+    default tech.inno.odp.grpc.generated.service.ContactsPosition mapToProto(
+            ContactPosition position) {
+        return tech.inno.odp.grpc.generated.service.ContactsPosition.valueOf(position.name());
+    }
+
+    default ContactPosition mapTo(tech.inno.odp.grpc.generated.service.ContactsPosition position) {
+        return ContactPosition.valueOf(position.name());
+    }
 }

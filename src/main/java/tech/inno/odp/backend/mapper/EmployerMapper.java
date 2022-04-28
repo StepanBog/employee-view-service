@@ -27,10 +27,16 @@ public interface EmployerMapper {
 
     @Mapping(target = "paymentProvider", source = "paymentProvider")
     @Mapping(target = "tariffsList", source = "tariffs")
+    @Mapping(target = "contactsList", source = "contacts")
+    @Mapping(target = "requisites.inn", source = "inn")
+    @Mapping(target = "requisites.kpp", source = "kpp")
     tech.inno.odp.grpc.generated.service.Employer transform(Employer employer);
 
     @Mapping(target = "paymentProvider", source = "paymentProvider")
     @Mapping(target = "tariffs", source = "tariffsList")
+    @Mapping(target = "contacts", source = "contactsList")
+    @Mapping(target = "inn", source = "employer.requisites.inn")
+    @Mapping(target = "kpp", source = "employer.requisites.kpp")
     Employer transform(tech.inno.odp.grpc.generated.service.Employer employer);
 
     List<Employer> transform(List<tech.inno.odp.grpc.generated.service.Employer> employers);
