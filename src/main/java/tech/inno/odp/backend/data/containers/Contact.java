@@ -35,7 +35,6 @@ public class Contact {
     /**
      * E-MAIL
      */
-    @Pattern(message = "Неверное значение", regexp = "^\\w+([-+.']\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$")
     private String email;
 
     private LocalDateTime createdAt;
