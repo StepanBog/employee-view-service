@@ -17,6 +17,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import tech.inno.odp.backend.data.containers.Employee;
@@ -29,6 +30,7 @@ import tech.inno.odp.backend.service.IEmployerService;
 import tech.inno.odp.ui.MainLayout;
 import tech.inno.odp.ui.components.FlexBoxLayout;
 import tech.inno.odp.ui.components.navigation.bar.AppBar;
+import tech.inno.odp.ui.handler.SaveButtonErrorHandler;
 import tech.inno.odp.ui.layout.size.Horizontal;
 import tech.inno.odp.ui.layout.size.Vertical;
 import tech.inno.odp.ui.util.UIUtils;
@@ -38,6 +40,7 @@ import tech.inno.odp.ui.views.employer.form.DocumentGroupGrid;
 import tech.inno.odp.ui.views.employer.form.EmployerSettingsForm;
 import tech.inno.odp.ui.views.employer.form.EmployerTariffSettingsForm;
 import tech.inno.odp.ui.views.requisites.RequisitesForm;
+import tech.inno.odp.utils.NotificationUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.HashSet;
@@ -200,6 +203,7 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
     private void onComponentEvent(ClickEvent<Button> event) {
         boolean isNew = StringUtils.isEmpty(employer.getId());
 
+        VaadinSession.getCurrent().setErrorHandler(new SaveButtonErrorHandler());
         Employer employer = commonSettingsForm.getBinder().getBean();
         employer = employerService.save(employer);
 
@@ -211,5 +215,6 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
             }
         }
         UI.getCurrent().navigate(EmployerList.class);
+        NotificationUtils.showNotificationOnSave();
     }
 }

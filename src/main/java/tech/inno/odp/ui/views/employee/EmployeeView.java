@@ -16,13 +16,16 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import tech.inno.odp.backend.data.containers.Employee;
 import tech.inno.odp.backend.data.containers.Transaction;
 import tech.inno.odp.backend.service.*;
 import tech.inno.odp.ui.MainLayout;
 import tech.inno.odp.ui.components.FlexBoxLayout;
 import tech.inno.odp.ui.components.navigation.bar.AppBar;
+import tech.inno.odp.ui.handler.SaveButtonErrorHandler;
 import tech.inno.odp.ui.layout.size.Horizontal;
 import tech.inno.odp.ui.layout.size.Vertical;
 import tech.inno.odp.ui.util.UIUtils;
@@ -34,12 +37,14 @@ import tech.inno.odp.ui.views.employee.form.EmployeeSettingsForm;
 import tech.inno.odp.ui.views.employer.EmployerView;
 import tech.inno.odp.ui.views.requisites.RequisitesForm;
 import tech.inno.odp.ui.views.transaction.TransactionGridWithFilter;
+import tech.inno.odp.utils.NotificationUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @PageTitle("Работник")
 @Route(value = EmployeeView.ROUTE, layout = MainLayout.class)
 @RequiredArgsConstructor
@@ -67,18 +72,18 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
     @PostConstruct
     public void init() {
         final Button toEmployer = UIUtils.createPrimaryButton("К работодателю");
-        toEmployer.addClickListener(event -> {
-            UI.getCurrent().navigate(EmployerView.class, employee.getEmployerId());
-        });
+        toEmployer.addClickListener(event -> UI.getCurrent().navigate(EmployerView.class, employee.getEmployerId()));
 
         final Button save = UIUtils.createPrimaryButton("Сохранить");
         save.addClickListener(event -> {
-
             Employee employee = employeeSettingsForm.getBinder().getBean();
             employee.setRequisites(requisitesForm.getBinder().getBean());
+            VaadinSession.getCurrent().setErrorHandler(new SaveButtonErrorHandler());
             employeeService.save(employee);
             navigateToBack();
+            NotificationUtils.showNotificationOnSave();
         });
+
         final Button cancel = UIUtils.createTertiaryButton("Отменить");
         cancel.addClickListener(event -> navigateToBack());
 
