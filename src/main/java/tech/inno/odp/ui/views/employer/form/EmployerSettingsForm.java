@@ -1,6 +1,5 @@
 package tech.inno.odp.ui.views.employer.form;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Hr;
@@ -23,7 +22,6 @@ import tech.inno.odp.backend.data.enums.EmployerStatus;
 import tech.inno.odp.backend.data.enums.PaymentGatewayProvider;
 import tech.inno.odp.backend.service.IEmployeeService;
 import tech.inno.odp.grpc.generated.common.employee.EmployeeStatus;
-import tech.inno.odp.grpc.generated.service.employee.SearchEmployeeRequest;
 import tech.inno.odp.ui.components.field.CustomTextField;
 import tech.inno.odp.ui.util.LumoStyles;
 import tech.inno.odp.ui.util.converter.StringToLocalDateTimeConverter;
@@ -68,25 +66,25 @@ public class EmployerSettingsForm extends VerticalLayout {
     @PropertyId("activeEmployees")
     private TextField activeEmployeesField = new TextField("Активных работников");
 
-    @PropertyId("managerFio")
     private TextField managerFioField = new TextField("Менеджер");
-    @PropertyId("managerPhone")
     private TextField managerPhoneField = new TextField("Телефон менеджера");
-    @PropertyId("managerEmail")
     private TextField managerEmailField = new TextField("Email");
-    @PropertyId("employerContactFio")
     private TextField employerContactFioField = new TextField("Контактное лицо работодателя");
-    @PropertyId("employerContactPhone")
     private TextField employerContactPhoneField = new TextField("Телефон контактного лица");
-    @PropertyId("employerContactEmail")
     private TextField employerContactEmailField = new TextField("Email");
+
+    private final List<FormLayout.ResponsiveStep> responsiveSteps = List.of(
+            new FormLayout.ResponsiveStep("0", 1,
+                    FormLayout.ResponsiveStep.LabelsPosition.TOP),
+            new FormLayout.ResponsiveStep("600px", 1,
+                    FormLayout.ResponsiveStep.LabelsPosition.TOP));
 
     @Setter
     private IEmployeeService employeeService;
 
     public void init() {
         setId(ID);
-        initFields();
+        setFieldsReadOnly(true);
         StringToLocalDateTimeConverter stringToLocalDateTimeConverter = new StringToLocalDateTimeConverter();
 
         binder = new BeanValidationBinder<>(Employer.class);
@@ -96,34 +94,95 @@ public class EmployerSettingsForm extends VerticalLayout {
         binder.forField(createdAtField)
                 .withConverter(stringToLocalDateTimeConverter)
                 .bind(Employer::getCreatedAt, Employer::setCreatedAt);
-        binder.forField(employeesField)
-                .bind((ValueProvider<Employer, String>) employer ->
-                        employer.getId() == null ? "" :
-                        String.valueOf(employeeService.find(
-                                        SearchEmployeeRequest.newBuilder()
-                                                .setEmployerId(employer.getId())
-                                                .build())
-                                        .getEmployeesList().size()), null);
-        binder.forField(activeEmployeesField)
-                .bind((ValueProvider<Employer, String>) employer ->
-                        employer.getId() == null ? "" :
-                        String.valueOf(employeeService.find(
-                                        SearchEmployeeRequest.newBuilder()
-                                                .setEmployerId(employer.getId())
-                                                .setStatus(EmployeeStatus.ENABLED)
-                                                .build())
-                                        .getEmployeesList().size()), null);
-        binder.forField(innField)
-                .withValidator(s -> s.length() <= 12, "Количество цифр должно быть меньше 13")
-                .withValidator(s -> Pattern.compile("^[0-9]+$").matcher(s).find(), "Только цифры")
-                .bind(Employer::getInn, Employer::setInn);
-        binder.forField(kppField)
-                .withValidator(s -> Pattern.compile("^[0-9]+$").matcher(s).find(), "Только цифры")
-                .bind(Employer::getKpp, Employer::setKpp);
+        binder.bind(employeesField, (ValueProvider<Employer, String>) employer ->
+                                employer.getId() == null ? "" : Long.toString(
+                                        employeeService.countEmployeesByEmployer(employer)), null);
+        binder.bind(activeEmployeesField, (ValueProvider<Employer, String>) employer ->
+                        employer.getId() == null ? "" : Long.toString(
+                                employeeService.countEmployeesByEmployer(employer, EmployeeStatus.ENABLED)
+                        ), null);
+
         add(createForm());
     }
 
-    private void initFields() {
+    private HorizontalLayout createForm() {
+        VerticalLayout rightVerticalLayout = new VerticalLayout(
+                new Label("Контактные лица"),
+                new Hr(),
+                getTopRightFormLayout(),
+                getEmptySpace("40px"),
+                getBottomRightFormLayout());
+        rightVerticalLayout.setMaxWidth("25%");
+
+        VerticalLayout leftFormLayout = new VerticalLayout(
+                getTopLeftFormLayout(),
+                getEmptySpace("30px"),
+                getBottomLeftFormLayout());
+        leftFormLayout.setMaxWidth("25%");
+
+        HorizontalLayout mainLayout = new HorizontalLayout();
+        mainLayout.setSpacing(false);
+        mainLayout.getThemeList().add("spacing-xl");
+        mainLayout.addClassNames(LumoStyles.Padding.Bottom.L,
+                LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.S);
+
+        mainLayout.add(leftFormLayout, rightVerticalLayout);
+
+        return mainLayout;
+    }
+
+    private FormLayout getEmptySpace(String size) {
+        FormLayout formLayout = new FormLayout();
+        formLayout.setHeight(size);
+        return formLayout;
+    }
+
+    private FormLayout getBottomRightFormLayout() {
+        FormLayout formLayout = new FormLayout(
+                employerContactFioField,
+                employerContactPhoneField,
+                employerContactEmailField
+        );
+        formLayout.setResponsiveSteps(responsiveSteps);
+        return formLayout;
+    }
+
+    private FormLayout getTopRightFormLayout() {
+        managerEmailField.setPreventInvalidInput(true);
+
+        FormLayout formLayout = new FormLayout(
+                managerFioField,
+                managerPhoneField,
+                managerEmailField
+        );
+        formLayout.setResponsiveSteps(responsiveSteps);
+        return formLayout;
+    }
+
+    private FormLayout getBottomLeftFormLayout() {
+        paymentMethodField.setItems(PaymentGatewayProvider.values());
+        paymentMethodField.setItemLabelGenerator(PaymentGatewayProvider::getDescription);
+        paymentMethodField.setRequired(true);
+
+        budgetOrgField.setItems(BudgetOrganization.values());
+        budgetOrgField.setItemLabelGenerator(BudgetOrganization::getDescription);
+        budgetOrgField.setRequired(true);
+
+        FormLayout formLayout = new FormLayout(
+                innField,
+                kppField,
+                budgetOrgField,
+                paymentMethodField,
+                updatedAtField,
+                createdAtField,
+                employeesField,
+                activeEmployeesField
+        );
+        formLayout.setResponsiveSteps(responsiveSteps);
+        return formLayout;
+    }
+
+    private FormLayout getTopLeftFormLayout() {
         nameField.setRequired(true);
         nameField.setRequiredIndicatorVisible(true);
 
@@ -133,79 +192,13 @@ public class EmployerSettingsForm extends VerticalLayout {
         statusField.setItemLabelGenerator(EmployerStatus::getDescription);
         statusField.setRequired(true);
 
-        paymentMethodField.setItems(PaymentGatewayProvider.values());
-        paymentMethodField.setItemLabelGenerator(PaymentGatewayProvider::getDescription);
-        paymentMethodField.setRequired(true);
-
-        budgetOrgField.setItems(BudgetOrganization.values());
-        budgetOrgField.setItemLabelGenerator(BudgetOrganization::getDescription);
-        budgetOrgField.setRequired(true);
-
-        managerEmailField.setPreventInvalidInput(true);
-
-        setFieldsReadOnly(true);
-    }
-
-    private Component createForm() {
-        FormLayout topRightFormLayout = new FormLayout();
-        FormLayout bottomRightFormLayout = new FormLayout();
-        FormLayout empty40FormLayout = new FormLayout();
-        FormLayout empty30FormLayout = new FormLayout();
-        empty40FormLayout.setHeight("40px");
-        empty30FormLayout.setHeight("30px");
-        VerticalLayout rightVerticalLayout = new VerticalLayout(
-                new Label("Контактные лица"),
-                new Hr(),
-                topRightFormLayout,
-                empty40FormLayout,
-                bottomRightFormLayout);
-        FormLayout topLeftFormLayout = new FormLayout();
-        FormLayout bottomLeftFormLayout = new FormLayout();
-        VerticalLayout leftFormLayout = new VerticalLayout(
-                topLeftFormLayout,
-                empty30FormLayout,
-                bottomLeftFormLayout);
-        HorizontalLayout mainLayout = new HorizontalLayout();
-        mainLayout.add(leftFormLayout, rightVerticalLayout);
-        mainLayout.setSpacing(false);
-        mainLayout.getThemeList().add("spacing-xl");
-
-        rightVerticalLayout.setMaxWidth("25%");
-        leftFormLayout.setMaxWidth("25%");
-
-        topLeftFormLayout.add(nameField);
-        topLeftFormLayout.add(idField);
-        topLeftFormLayout.add(statusField);
-
-        bottomLeftFormLayout.add(innField);
-        bottomLeftFormLayout.add(kppField);
-        bottomLeftFormLayout.add(budgetOrgField);
-        bottomLeftFormLayout.add(paymentMethodField);
-        bottomLeftFormLayout.add(updatedAtField);
-        bottomLeftFormLayout.add(createdAtField);
-        bottomLeftFormLayout.add(employeesField);
-        bottomLeftFormLayout.add(activeEmployeesField);
-
-        topRightFormLayout.add(managerFioField);
-        topRightFormLayout.add(managerPhoneField);
-        topRightFormLayout.add(managerEmailField);
-        bottomRightFormLayout.add(employerContactFioField);
-        bottomRightFormLayout.add(employerContactPhoneField);
-        bottomRightFormLayout.add(employerContactEmailField);
-
-        mainLayout.addClassNames(LumoStyles.Padding.Bottom.L,
-                LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.S);
-
-        List<FormLayout.ResponsiveStep> responsiveSteps = List.of(
-                new FormLayout.ResponsiveStep("0", 1,
-                        FormLayout.ResponsiveStep.LabelsPosition.TOP),
-                new FormLayout.ResponsiveStep("600px", 1,
-                        FormLayout.ResponsiveStep.LabelsPosition.TOP));
-        topLeftFormLayout.setResponsiveSteps(responsiveSteps);
-        bottomLeftFormLayout.setResponsiveSteps(responsiveSteps);
-        topRightFormLayout.setResponsiveSteps(responsiveSteps);
-        bottomRightFormLayout.setResponsiveSteps(responsiveSteps);
-        return mainLayout;
+        FormLayout formLayout = new FormLayout(
+                nameField,
+                idField,
+                statusField
+        );
+        formLayout.setResponsiveSteps(responsiveSteps);
+        return formLayout;
     }
 
     public void withBean(Employer employer) {
@@ -213,46 +206,43 @@ public class EmployerSettingsForm extends VerticalLayout {
             employer.setStatus(EmployerStatus.CREATED);
         }
 
-        Contact managerContact = setContact(employer, ContactPosition.MANAGER.name());
-        Contact employerContact = setContact(employer, ContactPosition.EMPLOYERS_CONTACT.name());
+        Contact managerContact = setContact(employer, ContactPosition.MANAGER);
+        Contact employerContact = setContact(employer, ContactPosition.EMPLOYERS_CONTACT);
 
         bindContacts(managerFioField, managerPhoneField, managerEmailField, managerContact);
         bindContacts(employerContactFioField, employerContactPhoneField, employerContactEmailField, employerContact);
 
-        binder.setBean(employer);
         binder.bindInstanceFields(this);
+        binder.setBean(employer);
     }
 
-    private Contact setContact(Employer employer, String position) {
+    private Contact setContact(Employer employer, ContactPosition position) {
         Contact result;
         Set<Contact> contacts = employer.getContacts();
         Optional<Contact> managerOptional = contacts.stream()
-                .filter(c -> c.getPosition().name().equals(position)).findAny();
+                .filter(c -> c.getPosition() == position)
+                .findAny();
         if (managerOptional.isPresent()) {
             result = managerOptional.get();
         } else {
-            result = Contact.builder().position(ContactPosition.MANAGER).build();
+            result = Contact.builder().position(position).build();
             contacts.add(result);
         }
         return result;
     }
 
     private void bindContacts(TextField fioField, TextField phoneFiled, TextField emailField, Contact contact) {
-        binder.forField(fioField).bind(
-                (ValueProvider<Employer, String>) employer -> contact.getName(),
+        binder.bind(fioField, (ValueProvider<Employer, String>) employer -> contact.getName(),
                 (com.vaadin.flow.data.binder.Setter<Employer, String>) (employer, s) -> contact.setName(s)
         );
         binder.forField(phoneFiled)
                 .withValidator(s -> phonePattern.matcher(s).find(), "Некорректный номер телефона")
-                .bind(
-                (ValueProvider<Employer, String>) employer -> contact.getPhone(),
+                .bind((ValueProvider<Employer, String>) employer -> contact.getPhone(),
                 (com.vaadin.flow.data.binder.Setter<Employer, String>) (employer, s) -> contact.setPhone(s)
         );
-
         binder.forField(emailField)
                 .withValidator(new EmailValidator("Некоректный адрес электронной почты"))
-                .bind(
-                (ValueProvider<Employer, String>) employer -> contact.getEmail(),
+                .bind((ValueProvider<Employer, String>) employer -> contact.getEmail(),
                 (com.vaadin.flow.data.binder.Setter<Employer, String>) (employer, s) -> contact.setEmail(s)
         );
     }

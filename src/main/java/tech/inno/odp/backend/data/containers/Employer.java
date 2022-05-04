@@ -10,11 +10,11 @@ import tech.inno.odp.backend.data.enums.EmployerStatus;
 import tech.inno.odp.backend.data.enums.PaymentGatewayProvider;
 import tech.inno.odp.ui.util.css.lumo.BadgeColor;
 
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -52,11 +52,13 @@ public class Employer {
     /**
      * ИНН
      */
+    @Digits(message = "Не больше 12 цифр", integer = 12, fraction = 0)
     private String inn;
 
     /**
      * КПП
      */
+    @Digits(message = "Не больше 9 цифр", integer = 9, fraction = 0)
     private String kpp;
 
     /**

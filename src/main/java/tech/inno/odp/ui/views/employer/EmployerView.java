@@ -3,6 +3,7 @@ package tech.inno.odp.ui.views.employer;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Span;
@@ -78,6 +79,7 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
             commonSettingsForm.withBean(employer);
             tariffSettingsForm.withBean(employer);
         });
+        cancel.addClickShortcut(Key.ESCAPE);
 
         edit.addClickListener(event -> {
             setFormEditable(true);
@@ -94,7 +96,7 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
     private void onSaveEvent(ClickEvent<Button> event) {
         boolean isNew = StringUtils.isEmpty(employer.getId());
 
-        if (commonSettingsForm.getBinder().isValid()) {
+        if (commonSettingsForm.getBinder().validate().isOk()) {
             Employer employer = commonSettingsForm.getBinder().getBean();
             employer = employerService.save(employer);
 
