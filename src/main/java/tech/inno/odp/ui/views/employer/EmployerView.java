@@ -18,6 +18,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import tech.inno.odp.backend.data.containers.Employer;
@@ -29,6 +30,7 @@ import tech.inno.odp.backend.service.IEmployerService;
 import tech.inno.odp.ui.MainLayout;
 import tech.inno.odp.ui.components.FlexBoxLayout;
 import tech.inno.odp.ui.components.navigation.bar.AppBar;
+import tech.inno.odp.ui.handler.SaveButtonErrorHandler;
 import tech.inno.odp.ui.layout.size.Horizontal;
 import tech.inno.odp.ui.layout.size.Vertical;
 import tech.inno.odp.ui.util.UIUtils;
@@ -36,6 +38,7 @@ import tech.inno.odp.ui.views.ViewFrame;
 import tech.inno.odp.ui.views.employer.form.DocumentGroupGrid;
 import tech.inno.odp.ui.views.employer.form.EmployerSettingsForm;
 import tech.inno.odp.ui.views.employer.form.EmployerTariffSettingsForm;
+import tech.inno.odp.utils.NotificationUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.HashSet;
@@ -95,6 +98,7 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
 
     private void onSaveEvent(ClickEvent<Button> event) {
         boolean isNew = StringUtils.isEmpty(employer.getId());
+        VaadinSession.getCurrent().setErrorHandler(new SaveButtonErrorHandler());
 
         if (commonSettingsForm.getBinder().validate().isOk()) {
             Employer employer = commonSettingsForm.getBinder().getBean();
@@ -107,6 +111,9 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
                     documentTemplateService.save(group);
                 }
             }
+            UI.getCurrent().navigate(EmployerList.class);
+            NotificationUtils.showNotificationOnSave();
+
             setFormEditable(false);
         }
     }
@@ -197,6 +204,10 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
         commonSettingsForm.withBean(employer);
         tariffSettingsForm.withBean(employer);
         documentGroupGrid.withBean(employer);
+
+        Employee employeeFilter = employeeGridWithFilter.getEmployeeFilter();
+        employeeFilter.setEmployerId(employer.getId());
+        employeeGridWithFilter.withFilter(employeeFilter);
     }
 
     private void getEmployer(String param) {

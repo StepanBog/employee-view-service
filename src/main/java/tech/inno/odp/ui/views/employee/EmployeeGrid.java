@@ -5,39 +5,28 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.HeaderRow;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.BoxSizing;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextFieldVariant;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.PropertyId;
 import com.vaadin.flow.data.provider.CallbackDataProvider;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
-import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.QueryParameters;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 import tech.inno.odp.backend.data.containers.Employee;
 import tech.inno.odp.backend.data.containers.Employer;
 import tech.inno.odp.backend.data.enums.EmployeeStatus;
 import tech.inno.odp.backend.service.IEmployeeService;
 import tech.inno.odp.backend.service.IEmployerService;
-import tech.inno.odp.grpc.generated.service.employer.SearchEmployerRequest;
 import tech.inno.odp.ui.components.Badge;
 import tech.inno.odp.ui.components.ColumnToggleContextMenu;
-import tech.inno.odp.ui.components.field.CustomTextField;
 import tech.inno.odp.ui.components.grid.PaginatedGrid;
 import tech.inno.odp.ui.util.IconSize;
 import tech.inno.odp.ui.util.UIUtils;
-import tech.inno.odp.ui.util.converter.LocalDateToLocalDateTimeConverter;
-import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -114,8 +103,7 @@ public class EmployeeGrid extends VerticalLayout {
         ComponentRenderer<Badge, Employee> badgeRenderer = new ComponentRenderer<>(
                 employee -> {
                     EmployeeStatus status = employee.getStatus();
-                    Badge badge = new Badge(status.getDescription(), employee.getStatusTheme());
-                    return badge;
+                    return new Badge(status.getDescription(), employee.getStatusTheme());
                 }
         );
 
@@ -229,5 +217,4 @@ public class EmployeeGrid extends VerticalLayout {
         dataProvider.setFilter(employeeFilter);
         grid.getDataProvider().refreshAll();
     }
-
 }

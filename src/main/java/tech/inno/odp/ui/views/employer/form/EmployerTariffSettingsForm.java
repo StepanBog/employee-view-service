@@ -21,6 +21,7 @@ import tech.inno.odp.backend.data.enums.TariffStatus;
 import tech.inno.odp.ui.components.field.CustomTextField;
 import tech.inno.odp.ui.util.LumoStyles;
 import tech.inno.odp.ui.util.converter.BigDecimalToLongConverter;
+import tech.inno.odp.ui.util.converter.RubToKopeckConverter;
 import tech.inno.odp.ui.util.converter.StringToLocalDateTimeConverter;
 import tech.inno.odp.ui.util.converter.StringToStringWithNullValueConverter;
 
@@ -74,7 +75,7 @@ public class EmployerTariffSettingsForm extends VerticalLayout {
 
     public void init() {
         setId(ID);
-        initFields();
+        setFieldsReadOnly(true);
         bindForField();
         add(createForm());
     }
@@ -82,6 +83,7 @@ public class EmployerTariffSettingsForm extends VerticalLayout {
     private void bindForField() {
         BigDecimalToLongConverter bigDecimalToLongConverter = new BigDecimalToLongConverter();
         StringToLocalDateTimeConverter stringToLocalDateTimeConverter = new StringToLocalDateTimeConverter();
+        RubToKopeckConverter rubToKopeckConverter = new RubToKopeckConverter();
 
         this.binder = new BeanValidationBinder<>(Tariff.class);
         this.binder.forField(updatedAtField)
@@ -91,27 +93,46 @@ public class EmployerTariffSettingsForm extends VerticalLayout {
                 .withConverter(stringToLocalDateTimeConverter)
                 .bind(Tariff::getCreatedAt, Tariff::setCreatedAt);
         this.binder.forField(commissionAmountField)
+                .withConverter(rubToKopeckConverter)
                 .withConverter(bigDecimalToLongConverter)
-                .bind("commissionAmount");
+                .bind(Tariff::getCommissionAmount, Tariff::setCommissionAmount);
         this.binder.forField(specTariffCommissionAmountField)
+                .withConverter(rubToKopeckConverter)
                 .withConverter(bigDecimalToLongConverter)
-                .bind("specTariffCommissionAmount");
+                .bind(Tariff::getSpecTariffCommissionAmount, Tariff::setSpecTariffCommissionAmount);
         this.binder.forField(minAmountField)
+                .withConverter(rubToKopeckConverter)
                 .withConverter(bigDecimalToLongConverter)
-                .bind("minAmount");
+                .bind(Tariff::getMinAmount, Tariff::setMinAmount);
         this.binder.forField(maxAmountField)
+                .withConverter(rubToKopeckConverter)
                 .withConverter(bigDecimalToLongConverter)
-                .bind("maxAmount");
+                .bind(Tariff::getMaxAmount, Tariff::setMaxAmount);
         this.binder.forField(maxMonthlyEmployerTurnoverField)
+                .withConverter(rubToKopeckConverter)
                 .withConverter(bigDecimalToLongConverter)
-                .bind("maxMonthlyEmployerTurnover");
+                .bind(Tariff::getMaxMonthlyEmployerTurnover, Tariff::setMaxMonthlyEmployerTurnover);
         this.binder.forField(tariffStatusField)
                 .bind(Tariff::getTariffStatus, Tariff::setTariffStatus);
     }
 
-    private void initFields() {
-        idField.setConverters(new StringToStringWithNullValueConverter());
+    private VerticalLayout createForm() {
+        HorizontalLayout bottomHorizontalLayout = new HorizontalLayout(getLeftFormLayout(), getRightVerticalLayout());
+        bottomHorizontalLayout.setSpacing(false);
+        bottomHorizontalLayout.getThemeList().add(LumoStyles.Spacing.Uniform.XL);
 
+        VerticalLayout mainLayout = new VerticalLayout();
+        mainLayout.add(getTopFormLayout(), new Hr(), bottomHorizontalLayout);
+
+        mainLayout.addClassNames(LumoStyles.Padding.Bottom.L,
+                LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.S);
+
+        return mainLayout;
+    }
+
+    private FormLayout getTopFormLayout() {
+        FormLayout formLayout = new FormLayout();
+        paymentProviderField.setMaxWidth("20%");
         paymentProviderField.setItems(PaymentGatewayProvider.values());
         paymentProviderField.setItemLabelGenerator(PaymentGatewayProvider::getDescription);
         paymentProviderField.setRequired(true);
@@ -119,76 +140,72 @@ public class EmployerTariffSettingsForm extends VerticalLayout {
             bindForField();
             bindBean(getTariff(event.getValue()));
         });
+        formLayout.add(paymentProviderField);
+        return formLayout;
+    }
 
-        tariffStatusField.setItems(TariffStatus.values());
-        tariffStatusField.setItemLabelGenerator(TariffStatus::getDescription);
-        tariffStatusField.setRequired(true);
-
-        idField.setReadOnly(true);
-        updatedAtField.setReadOnly(true);
-        createdAtField.setReadOnly(true);
+    private VerticalLayout getRightVerticalLayout() {
+        VerticalLayout verticalLayout = new VerticalLayout();
 
         withdrawalPercentageField.setMax(100.0);
         withdrawalPercentageField.setMin(0.0);
         withdrawalPercentageField.setRequiredIndicatorVisible(true);
         withdrawalPercentageField.setWidthFull();
+        verticalLayout.add(withdrawalPercentageField);
+
+        commissionAmountField.setWidthFull();
+        verticalLayout.add(commissionAmountField);
 
         commissionPayerField.setItems(CommissionPayer.values());
         commissionPayerField.setItemLabelGenerator(CommissionPayer::getDescription);
         commissionPayerField.setRequired(true);
         commissionPayerField.setWidthFull();
+        verticalLayout.add(commissionPayerField);
+
+        minAmountField.setWidthFull();
+        verticalLayout.add(minAmountField);
+
+        maxAmountField.setWidthFull();
+        verticalLayout.add(maxAmountField);
+
+        maxMonthlyEmployerTurnoverField.setWidthFull();
+        verticalLayout.add(maxMonthlyEmployerTurnoverField);
+
+        specTariffCommissionAmountField.setWidthFull();
+        verticalLayout.add(specTariffCommissionAmountField);
 
         specTariffConditionField.setItems(SpecTariffCondition.values());
         specTariffConditionField.setItemLabelGenerator(SpecTariffCondition::getDescription);
         specTariffConditionField.setRequired(true);
         specTariffConditionField.setWidthFull();
+        verticalLayout.add(specTariffConditionField);
 
-        commissionAmountField.setWidthFull();
-        minAmountField.setWidthFull();
-        maxAmountField.setWidthFull();
-        maxMonthlyEmployerTurnoverField.setWidthFull();
-        specTariffCommissionAmountField.setWidthFull();
         preferentialPaymentDaysField.setWidthFull();
-        preferentialPaymentCountField.setWidthFull();
+        verticalLayout.add(preferentialPaymentDaysField);
 
-        setFieldsReadOnly(true);
+        preferentialPaymentCountField.setWidthFull();
+        verticalLayout.add(preferentialPaymentCountField);
+        return verticalLayout;
     }
 
-    private VerticalLayout createForm() {
-        Hr hr = new Hr();
-        VerticalLayout rightFormLayout = new VerticalLayout();
-        FormLayout leftFormLayout = new FormLayout();
-        FormLayout topFormLayout = new FormLayout();
-        HorizontalLayout bottomHorizontalLayout = new HorizontalLayout(leftFormLayout, rightFormLayout);
-        bottomHorizontalLayout.setSpacing(false);
-        bottomHorizontalLayout.getThemeList().add("spacing-xl");
+    private FormLayout getLeftFormLayout() {
+        FormLayout formLayout = new FormLayout();
 
-        VerticalLayout verticalLayout = new VerticalLayout();
-        verticalLayout.add(topFormLayout, hr, bottomHorizontalLayout);
+        tariffStatusField.setItems(TariffStatus.values());
+        tariffStatusField.setItemLabelGenerator(TariffStatus::getDescription);
+        tariffStatusField.setRequired(true);
+        formLayout.add(tariffStatusField);
 
-        paymentProviderField.setMaxWidth("20%");
-        topFormLayout.add(paymentProviderField);
+        idField.setReadOnly(true);
+        idField.setConverters(new StringToStringWithNullValueConverter());
+        formLayout.add(idField);
 
-        leftFormLayout.add(tariffStatusField);
-        leftFormLayout.add(idField);
-        leftFormLayout.add(updatedAtField);
-        leftFormLayout.add(createdAtField);
+        updatedAtField.setReadOnly(true);
+        formLayout.add(updatedAtField);
 
-        rightFormLayout.add(withdrawalPercentageField);
-        rightFormLayout.add(commissionAmountField);
-        rightFormLayout.add(commissionPayerField);
-        rightFormLayout.add(minAmountField);
-        rightFormLayout.add(maxAmountField);
-        rightFormLayout.add(maxMonthlyEmployerTurnoverField);
-        rightFormLayout.add(specTariffCommissionAmountField);
-        rightFormLayout.add(specTariffConditionField);
-        rightFormLayout.add(preferentialPaymentDaysField);
-        rightFormLayout.add(preferentialPaymentCountField);
-
-        verticalLayout.addClassNames(LumoStyles.Padding.Bottom.L,
-                LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.S);
-
-        return verticalLayout;
+        createdAtField.setReadOnly(true);
+        formLayout.add(createdAtField);
+        return formLayout;
     }
 
     public void withBean(@NotNull final Employer employer) {
