@@ -204,10 +204,6 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
         commonSettingsForm.withBean(employer);
         tariffSettingsForm.withBean(employer);
         documentGroupGrid.withBean(employer);
-
-        Employee employeeFilter = employeeGridWithFilter.getEmployeeFilter();
-        employeeFilter.setEmployerId(employer.getId());
-        employeeGridWithFilter.withFilter(employeeFilter);
     }
 
     private void getEmployer(String param) {
