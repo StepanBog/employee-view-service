@@ -2,6 +2,8 @@ package tech.inno.odp.backend.service;
 
 import com.vaadin.flow.data.provider.Query;
 import tech.inno.odp.backend.data.containers.Employee;
+import tech.inno.odp.backend.data.containers.Employer;
+import tech.inno.odp.grpc.generated.common.employee.EmployeeStatus;
 import tech.inno.odp.grpc.generated.service.employee.EmployeesResponse;
 import tech.inno.odp.grpc.generated.service.employee.SearchEmployeeRequest;
 
@@ -53,4 +55,21 @@ public interface IEmployeeService {
      * @return общее количество
      */
     int getTotalCount(Query<Employee, Employee> query);
+
+    /**
+     * Получение количества работников со определенным статусом у конкретного работодателя
+     *
+     * @param employer работодатель
+     * @param status статус работника
+     * @return количество
+     */
+    long countEmployeesByEmployer(@NotNull Employer employer, EmployeeStatus status);
+
+    /**
+     * Получение количества работников у конкретного работодателя
+     *
+     * @param employer работодатель
+     * @return количество
+     */
+    long countEmployeesByEmployer(@NotNull Employer employer);
 }

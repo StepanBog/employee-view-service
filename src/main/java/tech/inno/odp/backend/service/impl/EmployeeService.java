@@ -5,8 +5,12 @@ import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 import tech.inno.odp.backend.data.containers.Employee;
+import tech.inno.odp.backend.data.containers.Employer;
 import tech.inno.odp.backend.mapper.EmployeeMapper;
+import tech.inno.odp.backend.mapper.EmployerMapper;
 import tech.inno.odp.backend.service.IEmployeeService;
+import tech.inno.odp.grpc.generated.common.employee.EmployeeStatus;
+import tech.inno.odp.grpc.generated.service.employee.CountEmployeesByEmployerRequest;
 import tech.inno.odp.grpc.generated.service.employee.EmployeeServiceGrpc;
 import tech.inno.odp.grpc.generated.service.employee.EmployeesResponse;
 import tech.inno.odp.grpc.generated.service.employee.FindOneByIdEmployeeRequest;
@@ -27,6 +31,7 @@ public class EmployeeService implements IEmployeeService {
     private EmployeeServiceGrpc.EmployeeServiceBlockingStub employeeClient;
 
     private final EmployeeMapper employeeMapper;
+    private final EmployerMapper employerMapper;
 
     public EmployeesResponse find(final @NotNull SearchEmployeeRequest request) {
         return employeeClient.find(request);
@@ -71,5 +76,21 @@ public class EmployeeService implements IEmployeeService {
                 5
         );
         return (int) find(request).getTotalSize();
+    }
+
+    @Override
+    public long countEmployeesByEmployer(@NotNull Employer employer, EmployeeStatus status) {
+        CountEmployeesByEmployerRequest request = CountEmployeesByEmployerRequest.newBuilder()
+                .setEmployer(employerMapper.transform(employer))
+                .build();
+        if (status != null) {
+            request = request.toBuilder().setStatus(status).build();
+        }
+        return employeeClient.countEmployeesByEmployer(request).getCount();
+    }
+
+    @Override
+    public long countEmployeesByEmployer(@NotNull Employer employer) {
+        return countEmployeesByEmployer(employer, null);
     }
 }

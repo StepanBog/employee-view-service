@@ -137,8 +137,8 @@ public class EmployerTariffSettingsForm extends VerticalLayout {
         paymentProviderField.setItemLabelGenerator(PaymentGatewayProvider::getDescription);
         paymentProviderField.setRequired(true);
         paymentProviderField.addValueChangeListener(event -> {
-            this.binder.setBean(getTariff(event.getValue()));
-            this.binder.bindInstanceFields(this);
+            bindForField();
+            bindBean(getTariff(event.getValue()));
         });
         formLayout.add(paymentProviderField);
         return formLayout;
@@ -211,7 +211,7 @@ public class EmployerTariffSettingsForm extends VerticalLayout {
     public void withBean(@NotNull final Employer employer) {
         tariffs = employer.getTariffs();
         PaymentGatewayProvider currentPaymentProvider = employer.getPaymentProvider();
-        paymentProviderField.setValue(currentPaymentProvider);
+        bindBean(getTariff(currentPaymentProvider));
     }
 
     private Tariff getTariff(PaymentGatewayProvider currentPaymentProvider) {
@@ -232,6 +232,11 @@ public class EmployerTariffSettingsForm extends VerticalLayout {
         }
         tariffs.add(tariff);
         return tariff;
+    }
+
+    private void bindBean(Tariff tariff) {
+        this.binder.setBean(tariff);
+        this.binder.bindInstanceFields(this);
     }
 
     public void setFieldsReadOnly(boolean flag) {

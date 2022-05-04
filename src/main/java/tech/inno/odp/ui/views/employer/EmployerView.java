@@ -3,6 +3,7 @@ package tech.inno.odp.ui.views.employer;
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Span;
@@ -20,7 +21,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import tech.inno.odp.backend.data.containers.Employee;
 import tech.inno.odp.backend.data.containers.Employer;
 import tech.inno.odp.backend.data.containers.Requisites;
 import tech.inno.odp.backend.data.containers.document.DocumentTemplateGroup;
@@ -35,11 +35,9 @@ import tech.inno.odp.ui.layout.size.Horizontal;
 import tech.inno.odp.ui.layout.size.Vertical;
 import tech.inno.odp.ui.util.UIUtils;
 import tech.inno.odp.ui.views.ViewFrame;
-import tech.inno.odp.ui.views.employee.EmployeeGridWithFilter;
 import tech.inno.odp.ui.views.employer.form.DocumentGroupGrid;
 import tech.inno.odp.ui.views.employer.form.EmployerSettingsForm;
 import tech.inno.odp.ui.views.employer.form.EmployerTariffSettingsForm;
-import tech.inno.odp.ui.views.requisites.RequisitesForm;
 import tech.inno.odp.utils.NotificationUtils;
 
 import javax.annotation.PostConstruct;
@@ -61,29 +59,33 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
 
     private Map<String, VerticalLayout> tabLayoutMap;
     private Employer employer;
+    private String param;
+    private Button save, cancel, edit;
 
     private final EmployerSettingsForm commonSettingsForm = new EmployerSettingsForm();
     private final EmployerTariffSettingsForm tariffSettingsForm = new EmployerTariffSettingsForm();
-    private final RequisitesForm requisitesForm = new RequisitesForm();
     private final DocumentGroupGrid documentGroupGrid = new DocumentGroupGrid();
-    private final EmployeeGridWithFilter employeeGridWithFilter = new EmployeeGridWithFilter();
 
     @PostConstruct
     public void init() {
-        final Button save = UIUtils.createPrimaryButton("Сохранить");
-        save.addClickListener(this::onComponentEvent);
-        save.setVisible(false);
+        save  = UIUtils.createPrimaryButton("Сохранить");
+        cancel = UIUtils.createTertiaryButton("Отменить");
+        edit = UIUtils.createPrimaryButton("Редактировать");
+        setFormEditable(false);
 
-        final Button cancel = UIUtils.createTertiaryButton("Отменить");
-        cancel.addClickListener(event -> UI.getCurrent().navigate(EmployerList.class));
-        cancel.setVisible(false);
+        save.addClickListener(this::onSaveEvent);
 
-        final Button edit = UIUtils.createPrimaryButton("Редактировать");
+        cancel.addClickListener(event -> {
+            setFormEditable(false);
+
+            getEmployer(param);
+            commonSettingsForm.withBean(employer);
+            tariffSettingsForm.withBean(employer);
+        });
+        cancel.addClickShortcut(Key.ESCAPE);
+
         edit.addClickListener(event -> {
-            edit.setVisible(false);
-            save.setVisible(true);
-            cancel.setVisible(true);
-            tariffSettingsForm.setFieldsReadOnly(false);
+            setFormEditable(true);
         });
 
         HorizontalLayout buttonLayout = new HorizontalLayout(save, cancel, edit);
@@ -92,6 +94,36 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
 
         setViewContent(createContent());
         setViewFooter(buttonLayout);
+    }
+
+    private void onSaveEvent(ClickEvent<Button> event) {
+        boolean isNew = StringUtils.isEmpty(employer.getId());
+        VaadinSession.getCurrent().setErrorHandler(new SaveButtonErrorHandler());
+
+        if (commonSettingsForm.getBinder().validate().isOk()) {
+            Employer employer = commonSettingsForm.getBinder().getBean();
+            employer = employerService.save(employer);
+
+            if (isNew) {
+                List<DocumentTemplateGroup> groupList = documentGroupGrid.getGroupList();
+                for (DocumentTemplateGroup group : groupList) {
+                    group.setEmployerId(employer.getId());
+                    documentTemplateService.save(group);
+                }
+            }
+            UI.getCurrent().navigate(EmployerList.class);
+            NotificationUtils.showNotificationOnSave();
+
+            setFormEditable(false);
+        }
+    }
+
+    private void setFormEditable(boolean flag) {
+        edit.setVisible(!flag);
+        save.setVisible(flag);
+        cancel.setVisible(flag);
+        tariffSettingsForm.setFieldsReadOnly(!flag);
+        commonSettingsForm.setFieldsReadOnly(!flag);
     }
 
     private Component createContent() {
@@ -103,44 +135,31 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
     }
 
     private Component createEmployerUI() {
+        commonSettingsForm.setEmployeeService(employeeService);
         commonSettingsForm.init();
         commonSettingsForm.setVisible(true);
 
         tariffSettingsForm.init();
         tariffSettingsForm.setVisible(false);
 
-        requisitesForm.init();
-        requisitesForm.setVisible(false);
-        requisitesForm.setMaxWidth("800px");
-
         documentGroupGrid.setDocumentTemplateService(documentTemplateService);
         documentGroupGrid.init();
         documentGroupGrid.setVisible(false);
 
-        employeeGridWithFilter.setFromEmployer(true);
-        employeeGridWithFilter.setEmployeeService(employeeService);
-        employeeGridWithFilter.init();
-        employeeGridWithFilter.setVisible(false);
-
         this.tabLayoutMap =
-                Map.of(EmployerSettingsForm.ID, commonSettingsForm,
+                Map.of( EmployerSettingsForm.ID, commonSettingsForm,
                         EmployerTariffSettingsForm.ID, tariffSettingsForm,
-                        RequisitesForm.ID, requisitesForm,
-                        DocumentGroupGrid.ID, documentGroupGrid,
-                        EmployeeGridWithFilter.ID, employeeGridWithFilter
-                );
+                        DocumentGroupGrid.ID, documentGroupGrid);
 
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setPadding(false);
         verticalLayout.setMargin(false);
         verticalLayout.setSpacing(false);
         verticalLayout.setSizeFull();
-        verticalLayout.add(commonSettingsForm,
-                requisitesForm,
+        verticalLayout.add(
+                commonSettingsForm,
                 tariffSettingsForm,
-                employeeGridWithFilter,
-                documentGroupGrid
-        );
+                documentGroupGrid);
         verticalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 
         return verticalLayout;
@@ -163,8 +182,6 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
         AppBar appBar = MainLayout.get().getAppBar();
 
         appBar.addTab(createTab(EmployerSettingsForm.ID, VaadinIcon.FORM.create(), "Настройки"));
-        appBar.addTab(createTab(RequisitesForm.ID, VaadinIcon.MODAL_LIST.create(), "Реквизиты"));
-        appBar.addTab(createTab(EmployeeGridWithFilter.ID, VaadinIcon.USERS.create(), "Работники"));
         appBar.addTab(createTab(EmployerTariffSettingsForm.ID, VaadinIcon.LIST.create(), "Тариф"));
         appBar.addTab(createTab(DocumentGroupGrid.ID, VaadinIcon.BOOK.create(), "Шаблоны"));
         appBar.centerTabs();
@@ -181,16 +198,9 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
 
     @Override
     public void setParameter(BeforeEvent paramEvent, String param) {
-        if (param.equalsIgnoreCase("new")) {
-            employer = Employer.builder()
-                    .tariffs(new HashSet<>())
-                    .requisites(Requisites.builder().build())
-                    .build();
-        } else {
-            employer = employerService.findById(UUID.fromString(param));
-        }
+        this.param = param;
+        getEmployer(param);
 
-        requisitesForm.withBean(employer.getRequisites());
         commonSettingsForm.withBean(employer);
         tariffSettingsForm.withBean(employer);
         documentGroupGrid.withBean(employer);
@@ -200,21 +210,15 @@ public class EmployerView extends ViewFrame implements HasUrlParameter<String> {
         employeeGridWithFilter.withFilter(employeeFilter);
     }
 
-    private void onComponentEvent(ClickEvent<Button> event) {
-        boolean isNew = StringUtils.isEmpty(employer.getId());
-
-        VaadinSession.getCurrent().setErrorHandler(new SaveButtonErrorHandler());
-        Employer employer = commonSettingsForm.getBinder().getBean();
-        employer = employerService.save(employer);
-
-        if (isNew) {
-            List<DocumentTemplateGroup> groupList = documentGroupGrid.getGroupList();
-            for (DocumentTemplateGroup group : groupList) {
-                group.setEmployerId(employer.getId());
-                documentTemplateService.save(group);
-            }
+    private void getEmployer(String param) {
+        if (param.equalsIgnoreCase("new")) {
+            employer = Employer.builder()
+                    .tariffs(new HashSet<>())
+                    .contacts(new HashSet<>())
+                    .requisites(Requisites.builder().build())
+                    .build();
+        } else {
+            employer = employerService.findById(UUID.fromString(param));
         }
-        UI.getCurrent().navigate(EmployerList.class);
-        NotificationUtils.showNotificationOnSave();
     }
 }

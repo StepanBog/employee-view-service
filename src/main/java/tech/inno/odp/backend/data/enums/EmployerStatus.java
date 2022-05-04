@@ -10,6 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum EmployerStatus implements WithDescription {
 
+    NONE_STATUS("Отсутствует"),
     CREATED("Новый статус работодателя"),
     SIGNED("Работодатель подписан"),
     ACTIVE("Работодатель готов к работе"),
