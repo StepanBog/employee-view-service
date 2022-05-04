@@ -119,7 +119,7 @@ public class EmployerTariffSettingsForm extends VerticalLayout {
     private VerticalLayout createForm() {
         HorizontalLayout bottomHorizontalLayout = new HorizontalLayout(getLeftFormLayout(), getRightVerticalLayout());
         bottomHorizontalLayout.setSpacing(false);
-        bottomHorizontalLayout.getThemeList().add("spacing-xl");
+        bottomHorizontalLayout.getThemeList().add(LumoStyles.Spacing.Uniform.XL);
 
         VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.add(getTopFormLayout(), new Hr(), bottomHorizontalLayout);
