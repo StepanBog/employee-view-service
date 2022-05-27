@@ -11,37 +11,21 @@ management:
       exposure:
         include: health, info
 
-camunda.bpm.admin-user:
-  id: admin
-  password: admin 
-
 grpc:
   client:
-    odp-auth:
-      address: 'static://localhost:6564'
+    auth-service:
+      address: 'static://localhost:6570'
       enableKeepAlive: true
       keepAliveTime: 10s
       keepAliveTimeout: 5s
       keepAliveWithoutCalls: false
       negotiationType: PLAINTEXT
-    odp-service:
-      address: 'static://localhost:6563'
+    main-service:
+      address: 'static://localhost:6565'
       enableKeepAlive: true
       keepAliveTime: 10s
       keepAliveTimeout: 5s
       keepAliveWithoutCalls: false
       negotiationType: PLAINTEXT
-    odp-document-service:
-      address: 'static://localhost:6568'
-      enableKeepAlive: true
-      keepAliveTime: 10s
-      keepAliveTimeout: 5s
-      keepAliveWithoutCalls: false
-      negotiationType: PLAINTEXT
-    odp-notification-manager-proto:
-      address: 'static://localhost:6559'
-      enableKeepAlive: true
-      keepAliveTime: 10s
-      keepAliveTimeout: 5s
-      keepAliveWithoutCalls: false
-      negotiationType: PLAINTEXT
+server:
+  port: 8083

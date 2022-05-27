@@ -11,11 +11,13 @@
         <relativePath/>
     </parent>
 
-    <groupId>tech.inno.odp</groupId>
-    <artifactId>odp-admin</artifactId>
+    <groupId>ru.bogdanov.diplom</groupId>
+    <artifactId>employee-view-service</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <properties>
+        <main-service-proto.version>1.0</main-service-proto.version>
+        <auth-proto.version>1.0</auth-proto.version>
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <grpc.version>1.42.2</grpc.version>
@@ -23,6 +25,7 @@
         <starter-grpc.version>2.13.1.RELEASE</starter-grpc.version>
         <odp-document-service-proto.version>2.0.0-SNAPSHOT</odp-document-service-proto.version>
         <service-proto.version>2.0.0-SNAPSHOT</service-proto.version>
+        <auth-service-proto.version>1.0</auth-service-proto.version>
         <auth-proto.version>2.0.0-SNAPSHOT</auth-proto.version>
         <odp-common-proto.version>2.0.0-SNAPSHOT</odp-common-proto.version>
         <payment-integration-proto.version>2.0.0-SNAPSHOT</payment-integration-proto.version>
@@ -37,7 +40,16 @@
         <!--            <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>-->
         <!--            <version>7.16.0</version>-->
         <!--        </dependency>-->
-
+        <dependency>
+            <groupId>ru.bogdanov.diplom</groupId>
+            <artifactId>main-service-proto</artifactId>
+            <version>${main-service-proto.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.bogdanov.diplom</groupId>
+            <artifactId>auth-proto</artifactId>
+            <version>${auth-service-proto.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spring-boot-starter</artifactId>
