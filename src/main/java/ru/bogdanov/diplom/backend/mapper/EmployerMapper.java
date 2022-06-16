@@ -26,6 +26,7 @@ public interface EmployerMapper {
 
     @Mapping(target = "inn", source = "employer.requisites.inn")
     @Mapping(target = "kpp", source = "employer.requisites.kpp")
+    @Mapping(target = "contacts", source = "contactsList")
     Employer transform(ru.bogdanov.diplom.grpc.generated.Employer employer);
 
     List<Employer> transform(List<ru.bogdanov.diplom.grpc.generated.Employer> employers);

@@ -35,7 +35,7 @@ public class TabBar extends FlexBoxLayout {
         menuIcon.addClassName(CLASS_NAME + "__navi-icon");
         menuIcon.addClickListener(e -> EmployeeMainLayout.get().getNaviDrawer().toggle());
 
-        avatar = new Avatar("User menu");
+        avatar = new Avatar();
         avatar.setClassName(CLASS_NAME + "__avatar");
 
         ContextMenu contextMenu = new ContextMenu(avatar);
@@ -49,10 +49,7 @@ public class TabBar extends FlexBoxLayout {
                 .setSelectedTab(addClosableTab("New Tab", EmployeeHome.class)));
         addTab.setClassName(CLASS_NAME + "__add-tab");
 
-        tabs = new NaviTabs();
-        tabs.setClassName(CLASS_NAME + "__tabs");
-
-        add(menuIcon, tabs, addTab, avatar);
+        add(menuIcon, avatar);
     }
 
     /* === MENU ICON === */

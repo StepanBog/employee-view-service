@@ -67,9 +67,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
                         .anyMatch(r -> r.getAuthority().equals("ROLE_EMPLOYEE"));
                 loginOverlay.close();
                 if (hasUserRole) {
-                    User user = (User) authenticated.getPrincipal();
-                    Map<String, String> params = Map.of("employeeId", user.getEmployeeId());
-                    UI.getCurrent().navigate(EmployeeView.ROUTE, QueryParameters.simple(params));
+                    UI.getCurrent().navigate(EmployeeView.class);
                 }
             } catch (Exception e) {
                 log.error("Error login to admin UI using username {}", event.getUsername());

@@ -21,6 +21,7 @@ import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
+import ru.bogdanov.diplom.backend.data.containers.Requisites;
 import ru.bogdanov.diplom.backend.data.containers.Transaction;
 import ru.bogdanov.diplom.backend.data.enums.TransactionStatus;
 import ru.bogdanov.diplom.ui.components.Badge;
@@ -29,8 +30,10 @@ import ru.bogdanov.diplom.ui.components.grid.PaginatedGrid;
 import ru.bogdanov.diplom.ui.util.IconSize;
 import ru.bogdanov.diplom.ui.util.UIUtils;
 import ru.bogdanov.diplom.ui.util.converter.LocalDateToLocalDateTimeConverter;
+import ru.bogdanov.diplom.ui.views.transaction.form.DeclineTransactionDialog;
 
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 public class TransactionGridWithFilter extends TransactionGrid{
     public static final String ID = "transactionGridWithFilter";
@@ -40,6 +43,8 @@ public class TransactionGridWithFilter extends TransactionGrid{
     protected BigDecimalField totalSumField = new BigDecimalField();
     @Getter
     private BeanValidationBinder<Transaction> binder;
+
+    private boolean dialogIsOpen = false;
 
 
     public void init() {
@@ -117,6 +122,25 @@ public class TransactionGridWithFilter extends TransactionGrid{
 
     private Grid<Transaction> createGrid() {
         grid = new PaginatedGrid<>();
+        grid.addSelectionListener(action -> {
+            if (!dialogIsOpen) {
+                dialogIsOpen = true;
+                DeclineTransactionDialog dialog = new DeclineTransactionDialog();
+                Transaction transaction = transactionService.findById(UUID.fromString(action.getFirstSelectedItem().get().getId()));
+                dialog.init();
+                dialog.withBean(transaction);
+                dialog.setTransactionService(transactionService);
+                dialog.setDeclineAction(decline -> {
+                    dataProvider.refreshAll();
+                    dialogIsOpen = false;
+                });
+                dialog.setCancelAction(decline -> {
+                    dataProvider.refreshAll();
+                    dialogIsOpen = false;
+                });
+                dialog.open();
+            }
+        });
         grid.setPageSize(PAGE_SIZE);
         grid.setDataProvider(dataProvider);
         grid.setSizeFull();
@@ -143,7 +167,19 @@ public class TransactionGridWithFilter extends TransactionGrid{
                 .setHeader("Общая сумма")
                 .setSortable(true)
                 .setResizable(true);
+        Grid.Column<Transaction> updatedAtColumn = grid.addColumn(new LocalDateTimeRenderer<>(Transaction::getUpdatedAt, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
+                .setAutoWidth(true)
+                .setFlexGrow(0)
+                .setComparator(Transaction::getUpdatedAt)
+                .setHeader("Дата обновления")
+                .setResizable(true);
 
+        Grid.Column<Transaction> createdAtColumn = grid.addColumn(new LocalDateTimeRenderer<>(Transaction::getCreatedAt, DateTimeFormatter.ofPattern("YYYY dd MMM HH:mm:ss")))
+                .setAutoWidth(true)
+                .setFlexGrow(0)
+                .setComparator(Transaction::getCreatedAt)
+                .setHeader("Дата создания")
+                .setResizable(true);
 
         Button menuButton = new Button();
         menuButton.setIcon(VaadinIcon.ELLIPSIS_DOTS_H.create());
@@ -152,6 +188,8 @@ public class TransactionGridWithFilter extends TransactionGrid{
                 menuButton);
         columnToggleContextMenu.addColumnToggleItem("Статус", statusColumn);
         columnToggleContextMenu.addColumnToggleItem("Общая сумма", totalSumColumn);
+        columnToggleContextMenu.addColumnToggleItem("Дата обновления", updatedAtColumn);
+        columnToggleContextMenu.addColumnToggleItem("Дата создания", createdAtColumn);
 
         return grid;
     }

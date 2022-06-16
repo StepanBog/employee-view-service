@@ -1,9 +1,12 @@
 spring:
   application:
-    name: odp-admin
+    name: employee-view-service
     
 vaadin:
   launch-browser: true
+
+server:
+  port: 8083
 
 management:
   endpoints:
@@ -12,6 +15,8 @@ management:
         include: health, info
 
 grpc:
+  server:
+    port: 6581
   client:
     auth-service:
       address: 'static://localhost:6570'
@@ -27,5 +32,3 @@ grpc:
       keepAliveTimeout: 5s
       keepAliveWithoutCalls: false
       negotiationType: PLAINTEXT
-server:
-  port: 8083

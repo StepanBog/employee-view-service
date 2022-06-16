@@ -16,6 +16,8 @@ import com.vaadin.flow.data.converter.StringToLongConverter;
 import com.vaadin.flow.data.provider.DataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LocalDateTimeRenderer;
+import com.vaadin.flow.data.validator.BigDecimalRangeValidator;
+import com.vaadin.flow.data.validator.RegexpValidator;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +36,7 @@ import ru.bogdanov.diplom.ui.util.converter.LocalDateToLocalDateTimeConverter;
 import ru.bogdanov.diplom.ui.util.converter.StringToStringWithNullValueConverter;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
@@ -51,18 +54,24 @@ public class EmployeeSalaryForm extends VerticalLayout {
 
     @PropertyId("availableCash")
     private BigDecimalField availableCashField = new BigDecimalField("Доступная сумма");
+    @PropertyId("earnedForMonthAfter")
+    private BigDecimalField earnedForMonthFieldAfter = new BigDecimalField("Заработанно за месяц с учетом налога");
     @PropertyId("earnedForMonth")
-    private BigDecimalField earnedForMonthField = new BigDecimalField("Заработанно за месяц");
+    private BigDecimalField earnedForMonthField = new BigDecimalField("Заработанно за месяц без учета налога");
     @PropertyId("rate")
     private BigDecimalField rateField = new BigDecimalField("Ставка");
 
-    private TextField sum = new TextField("Сумма запроса");
+    @PropertyId("totalSum")
+    private BigDecimalField totalSum = new BigDecimalField("Сумма запроса");
 
     @Getter
     private BeanValidationBinder<Salary> binder;
+    @Getter
+    private BeanValidationBinder<Transaction> binderTransaction;
     private final FormLayout salaryFormLayout = new FormLayout();
     private final FormLayout requestFormLayout = new FormLayout();
     private Salary salary;
+    private Transaction transaction;
 
     public void init() {
         setId(ID);
@@ -70,9 +79,14 @@ public class EmployeeSalaryForm extends VerticalLayout {
 
         this.salary = Salary.builder()
                 .build();
+        this.transaction = Transaction.builder()
+                .build();
 
         this.binder = new BeanValidationBinder<>(Salary.class);
+        this.binderTransaction = new BeanValidationBinder<>(Transaction.class);
+
         this.binder.setBean(this.salary);
+        this.binderTransaction.setBean(this.transaction);
 
         LocalDateToLocalDateTimeConverter localDateTimeConverter = new LocalDateToLocalDateTimeConverter();
         BigDecimalToLongConverter bigDecimalToLongConverter = new BigDecimalToLongConverter();
@@ -85,36 +99,60 @@ public class EmployeeSalaryForm extends VerticalLayout {
                 .withConverter(bigDecimalToLongConverter)
                 .withNullRepresentation(0L)
                 .bind(Salary::getEarnedForMonth, Salary::setEarnedForMonth);
+        this.binder.forField(earnedForMonthFieldAfter)
+                .withConverter(bigDecimalToLongConverter)
+                .withNullRepresentation(0L)
+                .bind(Salary::getEarnedForMonth, Salary::setEarnedForMonth);
+        earnedForMonthFieldAfter.setValue(earnedForMonthField.getValue().multiply(BigDecimal.valueOf(0.87)));
+
         this.binder.forField(rateField)
                 .withConverter(bigDecimalToLongConverter)
                 .withNullRepresentation(0L)
                 .bind(Salary::getRate, Salary::setRate);
         this.binder.bindInstanceFields(this);
 
-        HorizontalLayout layout = new HorizontalLayout(
+        this.binderTransaction.forField(totalSum)
+                .withValidator(new BigDecimalRangeValidator("Сумма должна быть натуральным числом", BigDecimal.ONE, null))
+                .withValidator(new BigDecimalRangeValidator("Превышение доступной суммы", null, this.availableCashField.getValue()))
+                .bind(Transaction::getTotalSum, Transaction::setTotalSum);
+
+        VerticalLayout layout = new VerticalLayout(
                 createForm()
         );
-        HorizontalLayout requestLayout = new HorizontalLayout(
+        VerticalLayout requestLayout = new VerticalLayout(
                 createRequestForm()
         );
         layout.setPadding(false);
         layout.setSpacing(false);
         layout.setSizeFull();
+        requestLayout.setPadding(false);
+        requestLayout.setSpacing(false);
+        requestLayout.setSizeFull();
+
         HorizontalLayout mainLayout = new HorizontalLayout();
+
         mainLayout.add(layout);
         mainLayout.add(requestLayout);
+        mainLayout.setSpacing(false);
+        mainLayout.setMaxWidth(null);
+        mainLayout.setSizeFull();
+        mainLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+
         add(mainLayout);
 
 
         availableCashField.setReadOnly(true);
         rateField.setReadOnly(true);
         earnedForMonthField.setReadOnly(true);
+        earnedForMonthFieldAfter.setReadOnly(true);
     }
+
     public FormLayout createForm() {
 
-        salaryFormLayout.add(new Label("Выбранный платеж"));
+        salaryFormLayout.add(new Label("Информация о заработной палате"));
 
         salaryFormLayout.add(availableCashField);
+        salaryFormLayout.add(earnedForMonthFieldAfter);
         salaryFormLayout.add(earnedForMonthField);
         salaryFormLayout.add(rateField);
 
@@ -127,13 +165,14 @@ public class EmployeeSalaryForm extends VerticalLayout {
                         FormLayout.ResponsiveStep.LabelsPosition.TOP)
         );
         salaryFormLayout.setMinWidth("300px");
-        
+
         return salaryFormLayout;
     }
+
     public FormLayout createRequestForm() {
 
         requestFormLayout.add(new Label("Запрос платежа"));
-        requestFormLayout.add(sum);
+        requestFormLayout.add(totalSum);
         requestFormLayout.add(createControlButtons());
 
 
@@ -149,12 +188,15 @@ public class EmployeeSalaryForm extends VerticalLayout {
 
         return requestFormLayout;
     }
+
     private HorizontalLayout createControlButtons() {
         final Button request = UIUtils.createPrimaryButton("Создать запрос");
         request.addClickListener(event -> {
-            User user= (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            Transaction transaction = transactionService.pay(UUID.fromString(user.getEmployeeId()), Long.parseLong(sum.getValue() + "00"));
-            availableCashField.setValue(availableCashField.getValue().subtract(transaction.getTotalSum().movePointLeft(2)));
+            if (totalSum.getValue().longValue() > 0 && totalSum.getValue().longValue() <= availableCashField.getValue().longValue()) {
+                User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                Transaction transaction = transactionService.pay(UUID.fromString(user.getEmployeeId()), Long.parseLong(totalSum.getValue() + "00"));
+                availableCashField.setValue(availableCashField.getValue().subtract(transaction.getTotalSum().movePointLeft(2)));
+            }
         });
 
         HorizontalLayout buttonLayout = new HorizontalLayout(request);
@@ -171,11 +213,14 @@ public class EmployeeSalaryForm extends VerticalLayout {
     public void withBean(Employee employee) {
         Salary salary = salaryService.findByEmployeeId(UUID.fromString(employee.getId()));
         this.availableCashField.setValue(BigDecimal.valueOf(salary.getAvailableCash()).movePointLeft(2));
-       // this.availableCashField.setValue(String.valueOf(new BigDecimal(salary.getAvailableCash()).movePointLeft(2)));
         this.earnedForMonthField.setValue(BigDecimal.valueOf(salary.getEarnedForMonth()).movePointLeft(2));
+        this.earnedForMonthFieldAfter.setValue((new BigDecimal(salary.getEarnedForMonth()).multiply(BigDecimal.valueOf(0.87))).setScale(0, RoundingMode.DOWN).movePointLeft(2));
         this.rateField.setValue(BigDecimal.valueOf(salary.getRate()).movePointLeft(2));
+        this.binderTransaction.forField(totalSum)
+                .withValidator(new BigDecimalRangeValidator("Сумма должна быть натуральным числом", BigDecimal.ONE, null))
+                .withValidator(new BigDecimalRangeValidator("Превышение доступной суммы", null, this.availableCashField.getValue()))
+                .bind(Transaction::getTotalSum, Transaction::setTotalSum);
     }
-
 
 
 }

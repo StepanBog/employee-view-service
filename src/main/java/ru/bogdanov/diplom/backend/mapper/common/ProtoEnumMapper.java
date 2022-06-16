@@ -1,9 +1,11 @@
 package ru.bogdanov.diplom.backend.mapper.common;
 
 import org.mapstruct.Mapper;
+import ru.bogdanov.diplom.backend.data.enums.ContactPosition;
 import ru.bogdanov.diplom.backend.data.enums.EmployeeStatus;
 import ru.bogdanov.diplom.backend.data.enums.TransactionStatus;
 import ru.bogdanov.diplom.backend.data.enums.UserRoleName;
+import ru.bogdanov.diplom.grpc.generated.ContactsPosition;
 
 /**
  * @author SBogdanov
@@ -34,4 +36,13 @@ public interface ProtoEnumMapper {
     default UserRoleName mapTo(ru.bogdanov.diplom.grpc.generated.auth.model.UserRole role) {
         return UserRoleName.valueOf(role.name());
     }
+    default ContactsPosition mapToProto(
+            ContactPosition position) {
+        return ContactsPosition.valueOf(position.name());
+    }
+
+    default ContactPosition mapTo(ContactsPosition position) {
+        return ContactPosition.valueOf(position.name());
+    }
+
 }

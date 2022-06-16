@@ -76,34 +76,6 @@
             <artifactId>spring-boot-devtools</artifactId>
             <optional>true</optional>
         </dependency>
-
-        <!-- internal libs -->
-        <dependency>
-            <groupId>tech.inno.grpc-proto</groupId>
-            <artifactId>odp-service-proto</artifactId>
-            <version>${service-proto.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>tech.inno.grpc-proto</groupId>
-            <artifactId>odp-payment-integration-proto</artifactId>
-            <version>${payment-integration-proto.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>tech.inno.grpc-proto</groupId>
-            <artifactId>odp-common-proto</artifactId>
-            <version>${odp-common-proto.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>tech.inno.grpc-proto</groupId>
-            <artifactId>odp-document-service-proto</artifactId>
-            <version>${odp-document-service-proto.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>tech.inno.grpc-proto</groupId>
-            <artifactId>odp-auth-proto</artifactId>
-            <version>${auth-proto.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>de.siegmar</groupId>
             <artifactId>logback-gelf</artifactId>

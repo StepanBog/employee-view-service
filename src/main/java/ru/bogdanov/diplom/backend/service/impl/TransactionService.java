@@ -63,8 +63,17 @@ public class TransactionService implements ITransactionService {
 
     @Override
     public Transaction pay(UUID employeeId, long sum) {
-        return transactionMapper.transform(transactionClient.pickUpPayment(PickUpPaymentRequest.newBuilder()
+        return transactionMapper.transform(transactionClient.createRequest(CreatePaymentRequest.newBuilder()
                 .setEmployeeId(employeeId.toString())
                 .setSum(sum).build()));
+    }
+
+    @Override
+    public void update(Transaction transaction) {
+        ru.bogdanov.diplom.grpc.generated.Transaction transactionProto = transactionMapper.transform(transaction);
+        transactionClient.update(UpdateRequest.newBuilder()
+                .setTransactionId(transactionProto.getId())
+                .setStatus(transactionProto.getStatus())
+                .build());
     }
 }

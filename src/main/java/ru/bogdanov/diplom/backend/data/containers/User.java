@@ -72,11 +72,6 @@ public class User implements UserDetails {
      */
     private String employeeId;
 
-    /**
-     * Настройки пользователей
-     */
-    private UserSettings settings;
-
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

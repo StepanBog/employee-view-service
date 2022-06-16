@@ -14,6 +14,7 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.shared.Registration;
 import lombok.Getter;
+import org.springframework.security.core.context.SecurityContextHolder;
 import ru.bogdanov.diplom.backend.service.impl.AuthService;
 import ru.bogdanov.diplom.ui.EmployeeMainLayout;
 import ru.bogdanov.diplom.ui.components.FlexBoxLayout;
@@ -96,7 +97,7 @@ public class AppBar extends FlexBoxLayout {
     }
 
     private void initAvatar() {
-        avatar = new Avatar("User menu");
+        avatar = new Avatar();
         avatar.setClassName(CLASS_NAME + "__avatar");
 
         ContextMenu contextMenu = new ContextMenu(avatar);

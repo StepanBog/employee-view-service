@@ -58,9 +58,6 @@ public class EmployeeMainLayout extends FlexBoxLayout implements RouterLayout, A
 
     private Div appHeaderInner;
     private FlexBoxLayout viewContainer;
-    private Div appFooterInner;
-
-    private Div appFooterOuter;
 
     private TabBar tabBar;
     private boolean navigationTabs = true;
@@ -105,7 +102,7 @@ public class EmployeeMainLayout extends FlexBoxLayout implements RouterLayout, A
         column.setFlexGrow(1, viewContainer);
         column.setOverflow(Overflow.HIDDEN);
 
-        row = new FlexBoxLayout(naviDrawer, column);
+        row = new FlexBoxLayout(column);
         row.addClassName(CLASS_NAME + "__row");
         row.setFlexGrow(1, column);
         row.setOverflow(Overflow.HIDDEN);
@@ -169,7 +166,7 @@ public class EmployeeMainLayout extends FlexBoxLayout implements RouterLayout, A
         appHeaderInner.add(components);
     }
 
-    private void setAppFooterInner(Component... components) {
+   /* private void setAppFooterInner(Component... components) {
         if (appFooterInner == null) {
             appFooterInner = new Div();
             appFooterInner.addClassName("app-footer-inner");
@@ -189,7 +186,7 @@ public class EmployeeMainLayout extends FlexBoxLayout implements RouterLayout, A
         }
         appFooterOuter.removeAll();
         appFooterOuter.add(components);
-    }
+    }*/
 
     @Override
     public void showRouterLayoutContent(HasElement content) {
@@ -221,7 +218,7 @@ public class EmployeeMainLayout extends FlexBoxLayout implements RouterLayout, A
 
     private void afterNavigationWithTabs(AfterNavigationEvent e) {
         NaviItem active = getActiveItem(e);
-        if (active == null) {
+       /* if (active == null) {
             if (tabBar.getTabCount() == 0) {
                 tabBar.addClosableTab("", EmployeeHome.class);
             }
@@ -233,7 +230,7 @@ public class EmployeeMainLayout extends FlexBoxLayout implements RouterLayout, A
                 tabBar.addClosableTab(active.getText(),
                         active.getNavigationTarget());
             }
-        }
+        }*/
         appBar.getMenuIcon().setVisible(false);
     }
 

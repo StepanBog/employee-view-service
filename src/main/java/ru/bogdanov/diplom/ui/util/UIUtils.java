@@ -53,6 +53,9 @@ public class UIUtils {
     public static Button createTertiaryButton(VaadinIcon icon) {
         return createButton(icon, ButtonVariant.LUMO_TERTIARY);
     }
+    public static Button createRedButton(String text) {
+        return createButton(text, ButtonVariant.LUMO_ERROR);
+    }
 
     public static Button createTertiaryButton(String text, VaadinIcon icon) {
         return createButton(text, icon, ButtonVariant.LUMO_TERTIARY);

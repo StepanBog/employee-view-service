@@ -69,7 +69,6 @@ public class Employee {
     public BadgeColor getStatusTheme() {
         switch (this.status) {
             case DISABLED:
-            case ERROR:
                 return BadgeColor.ERROR;
             case ENABLED_EMPLOYEE:
                 return BadgeColor.SUCCESS;
@@ -83,7 +82,6 @@ public class Employee {
     public VaadinIcon getStatusIcon() {
         switch (this.status) {
             case DISABLED:
-            case ERROR:
                 return VaadinIcon.WARNING;
             case ENABLED_EMPLOYEE:
                 return VaadinIcon.CHECK;

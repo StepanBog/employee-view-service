@@ -34,8 +34,7 @@ import ru.bogdanov.diplom.ui.layout.size.Horizontal;
 import ru.bogdanov.diplom.ui.layout.size.Vertical;
 import ru.bogdanov.diplom.ui.views.ViewFrame;
 import ru.bogdanov.diplom.ui.views.employee.form.EmployeeSalaryForm;
-import ru.bogdanov.diplom.ui.views.employer.EmployerView;
-import ru.bogdanov.diplom.ui.views.employer.form.EmployerForm;
+import ru.bogdanov.diplom.ui.views.employer.EmployerForm;
 import ru.bogdanov.diplom.ui.views.requisites.RequisitesForm;
 import ru.bogdanov.diplom.ui.views.transaction.TransactionGridWithFilter;
 
@@ -74,7 +73,7 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
 
     private Component createContent() {
         FlexBoxLayout content = new FlexBoxLayout(
-                createEmployerUI()
+                createEmployeeUI()
         );
         content.setFlexDirection(FlexLayout.FlexDirection.COLUMN);
         content.setMargin(Horizontal.AUTO, Vertical.RESPONSIVE_X);
@@ -83,7 +82,7 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
         return content;
     }
 
-    private Component createEmployerUI() {
+    private Component createEmployeeUI() {
 
 
         transactionGridWithFilter.setTransactionService(transactionService);
@@ -141,15 +140,15 @@ public class EmployeeView extends ViewFrame implements BeforeEnterObserver {
         AppBar appBar = EmployeeMainLayout.get().getAppBar();
 
         appBar.addTab(createTab(RequisitesForm.ID, VaadinIcon.MODAL_LIST.create(), "Реквизиты"));
-        appBar.addTab(createTab(TransactionGridWithFilter.ID, VaadinIcon.MONEY.create(), "Платежи"));
-        appBar.addTab(createTab(EmployeeSalaryForm.ID, VaadinIcon.BOOK.create(), "Зарплата"));
+        appBar.addTab(createTab(TransactionGridWithFilter.ID, VaadinIcon.MONEY.create(), "Запросы"));
+        appBar.addTab(createTab(EmployeeSalaryForm.ID, VaadinIcon.BOOK.create(), "Счет"));
         appBar.addTab(createTab(EmployerForm.ID, VaadinIcon.BOOK.create(), "Работодатель"));
         appBar.centerTabs();
-
         appBar.addTabSelectionListener(event -> {
             tabLayoutMap.get(event.getPreviousTab().getId().orElse("")).setVisible(false);
             tabLayoutMap.get(event.getSelectedTab().getId().orElse("")).setVisible(true);
         });
+        tabLayoutMap.get(RequisitesForm.ID).setVisible(true);
         return appBar;
     }
 

@@ -53,4 +53,9 @@ public interface ITransactionService {
      * @return
      */
     Transaction pay(final @NotNull UUID employeeId,final long sum);
+
+    /**
+     * Обновить запрос выплаты
+     */
+    void update(final @NotNull Transaction transaction);
 }

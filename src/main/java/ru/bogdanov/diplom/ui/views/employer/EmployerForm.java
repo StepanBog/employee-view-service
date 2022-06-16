@@ -1,4 +1,4 @@
-package ru.bogdanov.diplom.ui.views.employer.form;
+package ru.bogdanov.diplom.ui.views.employer;
 
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Hr;
@@ -8,13 +8,19 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.PropertyId;
+import com.vaadin.flow.data.validator.EmailValidator;
+import com.vaadin.flow.function.ValueProvider;
 import lombok.Getter;
 import lombok.Setter;
+import ru.bogdanov.diplom.backend.data.containers.Contact;
 import ru.bogdanov.diplom.backend.data.containers.Employer;
+import ru.bogdanov.diplom.backend.data.enums.ContactPosition;
 import ru.bogdanov.diplom.backend.service.IEmployeeService;
 import ru.bogdanov.diplom.ui.util.LumoStyles;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 
@@ -54,10 +60,11 @@ public class EmployerForm extends VerticalLayout {
     public void init() {
         setId(ID);
         setFieldsReadOnly(true);
+        binder = new BeanValidationBinder<>(Employer.class);
         add(createForm());
     }
 
-    private HorizontalLayout createForm() {
+    private VerticalLayout createForm() {
         VerticalLayout rightVerticalLayout = new VerticalLayout(
                 new Label("Контактные лица"),
                 new Hr(),
@@ -67,13 +74,15 @@ public class EmployerForm extends VerticalLayout {
         rightVerticalLayout.setMaxWidth("25%");
 
         VerticalLayout leftFormLayout = new VerticalLayout(
+                new Label("Основная информация"),
+                new Hr(),
                 getTopLeftFormLayout(),
-                getEmptySpace("30px"),
                 getBottomLeftFormLayout());
         leftFormLayout.setMaxWidth("25%");
 
-        HorizontalLayout mainLayout = new HorizontalLayout();
+        VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setSpacing(false);
+        mainLayout.setAlignItems(Alignment.CENTER);
         mainLayout.getThemeList().add("spacing-xl");
         mainLayout.addClassNames(LumoStyles.Padding.Bottom.L,
                 LumoStyles.Padding.Horizontal.L, LumoStyles.Padding.Top.S);
@@ -133,17 +142,17 @@ public class EmployerForm extends VerticalLayout {
 
     public void withBean(Employer employer) {
 
-     /*   Contact managerContact = setContact(employer, ContactPosition.MANAGER);
+        Contact managerContact = setContact(employer, ContactPosition.MANAGER);
         Contact employerContact = setContact(employer, ContactPosition.EMPLOYERS_CONTACT);
-*/
-     /*   bindContacts(managerFioField, managerPhoneField, managerEmailField, managerContact);
-        bindContacts(employerContactFioField, employerContactPhoneField, employerContactEmailField, employerContact);*/
+        bindContacts(managerFioField, managerPhoneField, managerEmailField, managerContact);
+        bindContacts(employerContactFioField, employerContactPhoneField, employerContactEmailField, employerContact);
+
         binder.bindInstanceFields(this);
         binder.setBean(employer);
     }
 
 
-  /*  private Contact setContact(Employer employer, ContactPosition position) {
+    private Contact setContact(Employer employer, ContactPosition position) {
         Contact result;
         Set<Contact> contacts = employer.getContacts();
         Optional<Contact> optionalContact = contacts.stream()
@@ -156,9 +165,9 @@ public class EmployerForm extends VerticalLayout {
             contacts.add(result);
         }
         return result;
-    }*/
+    }
 
-  /*  private void bindContacts(TextField fioField, TextField phoneFiled, TextField emailField, Contact contact) {
+    private void bindContacts(TextField fioField, TextField phoneFiled, TextField emailField, Contact contact) {
         binder.bind(fioField, (ValueProvider<Employer, String>) employer -> contact.getName(),
                 (com.vaadin.flow.data.binder.Setter<Employer, String>) (employer, s) -> contact.setName(s)
         );
@@ -172,7 +181,7 @@ public class EmployerForm extends VerticalLayout {
                 .bind((ValueProvider<Employer, String>) employer -> contact.getEmail(),
                 (com.vaadin.flow.data.binder.Setter<Employer, String>) (employer, s) -> contact.setEmail(s)
         );
-    }*/
+    }
 
     public void setFieldsReadOnly(boolean flag) {
         nameField.setReadOnly(flag);

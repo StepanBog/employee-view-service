@@ -50,11 +50,10 @@ public class Transaction {
         switch (this.status) {
             case EXPIRED:
             case DECLINE:
-            case TRANSACTION_ERROR:
                 return BadgeColor.ERROR;
-            case SUCCESS:
+            case CONFIRMED:
                 return BadgeColor.SUCCESS;
-            case PROCESSING:
+            case WITHDRAWN:
                 return BadgeColor.NORMAL;
             default:
                 return BadgeColor.CONTRAST;
@@ -65,12 +64,10 @@ public class Transaction {
         switch (this.status) {
             case EXPIRED:
             case DECLINE:
-            case TRANSACTION_ERROR:
                 return VaadinIcon.WARNING;
-            case SUCCESS:
+            case CONFIRMED:
                 return VaadinIcon.CHECK;
-            case PROCESSING:
-                return VaadinIcon.QUESTION_CIRCLE;
+            case WITHDRAWN:
             default:
                 return VaadinIcon.QUESTION_CIRCLE;
         }
