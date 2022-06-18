@@ -10,7 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum TransactionStatus implements WithDescription {
 
-    AWAITING_CONFORMATION("Ожидаем подтверждения"),
+    AWAITING_CONFORMATION("Ожидает подтверждения"),
     CONFIRMED("Запрос подтвержден"),
     DECLINE("Запрос отклонен"),
     EXPIRED("Запрос просрочена"),
